@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createBar, listBars, deleteBar } from './lib/bars.js'
+import { useUser, signInWithGoogle, signOut } from './lib/auth.js'
 
 /**
  * اختبار الاتصال الحي بـ Firestore (خطوة الاكتمال رقم 15).
@@ -8,6 +9,14 @@ import { createBar, listBars, deleteBar } from './lib/bars.js'
 export default function ConnectionTest() {
   const [state, setState] = useState('idle') // idle | running | success | error
   const [detail, setDetail] = useState('')
+  const [authMsg, setAuthMsg] = useState('')
+  const user = useUser()
+
+  async function handleSignIn() {
+    setAuthMsg('')
+    const res = await signInWithGoogle()
+    if (!res.ok) setAuthMsg(res.error.message_ar)
+  }
 
   async function runTest() {
     setState('running')
@@ -43,9 +52,40 @@ export default function ConnectionTest() {
     setDetail('تم الحفظ، القراءة، والحذف بنجاح — Firestore متصل ويعمل فعليًا.')
   }
 
+  if (user === undefined) {
+    return (
+      <div className="conn-test">
+        <h3>اختبار الاتصال بقاعدة البيانات</h3>
+        <p className="conn-test-desc">جارٍ التحقق من حالة الدخول...</p>
+      </div>
+    )
+  }
+
+  if (user === null) {
+    return (
+      <div className="conn-test">
+        <h3>اختبار الاتصال بقاعدة البيانات</h3>
+        <p className="conn-test-desc">
+          قاعدة البيانات محمية — الوصول لصاحب الحساب فقط. سجّل دخولك بجوجل أولًا (مرة واحدة، ويتذكرك المتصفح بعدها).
+        </p>
+        <button className="conn-test-btn" onClick={handleSignIn}>
+          تسجيل الدخول بجوجل
+        </button>
+        {authMsg && (
+          <div className="conn-test-result fail">
+            <span className="conn-test-icon">✕</span> {authMsg}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="conn-test">
       <h3>اختبار الاتصال بقاعدة البيانات</h3>
+      <p className="conn-test-desc">
+        مسجّل باسم: {user.displayName} · <button className="conn-test-link" onClick={signOut}>خروج</button>
+      </p>
       <p className="conn-test-desc">
         يكتب بارًا تجريبيًا، يتأكد من ظهوره، ثم يحذفه تلقائيًا — لا يترك أي أثر في مستودعك.
       </p>
