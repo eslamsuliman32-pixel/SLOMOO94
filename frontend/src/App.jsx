@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { PILLARS } from './pillars.js'
 import RhythmCanvas from './RhythmCanvas.jsx'
-import ConnectionTest from './ConnectionTest.jsx'
+import StudioScreen from './StudioScreen.jsx'
+import LibraryScreen from './LibraryScreen.jsx'
 
 function Wordmark() {
   return (
@@ -26,6 +27,7 @@ function PillarCard({ p, onOpen, index }) {
 }
 
 function PillarScreen({ p, onBack }) {
+  const functional = p.id === 'studio' || p.id === 'library'
   return (
     <section className="screen">
       <button className="back" onClick={onBack}>→ الأركان</button>
@@ -35,14 +37,17 @@ function PillarScreen({ p, onBack }) {
         <span className="screen-motif" aria-hidden="true">{p.motif}</span>
       </header>
       <p className="screen-tag">{p.tagline}</p>
-      <div className="planned">
-        <h3>قيد البناء وفق الخطة</h3>
-        <ul>
-          {p.planned.map((item) => <li key={item}>{item}</li>)}
-        </ul>
-        <span className="planned-step">{p.step}</span>
-      </div>
-      {p.id === 'library' && <ConnectionTest />}
+      {p.id === 'studio' && <StudioScreen />}
+      {p.id === 'library' && <LibraryScreen />}
+      {!functional && (
+        <div className="planned">
+          <h3>قيد البناء وفق الخطة</h3>
+          <ul>
+            {p.planned.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+          <span className="planned-step">{p.step}</span>
+        </div>
+      )}
     </section>
   )
 }
@@ -70,7 +75,7 @@ export default function App() {
 
       <footer className="status">
         <span>المبدأ: الآلة تكشف وتعرض وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
-        <span className="mono">v0.1.0 · المرحلة 1 · خطوة 14/66</span>
+        <span className="mono">v0.2.0 · المرحلة 2-3 · خطوات 16-19 و25-28 (v0)</span>
       </footer>
     </div>
   )

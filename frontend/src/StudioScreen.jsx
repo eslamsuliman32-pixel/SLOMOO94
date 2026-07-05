@@ -1,0 +1,115 @@
+import { useEffect, useRef, useState } from 'react'
+import AuthGate from './AuthGate.jsx'
+import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.js'
+import { analyzeLines } from './lib/rhyme.js'
+
+function Editor() {
+  const [pieces, setPieces] = useState([])
+  const [currentId, setCurrentId] = useState(null)
+  const [title, setTitle] = useState('عمل بلا عنوان')
+  const [text, setText] = useState('')
+  const [saveState, setSaveState] = useState('') // '' | جارٍ الحفظ | تم الحفظ | خطأ
+  const [modeA, setModeA] = useState(false)
+  const saveTimer = useRef(null)
+
+  async function refresh() {
+    const r = await listPieces()
+    if (r.ok) setPieces(r.data)
+  }
+  useEffect(() => { refresh() }, [])
+
+  function openPiece(p) {
+    setCurrentId(p.id); setTitle(p.title || 'عمل بلا عنوان'); setText(p.text || ''); setSaveState('')
+  }
+  function newPiece() {
+    setCurrentId(null); setTitle('عمل بلا عنوان'); setText(''); setSaveState('')
+  }
+
+  async function saveNow(nextTitle = title, nextText = text) {
+    setSaveState('جارٍ الحفظ...')
+    if (currentId) {
+      const r = await updatePiece(currentId, { title: nextTitle, text: nextText })
+      setSaveState(r.ok ? 'تم الحفظ ✓' : r.error.message_ar)
+    } else {
+      const r = await createPiece({ title: nextTitle, text: nextText })
+      if (r.ok) { setCurrentId(r.data.id); setSaveState('تم الحفظ ✓') }
+      else setSaveState(r.error.message_ar)
+    }
+    refresh()
+  }
+
+  /* حفظ تلقائي: 1.5 ثانية بعد آخر كتابة */
+  function scheduleAutosave(nextTitle, nextText) {
+    clearTimeout(saveTimer.current)
+    setSaveState('...')
+    saveTimer.current = setTimeout(() => saveNow(nextTitle, nextText), 1500)
+  }
+
+  const analysis = analyzeLines(text, { modeA })
+  const lines = analysis.ok ? analysis.data : []
+
+  return (
+    <div className="studio">
+      <div className="studio-bar">
+        <input
+          className="studio-title"
+          value={title}
+          onChange={(e) => { setTitle(e.target.value); scheduleAutosave(e.target.value, text) }}
+          placeholder="عنوان العمل"
+        />
+        <button className="mini-btn" onClick={newPiece}>+ عمل جديد</button>
+        <span className="save-state mono">{saveState}</span>
+      </div>
+
+      <textarea
+        className="studio-editor"
+        dir="rtl"
+        value={text}
+        onChange={(e) => { setText(e.target.value); scheduleAutosave(title, e.target.value) }}
+        placeholder="اكتب باراتك هنا — كل سطر بار..."
+        rows={8}
+      />
+
+      <div className="rhyme-preview">
+        <div className="rhyme-preview-head">
+          <h3>معاينة القافية الحية</h3>
+          <label className="toggle">
+            <input type="checkbox" checked={modeA} onChange={(e) => setModeA(e.target.checked)} />
+            الوضع أ: عائلات المخارج
+          </label>
+        </div>
+        {lines.filter((l) => l.text.trim()).length === 0
+          ? <p className="gate-note">اكتب بارًا وسترى نهايته ملونة حسب عائلته القافوية.</p>
+          : lines.map((l, i) => {
+            if (!l.text.trim()) return null
+            const m = l.text.match(/^([\s\S]*?)(\S+)\s*$/)
+            const before = m ? m[1] : ''
+            const tail = m ? m[2] : l.text
+            return (
+              <div className="rhyme-line" key={i}>
+                <span>{before}</span>
+                <span className={`rhyme-tail rhyme-c${l.colorIndex ?? 0}`} title={l.label}>{tail}</span>
+                {l.rawi && <span className={`rhyme-badge rhyme-c${l.colorIndex ?? 0}`}>{l.label}</span>}
+              </div>
+            )
+          })}
+      </div>
+
+      {pieces.length > 0 && (
+        <div className="pieces-list">
+          <h3>أعمالك</h3>
+          {pieces.map((p) => (
+            <div key={p.id} className={`piece-row ${p.id === currentId ? 'active' : ''}`}>
+              <button className="piece-open" onClick={() => openPiece(p)}>{p.title || 'بلا عنوان'}</button>
+              <button className="mini-btn danger" onClick={async () => { await deletePiece(p.id); if (p.id === currentId) newPiece(); refresh() }}>حذف</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function StudioScreen() {
+  return <AuthGate>{() => <Editor />}</AuthGate>
+}
