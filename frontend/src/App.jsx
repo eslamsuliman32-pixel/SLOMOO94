@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PILLARS } from './pillars.js'
 import RhythmCanvas from './RhythmCanvas.jsx'
+import ConnectionTest from './ConnectionTest.jsx'
 
 function Wordmark() {
   return (
@@ -41,6 +42,7 @@ function PillarScreen({ p, onBack }) {
         </ul>
         <span className="planned-step">{p.step}</span>
       </div>
+      {p.id === 'library' && <ConnectionTest />}
     </section>
   )
 }
