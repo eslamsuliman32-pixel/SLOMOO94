@@ -3,22 +3,27 @@ import { PILLARS } from './pillars.js'
 import RhythmCanvas from './RhythmCanvas.jsx'
 import StudioScreen from './StudioScreen.jsx'
 import LibraryScreen from './LibraryScreen.jsx'
+import { Doodle, ZineStrip, Underline, Mic, Spray, Cassette } from './Doodles.jsx'
 
 function Wordmark() {
   return (
     <div className="wordmark">
+      <Mic className="wm-doodle d1" />
+      <Spray className="wm-doodle d2" />
+      <Cassette className="wm-doodle d3" />
       <span className="wm-motif" aria-hidden="true">● ▬ ● ▬ ▬</span>
       <h1>مَقَام</h1>
-      <span className="wm-sub">MAQAM — مختبر صناعة الراب العربي</span>
+      <Underline className="wm-underline" />
+      <span className="wm-sub">زين رقم ٠١ — دفتر صناعة الراب · ارسمها تفهمها</span>
     </div>
   )
 }
 
-function PillarCard({ p, onOpen, index }) {
+function PillarCard({ p, onOpen }) {
   return (
-    <button className="card" style={{ animationDelay: `${index * 90}ms` }} onClick={() => onOpen(p.id)}>
-      <span className="card-num">{p.num}</span>
-      <span className="card-motif" aria-hidden="true">{p.motif}</span>
+    <button className="card" onClick={() => onOpen(p.id)}>
+      <span className="card-num">#{p.num}</span>
+      <Doodle name={p.doodle} className="card-doodle" title={p.title} />
       <h2>{p.title}</h2>
       <p>{p.tagline}</p>
       <span className="card-go">افتح ←</span>
@@ -32,16 +37,20 @@ function PillarScreen({ p, onBack }) {
     <section className="screen">
       <button className="back" onClick={onBack}>→ الأركان</button>
       <header className="screen-head">
-        <span className="card-num">{p.num}</span>
+        <Doodle name={p.doodle} className="screen-doodle" title={p.title} />
         <h2>{p.title}</h2>
         <span className="screen-motif" aria-hidden="true">{p.motif}</span>
       </header>
       <p className="screen-tag">{p.tagline}</p>
+
+      {p.strip && <ZineStrip title={p.strip.title} steps={p.strip.steps} />}
+
       {p.id === 'studio' && <StudioScreen />}
       {p.id === 'library' && <LibraryScreen />}
+
       {!functional && (
-        <div className="planned">
-          <h3>قيد البناء وفق الخطة</h3>
+        <div className="planned wob">
+          <h3>قيد البناء وفق الخطة ↓</h3>
           <ul>
             {p.planned.map((item) => <li key={item}>{item}</li>)}
           </ul>
@@ -68,14 +77,14 @@ export default function App() {
           ? <PillarScreen p={pillar} onBack={() => setActive(null)} />
           : (
             <div className="grid">
-              {PILLARS.map((p, i) => <PillarCard key={p.id} p={p} onOpen={setActive} index={i} />)}
+              {PILLARS.map((p) => <PillarCard key={p.id} p={p} onOpen={setActive} />)}
             </div>
           )}
       </main>
 
       <footer className="status">
-        <span>المبدأ: الآلة تكشف وتعرض وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
-        <span className="mono">v0.2.0 · المرحلة 2-3 · خطوات 16-19 و25-28 (v0)</span>
+        <span>المبدأ: الآلة ترسم وتكشف وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
+        <span className="mono">MAQAM ZINE v0.3.0</span>
       </footer>
     </div>
   )

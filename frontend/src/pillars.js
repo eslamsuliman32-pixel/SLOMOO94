@@ -1,6 +1,16 @@
 export const PILLARS = [
   {
     id: 'training',
+    doodle: 'Grid',
+    strip: {
+      title: 'منهجية التدريب — سُلَّم الوزن',
+      steps: [
+        { icon: 'Pen', title: 'التقطيع', text: 'حوّل البار لبصمة ● و ▬' },
+        { icon: 'Star', title: 'التكافؤ', text: 'حروف مختلفة، بصمة واحدة = توازن' },
+        { icon: 'Grid', title: 'المطابقة', text: 'قارن بصمتك بالقالب مقطعًا بمقطع' },
+        { icon: 'Headphones', title: 'المحاذاة', text: 'الثقل ▬ على ضربة البيت = فلو يطق' },
+      ],
+    },
     num: '01',
     title: 'التدريب',
     tagline: 'صقل المهارة بمنهج علمي',
@@ -10,6 +20,15 @@ export const PILLARS = [
   },
   {
     id: 'studio',
+    doodle: 'Pen',
+    strip: {
+      title: 'كيف تعمل معاينة القافية؟',
+      steps: [
+        { icon: 'Pen', title: 'اكتب البار', text: 'كل سطر = بار' },
+        { icon: 'Search', title: 'المحرك يلقط الروي', text: 'آخر حرف صحيح في البار' },
+        { icon: 'Spray', title: 'نفس الروي = نفس اللون', text: 'العائلات تتلون تلقائيًا' },
+      ],
+    },
     num: '02',
     title: 'الاستوديو الإبداعي',
     tagline: 'مساحة الكتابة والصنعة اليومية',
@@ -19,6 +38,15 @@ export const PILLARS = [
   },
   {
     id: 'analysis',
+    doodle: 'Boombox',
+    strip: {
+      title: 'خط تحليل البيت — كما سيُبنى',
+      steps: [
+        { icon: 'Cassette', title: 'ارفع البيت', text: 'أي تراك من مكتبتك' },
+        { icon: 'Boombox', title: 'عزل ٣ مسارات', text: 'درامز · باص · ميلودي' },
+        { icon: 'Grid', title: 'شبكة الضربات', text: 'خريطة الفراغات جاهزة للكتابة' },
+      ],
+    },
     num: '03',
     title: 'التحليل الموسيقي',
     tagline: 'تشريح البيت حتى آخر ضربة',
@@ -28,6 +56,15 @@ export const PILLARS = [
   },
   {
     id: 'library',
+    doodle: 'Notebook',
+    strip: {
+      title: 'مستودعك — دفتر بارات لا يضيع',
+      steps: [
+        { icon: 'Notebook', title: 'احفظ البار', text: 'سطر واحد وزر حفظ' },
+        { icon: 'Search', title: 'ابحث فورًا', text: 'بحث حي في كل شيء' },
+        { icon: 'Star', title: 'شارة الروي', text: 'كل بار يعرف قافيته' },
+      ],
+    },
     num: '04',
     title: 'المستودع المعرفي',
     tagline: 'ترسانتك: بارات ومراجع وبحث',
