@@ -3,6 +3,29 @@ import AuthGate from './AuthGate.jsx'
 import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.js'
 import { analyzeLinesV1 } from './lib/rhyme.js'
 import Representations from './Representations.jsx'
+import { analyzeEmotions } from './lib/semantics.js'
+import Coach from './Coach.jsx'
+
+function EmotionSpectrum({ text }) {
+  const r = analyzeEmotions(text)
+  if (!r.ok || !r.data) return <p className="gate-note">اكتب نصًا ليظهر طيفه العاطفي (المصدر: أسرار الحروف).</p>
+  const d = r.data
+  return (
+    <div className="emo-spectrum wob">
+      <h3>الطيف العاطفي للحروف</h3>
+      <div className="emo-bars">
+        <div className="emo-bar strong" style={{ '--w': d.strong + '%' }}><span>شديدة {d.strong}٪</span></div>
+        <div className="emo-bar medium" style={{ '--w': d.medium + '%' }}><span>متوسطة {d.medium}٪</span></div>
+        <div className="emo-bar soft" style={{ '--w': d.soft + '%' }}><span>رخوة {d.soft}٪</span></div>
+      </div>
+      {d.emotions.length > 0 && (
+        <div className="emo-tags">
+          {d.emotions.map((e) => <span key={e.id} className={`rhyme-badge rhyme-c${e.color}`}>{e.label} · {e.pct}٪</span>)}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function Editor() {
   const [pieces, setPieces] = useState([])
@@ -11,6 +34,7 @@ function Editor() {
   const [text, setText] = useState('')
   const [saveState, setSaveState] = useState('') // '' | جارٍ الحفظ | تم الحفظ | خطأ
   const [modeA, setModeA] = useState(false)
+  const [modeB, setModeB] = useState(false)
   const saveTimer = useRef(null)
 
   async function refresh() {
@@ -78,6 +102,10 @@ function Editor() {
             <input type="checkbox" checked={modeA} onChange={(e) => setModeA(e.target.checked)} />
             الوضع أ: عائلات المخارج
           </label>
+          <label className="toggle">
+            <input type="checkbox" checked={modeB} onChange={(e) => setModeB(e.target.checked)} />
+            الوضع ب: الطيف العاطفي
+          </label>
         </div>
         {lines.filter((l) => l.text.trim()).length === 0
           ? <p className="gate-note">اكتب بارًا وسترى نهايته ملونة حسب عائلته القافوية — ولو كتبت بالتشكيل ستظهر بصمة الوزن ● ▬ كاملة.</p>
@@ -108,6 +136,8 @@ function Editor() {
           })}
       </div>
 
+      {modeB && <EmotionSpectrum text={text} />}
+
       {pieces.length > 0 && (
         <div className="pieces-list">
           <h3>أعمالك</h3>
@@ -120,6 +150,7 @@ function Editor() {
         </div>
       )}
       <Representations />
+      <Coach />
     </div>
   )
 }

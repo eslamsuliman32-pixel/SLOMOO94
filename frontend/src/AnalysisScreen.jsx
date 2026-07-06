@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Coach from './Coach.jsx'
 
 /** رسم شبكة الضربات كزين: خط زمن حبري، downbeats ثقيلة، سلوتات بتظليل ماركر */
 function BeatGrid({ profile }) {
@@ -93,14 +94,35 @@ export default function AnalysisScreen() {
             <span className="rhyme-badge rhyme-c3">{Math.round(profile.meta?.duration_sec || 0)} ثانية</span>
             <span className="rhyme-badge rhyme-c5">{(profile.slots || []).length} سلوت</span>
             {profile.stems?.vocals?.present && <span className="rhyme-badge rhyme-c2">فوكال مرجعي</span>}
+            {profile.melodic?.key && <span className="rhyme-badge rhyme-c6">مفتاح {profile.melodic.key}</span>}
           </div>
           <BeatGrid profile={profile} />
+
+          {profile.vibe && (
+            <div className="vibe-row">
+              <div className="vibe-chip"><span>السطوع</span><div className="vibe-track"><div className="vibe-fill" style={{ '--w': (profile.vibe.brightness * 100) + '%' }} /></div></div>
+              <div className="vibe-chip"><span>الكثافة</span><div className="vibe-track"><div className="vibe-fill" style={{ '--w': (profile.vibe.density * 100) + '%' }} /></div></div>
+            </div>
+          )}
+
+          {profile.sections?.length > 0 && (
+            <div className="sections-row">
+              {profile.sections.map((s) => (
+                <span key={s.id} className="rhyme-badge rhyme-c1" title={`${s.start}ث - ${s.end}ث`}>{s.label}</span>
+              ))}
+            </div>
+          )}
+
+          {profile.melodic?.melody_notes?.length > 0 && (
+            <p className="gate-note">مسار الميلودي: {profile.melodic.melody_notes.length} نوتة مستخرجة — عرض piano-roll التفاعلي قادم في استوديو الفلو (المرحلة 4ج).</p>
+          )}
           <p className="gate-note">
             الخطوط الثقيلة downbeats (بداية كل بار)، الخفيفة ضربات، التظليل الذهبي فراغات قابلة للملء بالفلو،
             والخط الرمادي منحنى الطاقة. المس أي سلوت لمعرفة سعته بالمقاطع.
           </p>
         </div>
       )}
+      <Coach />
     </div>
   )
 }

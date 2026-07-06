@@ -99,6 +99,77 @@ hop = int(22050 * 0.25)  # نقطة كل ربع ثانية — خفيف وكاف
 rms = librosa.feature.rms(y=y_full, hop_length=hop)[0]
 energy = [round(float(v), 4) for v in (rms / (rms.max() or 1))]
 
+
+# ============ 4ب) التتبع اللحني (pyin v1 — ترقية Basic-Pitch لاحقًا) ============
+print("\n=== المرحلة 4ب: مسار الميلودي والباص ===")
+
+def extract_notes(path, fmin_note, fmax_note, min_dur=0.09, conf=0.5):
+    """f0 عبر pyin ثم تجميع الإطارات المتصلة متساوية النغمة إلى نوتات."""
+    ys, srs = librosa.load(path, sr=22050, mono=True)
+    f0, voiced, probs = librosa.pyin(
+        ys, sr=srs,
+        fmin=librosa.note_to_hz(fmin_note), fmax=librosa.note_to_hz(fmax_note),
+        frame_length=2048,
+    )
+    times = librosa.times_like(f0, sr=srs, hop_length=512)
+    notes, cur = [], None
+    for t, f, v, p in zip(times, f0, voiced, probs):
+        midi = int(round(librosa.hz_to_midi(f))) if (v and f and p >= conf) else None
+        if midi is not None and cur and cur["midi"] == midi:
+            cur["end"] = t
+        else:
+            if cur and cur["end"] - cur["start"] >= min_dur:
+                notes.append({"midi": cur["midi"],
+                              "start": round(cur["start"], 3),
+                              "duration": round(cur["end"] - cur["start"], 3)})
+            cur = {"midi": midi, "start": t, "end": t} if midi is not None else None
+    if cur and cur["end"] - cur["start"] >= min_dur:
+        notes.append({"midi": cur["midi"], "start": round(cur["start"], 3),
+                      "duration": round(cur["end"] - cur["start"], 3)})
+    return notes
+
+melody_notes = extract_notes(stems["other"], "C3", "C7")
+bass_notes = extract_notes(stems["bass"], "C1", "C4")
+print(f"نوتات الميلودي: {len(melody_notes)} | نوتات الباص: {len(bass_notes)}")
+
+# ============ 4ج) المفتاح الموسيقي والفايب ============
+print("=== المرحلة 4ج: المفتاح والفايب ===")
+y_mel, sr_mel = librosa.load(stems["other"], sr=22050, mono=True)
+chroma = librosa.feature.chroma_cqt(y=y_mel, sr=sr_mel).mean(axis=1)
+
+# ملفات Krumhansl للمقامات الكبرى والصغرى
+MAJOR = np.array([6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88])
+MINOR = np.array([6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17])
+NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
+best = ("C major", -2)
+for i in range(12):
+    for prof, mode in ((MAJOR, "major"), (MINOR, "minor")):
+        r = float(np.corrcoef(np.roll(prof, i), chroma)[0, 1])
+        if r > best[1]:
+            best = (f"{NAMES[i]} {mode}", r)
+key_name = best[0]
+
+centroid = librosa.feature.spectral_centroid(y=y_full, sr=22050).mean()
+brightness = round(float(min(centroid / 4000.0, 1.0)), 3)
+density = round(float(min(len(onsets) / max(duration, 1) / 8.0, 1.0)), 3)
+
+# ============ 4د) اكتشاف الأقسام (تشابه ذاتي — تسميات محايدة v1) ============
+print("=== المرحلة 4د: الأقسام ===")
+try:
+    feats = librosa.feature.chroma_cqt(y=y_full, sr=22050, hop_length=2048)
+    k = int(max(3, min(6, duration // 30)))
+    bounds = librosa.segment.agglomerative(feats, k)
+    btimes = librosa.frames_to_time(bounds, sr=22050, hop_length=2048)
+    edges = [0.0] + [round(float(t), 2) for t in btimes] + [round(duration, 2)]
+    sections = [
+        {"id": f"sec_{i+1}", "label": f"قسم {i+1}",
+         "start": edges[i], "end": edges[i+1]}
+        for i in range(len(edges) - 1) if edges[i+1] - edges[i] > 4
+    ]
+except Exception as e:
+    print("تخطي الأقسام:", e)
+    sections = [{"id": "full", "label": "كامل", "start": 0.0, "end": round(duration, 2)}]
+
 # ============ 5) كتابة Beat Profile (وفق docs/BEAT_PROFILE_SPEC.md) ============
 profile = {
     "schema_version": 1,
@@ -122,6 +193,13 @@ profile = {
         "onsets_count": len(onsets),
     },
     "slots": slots,
+    "melodic": {
+        "key": key_name,
+        "melody_notes": melody_notes,
+        "bass_notes": bass_notes,
+    },
+    "vibe": {"brightness": brightness, "density": density},
+    "sections": sections,
     "energy": {"resolution_sec": 0.25, "curve": energy},
 }
 
@@ -130,7 +208,7 @@ with open(out_json, "w", encoding="utf-8") as f:
     json.dump(profile, f, ensure_ascii=False, indent=1)
 
 print("\n" + "=" * 50)
-print(f"✓ BPM: {profile['rhythm']['bpm']} | ضربات: {len(beats)} | سلوتات: {len(slots)}")
+print(f"✓ BPM: {profile['rhythm']['bpm']} | ضربات: {len(beats)} | سلوتات: {len(slots)} | مفتاح: {key_name} | نوتات: {len(melody_notes)}")
 print(f"✓ Beat Profile: {out_json}")
 print(f"✓ المسارات المعزولة: {stem_dir}")
 print("حمّل beat_profile.json وارفعه في مقام → التحليل الموسيقي → استيراد")

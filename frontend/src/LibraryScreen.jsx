@@ -3,6 +3,7 @@ import AuthGate from './AuthGate.jsx'
 import { createBar, listBars, deleteBar } from './lib/bars.js'
 import { getRawi, lastWord } from './lib/rhyme.js'
 import ConnectionTest from './ConnectionTest.jsx'
+import Coach from './Coach.jsx'
 
 function Library() {
   const [bars, setBars] = useState([])
@@ -66,6 +67,7 @@ function Library() {
       })}
 
       <ConnectionTest />
+      <Coach />
     </div>
   )
 }

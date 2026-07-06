@@ -519,3 +519,49 @@ main { flex: 1; }
   background: var(--paper-2);
   box-shadow: 4px 5px 0 rgba(24,21,18,0.75);
 }
+
+/* ---------- v0.5: المدرب ---------- */
+.coach { margin-top: 20px; padding: 16px; }
+.coach h3 { font-family: var(--font-graffiti); font-size: 18px; margin-bottom: 6px; }
+.coach-log {
+  max-height: 260px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px;
+  margin: 10px 0; padding-inline-end: 4px;
+}
+.coach-bubble {
+  font-family: var(--font-ui); font-size: 14px; line-height: 1.7;
+  padding: 9px 13px; max-width: 88%;
+  border: 2px solid var(--ink);
+  border-radius: 18px 18px 4px 18px / 18px 18px 18px 4px;
+}
+.coach-bubble.user { align-self: flex-end; background: var(--marker-glow); border-radius: 18px 18px 18px 4px / 18px 18px 4px 18px; }
+.coach-bubble.coach { align-self: flex-start; background: var(--paper); }
+
+/* ---------- v0.5: الطيف العاطفي (الوضع ب) ---------- */
+.emo-spectrum { margin-top: 16px; padding: 16px; }
+.emo-spectrum h3 { font-family: var(--font-graffiti); font-size: 16px; margin-bottom: 10px; }
+.emo-bars { display: flex; flex-direction: column; gap: 6px; }
+.emo-bar {
+  position: relative; height: 22px; border-radius: 4px;
+  background: rgba(24,21,18,0.06);
+  overflow: hidden;
+}
+.emo-bar::before {
+  content: ''; position: absolute; inset-inline-start: 0; top: 0; bottom: 0;
+  width: var(--w, 0%);
+}
+.emo-bar.strong::before { background: var(--spray-red); opacity: 0.55; }
+.emo-bar.medium::before { background: var(--marker); opacity: 0.6; }
+.emo-bar.soft::before { background: var(--spray-teal); opacity: 0.45; }
+.emo-bar span {
+  position: relative; z-index: 1; font-family: var(--font-mono); font-size: 11px;
+  padding-inline-start: 8px; line-height: 22px;
+}
+.emo-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+/* ---------- v0.5: الفايب والأقسام في التحليل ---------- */
+.vibe-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0; }
+.vibe-chip { display: flex; align-items: center; gap: 8px; font-family: var(--font-hand); font-size: 13px; }
+.vibe-track { width: 90px; height: 10px; background: rgba(24,21,18,0.08); border-radius: 6px; overflow: hidden; }
+.vibe-fill { height: 100%; width: var(--w, 0%); background: var(--marker); }
+.sections-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }

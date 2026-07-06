@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Coach from './Coach.jsx'
 import { weightFingerprint, getRawi, lastWord, normalize } from './lib/rhyme.js'
 
 /* بنك تمرين التقطيع — كلمات مشكولة وبصمتها المحسوبة بنفس محرك التطبيق (اتساق مضمون) */
@@ -96,6 +97,7 @@ export default function TrainingScreen() {
       <TaqteeExercise onScore={onScore} />
       <RawiExercise onScore={onScore} />
       <p className="gate-note">التمارين تستخدم نفس محرك التطبيق — ما تتعلمه هنا هو حرفيًا ما يقيسه الاستوديو. مستويات أعلى ومسارات معزولة حقيقية قادمة مع المرحلة 6 الكاملة.</p>
+      <Coach />
     </div>
   )
 }
