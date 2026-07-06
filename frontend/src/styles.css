@@ -458,3 +458,64 @@ main { flex: 1; }
   .card h2 { font-size: 21px; }
   .card-doodle { width: 42px; height: 42px; }
 }
+
+/* ---------- v0.4: بصمة الوزن والقوافي الداخلية ---------- */
+.rhyme-block { margin-bottom: 6px; }
+.rhyme-inner { border-bottom: 2.5px dashed currentColor; padding-inline: 1px; }
+.weight-row { display: flex; align-items: center; gap: 12px; padding-inline-start: 8px; }
+.weight-fp { font-family: var(--font-mono); font-size: 13px; letter-spacing: 3px; color: var(--ink-soft); }
+.weight-count { font-family: var(--font-hand); font-size: 12.5px; color: var(--spray-teal); }
+
+/* ---------- التمثيلات ---------- */
+.reps { margin-top: 20px; padding: 16px; }
+.reps-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.reps-head h3 { font-family: var(--font-graffiti); font-size: 17px; }
+.reps-text { width: 100%; resize: vertical; margin-bottom: 8px; }
+.reps-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.reps-tags .lib-input { flex: 1; min-width: 130px; }
+
+/* ---------- التدريب ---------- */
+.training { max-width: 720px; }
+.score-chip {
+  display: inline-block;
+  font-family: var(--font-hand); font-size: 15px;
+  background: linear-gradient(transparent 55%, var(--marker-glow) 55%);
+  padding: 2px 8px; margin-bottom: 14px;
+  transform: rotate(-1deg);
+}
+.exercise { padding: 18px; margin-bottom: 18px; }
+.exercise h3 { font-family: var(--font-graffiti); font-size: 18px; margin-bottom: 4px; }
+.ex-word {
+  font-family: var(--font-hand); font-size: 34px;
+  text-align: center; margin: 10px 0;
+  background: linear-gradient(transparent 62%, var(--marker-glow) 62%);
+  display: block; width: fit-content; margin-inline: auto; padding-inline: 12px;
+}
+.ex-bar { font-size: 18px; text-align: center; margin: 12px 0; font-family: var(--font-ui); }
+.ex-answer {
+  font-family: var(--font-mono); font-size: 22px; letter-spacing: 6px;
+  text-align: center; min-height: 34px; color: var(--ink);
+  border-bottom: 2.5px dashed rgba(24,21,18,0.35);
+  width: fit-content; min-width: 160px; margin: 0 auto 12px; padding: 2px 14px;
+}
+.ex-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.ex-key { font-size: 20px; padding: 6px 20px; }
+.ex-key.ok { background: var(--spray-teal); color: var(--paper); }
+.ex-key.no { background: var(--spray-red); color: var(--paper); }
+
+/* ---------- التحليل ---------- */
+.analysis { max-width: 860px; }
+.import-box { padding: 18px; }
+.import-box h3 { font-family: var(--font-graffiti); font-size: 18px; margin-bottom: 4px; }
+.mono-inline { font-family: var(--font-mono); font-size: 12px; background: var(--marker-glow); padding: 1px 6px; }
+.file-input { font-family: var(--font-ui); font-size: 14px; margin-top: 6px; }
+.profile-view { margin-top: 18px; }
+.profile-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.profile-meta .rhyme-badge { margin-inline-start: 0; }
+.beatgrid {
+  width: 100%; height: auto;
+  border: 2.5px solid var(--ink);
+  border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px;
+  background: var(--paper-2);
+  box-shadow: 4px 5px 0 rgba(24,21,18,0.75);
+}

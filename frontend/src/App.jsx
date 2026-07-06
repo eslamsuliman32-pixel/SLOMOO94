@@ -3,6 +3,8 @@ import { PILLARS } from './pillars.js'
 import RhythmCanvas from './RhythmCanvas.jsx'
 import StudioScreen from './StudioScreen.jsx'
 import LibraryScreen from './LibraryScreen.jsx'
+import TrainingScreen from './TrainingScreen.jsx'
+import AnalysisScreen from './AnalysisScreen.jsx'
 import { Doodle, ZineStrip, Underline, Mic, Spray, Cassette } from './Doodles.jsx'
 
 function Wordmark() {
@@ -32,7 +34,7 @@ function PillarCard({ p, onOpen }) {
 }
 
 function PillarScreen({ p, onBack }) {
-  const functional = p.id === 'studio' || p.id === 'library'
+  const functional = true /* كل الأركان الأربعة صارت وظيفية */
   return (
     <section className="screen">
       <button className="back" onClick={onBack}>→ الأركان</button>
@@ -47,6 +49,8 @@ function PillarScreen({ p, onBack }) {
 
       {p.id === 'studio' && <StudioScreen />}
       {p.id === 'library' && <LibraryScreen />}
+      {p.id === 'training' && <TrainingScreen />}
+      {p.id === 'analysis' && <AnalysisScreen />}
 
       {!functional && (
         <div className="planned wob">
@@ -84,7 +88,7 @@ export default function App() {
 
       <footer className="status">
         <span>المبدأ: الآلة ترسم وتكشف وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
-        <span className="mono">MAQAM ZINE v0.3.0</span>
+        <span className="mono">MAQAM ZINE v0.4.0</span>
       </footer>
     </div>
   )

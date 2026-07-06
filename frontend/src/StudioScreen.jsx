@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import AuthGate from './AuthGate.jsx'
 import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.js'
-import { analyzeLines } from './lib/rhyme.js'
+import { analyzeLinesV1 } from './lib/rhyme.js'
+import Representations from './Representations.jsx'
 
 function Editor() {
   const [pieces, setPieces] = useState([])
@@ -45,7 +46,7 @@ function Editor() {
     saveTimer.current = setTimeout(() => saveNow(nextTitle, nextText), 1500)
   }
 
-  const analysis = analyzeLines(text, { modeA })
+  const analysis = analyzeLinesV1(text, { modeA })
   const lines = analysis.ok ? analysis.data : []
 
   return (
@@ -79,17 +80,29 @@ function Editor() {
           </label>
         </div>
         {lines.filter((l) => l.text.trim()).length === 0
-          ? <p className="gate-note">اكتب بارًا وسترى نهايته ملونة حسب عائلته القافوية.</p>
+          ? <p className="gate-note">اكتب بارًا وسترى نهايته ملونة حسب عائلته القافوية — ولو كتبت بالتشكيل ستظهر بصمة الوزن ● ▬ كاملة.</p>
           : lines.map((l, i) => {
             if (!l.text.trim()) return null
-            const m = l.text.match(/^([\s\S]*?)(\S+)\s*$/)
-            const before = m ? m[1] : ''
-            const tail = m ? m[2] : l.text
+            const toks = l.tokens || []
             return (
-              <div className="rhyme-line" key={i}>
-                <span>{before}</span>
-                <span className={`rhyme-tail rhyme-c${l.colorIndex ?? 0}`} title={l.label}>{tail}</span>
-                {l.rawi && <span className={`rhyme-badge rhyme-c${l.colorIndex ?? 0}`}>{l.label}</span>}
+              <div className="rhyme-block" key={i}>
+                <div className="rhyme-line">
+                  {toks.map((t, ti) => {
+                    const isTail = ti === toks.length - 1
+                    const isInner = l.inner && l.inner.has(ti)
+                    const cls = isTail
+                      ? `rhyme-tail rhyme-c${l.colorIndex ?? 0}`
+                      : isInner ? `rhyme-inner rhyme-c${l.colorIndex ?? 0}` : ''
+                    return <span key={ti}>{cls ? <span className={cls} title={isTail ? l.sixText : 'قافية داخلية'}>{t.w}</span> : t.w}{t.ws ? ' ' : ''}</span>
+                  })}
+                  {l.rawi && <span className={`rhyme-badge rhyme-c${l.colorIndex ?? 0}`}>{l.sixText || l.label}</span>}
+                </div>
+                {l.weight && (
+                  <div className="weight-row">
+                    <span className="weight-fp" dir="ltr">{l.weight.fp}</span>
+                    <span className="weight-count">{l.weight.syllables} مقاطع{l.weight.approx ? ' · تقريبي' : ''}</span>
+                  </div>
+                )}
               </div>
             )
           })}
@@ -106,6 +119,7 @@ function Editor() {
           ))}
         </div>
       )}
+      <Representations />
     </div>
   )
 }
