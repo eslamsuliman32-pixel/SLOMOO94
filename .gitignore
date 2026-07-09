@@ -10,3 +10,14 @@ __pycache__/
 .ipynb_checkpoints/
 firebase-debug.log
 .firebase/
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+frontend/node_modules
+frontend/dist
+.firebaserc
+Thumbs.db
