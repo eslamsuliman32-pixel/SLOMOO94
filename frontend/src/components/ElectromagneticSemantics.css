@@ -1,0 +1,547 @@
+:root {
+  --bg-dark: #0a0e27;
+  --panel-bg: #1a1f3a;
+  --accent-violet: #9d4edd;
+  --accent-cyan: #00f5ff;
+  --accent-lime: #39ff14;
+  --text-main: #e8eef5;
+  --text-muted: #8892a8;
+  --border-color: #2d3561;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Cairo', 'Courier New', 'Segoe UI', monospace;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0e27 0%, #1a0033 100%);
+  color: var(--text-main);
+  padding: 2rem;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   الحاوية الرئيسية
+========================================= */
+.electromagnetic-studio {
+  max-width: 1600px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, rgba(26, 31, 58, 0.95), rgba(10, 14, 39, 0.95));
+  border: 2px solid var(--border-color);
+  border-radius: 18px;
+  padding: 2.5rem;
+  box-shadow: 
+    0 0 40px rgba(157, 78, 221, 0.2),
+    inset 0 0 20px rgba(0, 245, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.em-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid var(--accent-violet);
+  padding-bottom: 1.5rem;
+  position: relative;
+}
+
+.em-header::before {
+  content: '⚡';
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.em-header h1 {
+  font-size: 2.2rem;
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.3rem;
+}
+
+.em-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* =========================================
+   لوحة الإدخال والتحكم
+========================================= */
+.control-panel {
+  background: rgba(10, 14, 39, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.text-input {
+  background: #0a0e27;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-family: 'Cairo', 'Courier New', monospace;
+  transition: all 0.2s;
+  resize: vertical;
+  direction: rtl;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--accent-violet);
+  box-shadow: 0 0 10px rgba(157, 78, 221, 0.3);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-violet);
+  background: #0a0e27;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+  color: #000;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-end;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(157, 78, 221, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* =========================================
+   لوحة العرض: الخريطة الكهرومغناطيسية
+========================================= */
+.visualization-container {
+  background: rgba(10, 14, 39, 0.9);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visualization-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(157, 78, 221, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(0, 245, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+#semantic-canvas {
+  width: 100%;
+  height: 500px;
+  display: block;
+  filter: drop-shadow(0 0 15px rgba(157, 78, 221, 0.2));
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================
+   لوحة التحليل الجانبية
+========================================= */
+.analysis-sidebar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.analysis-card {
+  background: rgba(26, 31, 58, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.analysis-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent-violet);
+}
+
+.analysis-card.alt::before {
+  background: var(--accent-cyan);
+}
+
+.analysis-card.accent::before {
+  background: var(--accent-lime);
+}
+
+.analysis-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(157, 78, 221, 0.2);
+}
+
+.analysis-title {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.analysis-content {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.metric-value {
+  color: var(--accent-lime);
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  direction: ltr;
+}
+
+/* =========================================
+   شريط الحالة
+========================================= */
+.status-bar {
+  background: #0a0e27;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-lime);
+  box-shadow: 0 0 8px var(--accent-lime);
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* =========================================
+   الشرح والتوثيق
+========================================= */
+.documentation-box {
+  background: rgba(10, 14, 39, 0.7);
+  border-right: 4px solid var(--accent-lime);
+  border-radius: 8px;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.documentation-box h3 {
+  color: var(--accent-cyan);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.documentation-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.documentation-box li {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.documentation-box li::before {
+  content: '▸';
+  position: absolute;
+  right: 0;
+  color: var(--accent-violet);
+}
+
+/* =========================================
+   التأثيرات والحركات
+========================================= */
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: float-in 0.5s ease-out;
+}
+
+/* =========================================
+   التجاوب (Responsive)
+========================================= */
+@media (max-width: 768px) {
+  .electromagnetic-studio {
+    padding: 1.5rem;
+  }
+
+  .em-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .em-header p {
+    font-size: 0.85rem;
+  }
+
+  .control-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  #semantic-canvas {
+    height: 300px;
+  }
+
+  .visualization-container {
+    min-height: 300px;
+  }
+
+  .status-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-primary {
+    width: 100%;
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+
+  .electromagnetic-studio {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .em-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .em-header p {
+    font-size: 0.75rem;
+  }
+
+  .control-panel {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .analysis-card {
+    padding: 1rem;
+  }
+
+  .metric-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+  }
+
+  .metric-value {
+    font-size: 0.85rem;
+  }
+
+  #semantic-canvas {
+    height: 250px;
+  }
+
+  .documentation-box {
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .documentation-box li {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* =========================================
+   الدعم المتقدم للألوان والحركات
+========================================= */
+@supports (backdrop-filter: blur(10px)) {
+  .electromagnetic-studio {
+    backdrop-filter: blur(10px);
+  }
+  
+  .visualization-container {
+    backdrop-filter: blur(5px);
+  }
+}
+
+/* =========================================
+   تحسينات الأداء
+========================================= */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================
+   الوضع المظلم (Dark Mode - مدمج بالفعل)
+========================================= */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-dark: #0a0e27;
+    --panel-bg: #1a1f3a;
+    --text-main: #e8eef5;
+    --text-muted: #8892a8;
+  }
+}
+
+/* =========================================
+   الوضع الفاتح (Light Mode - إضافي)
+========================================= */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-dark: #f0f4f8;
+    --panel-bg: #e8eef5;
+    --text-main: #1a1f3a;
+    --text-muted: #4a5568;
+    --border-color: #cbd5e0;
+  }
+
+  .electromagnetic-studio {
+    background: linear-gradient(135deg, rgba(232, 238, 245, 0.95), rgba(240, 244, 248, 0.95));
+  }
+
+  .visualization-container {
+    background: rgba(240, 244, 248, 0.9);
+  }
+
+  .analysis-card {
+    background: rgba(232, 238, 245, 0.8);
+  }
+
+  .control-panel {
+    background: rgba(240, 244, 248, 0.7);
+  }
+
+  .text-input {
+    background: #f0f4f8;
+    color: #1a1f3a;
+  }
+
+  .status-bar {
+    background: #f0f4f8;
+  }
+
+  .documentation-box {
+    background: rgba(240, 244, 248, 0.7);
+    border-right-color: var(--accent-lime);
+  }
+}
