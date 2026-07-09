@@ -5,6 +5,7 @@ import StudioScreen from './StudioScreen.jsx'
 import LibraryScreen from './LibraryScreen.jsx'
 import TrainingScreen from './TrainingScreen.jsx'
 import AnalysisScreen from './AnalysisScreen.jsx'
+import ElectromagneticSemantics from './components/ElectromagneticSemantics.jsx'
 import { Doodle, ZineStrip, Underline, Mic, Spray, Cassette } from './Doodles.jsx'
 
 function Wordmark() {
@@ -51,6 +52,7 @@ function PillarScreen({ p, onBack }) {
       {p.id === 'library' && <LibraryScreen />}
       {p.id === 'training' && <TrainingScreen />}
       {p.id === 'analysis' && <AnalysisScreen />}
+      {p.id === 'semantics' && <ElectromagneticSemantics />}
 
       {!functional && (
         <div className="planned wob">
@@ -88,7 +90,7 @@ export default function App() {
 
       <footer className="status">
         <span>المبدأ: الآلة ترسم وتكشف وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
-        <span className="mono">MAQAM ZINE v0.4.0</span>
+        <span className="mono">MAQAM ZINE v0.5.0 + EM Semantics</span>
       </footer>
     </div>
   )
