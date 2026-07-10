@@ -12,13 +12,15 @@ import { Doodle, ZineStrip, Underline, Mic, Spray, Cassette } from './Doodles.js
 function Wordmark() {
   return (
     <div className="wordmark">
-      <Mic className="wm-doodle d1" />
-      <Spray className="wm-doodle d2" />
-      <Cassette className="wm-doodle d3" />
+      <div className="wm-icons" aria-hidden="true">
+        <Mic className="wm-doodle" />
+        <Spray className="wm-doodle" />
+        <Cassette className="wm-doodle" />
+      </div>
       <span className="wm-motif" aria-hidden="true">● ▬ ● ▬ ▬</span>
       <h1>مَقَام</h1>
       <Underline className="wm-underline" />
-      <span className="wm-sub">زين رقم ٠١ — دفتر صناعة الراب · ارسمها تفهمها</span>
+      <span className="wm-sub">MAQAM TEXT-DAW — محطة العمل الصوتية-اللغوية للهندسة الغنائية</span>
     </div>
   )
 }
@@ -92,7 +94,7 @@ export default function App() {
 
       <footer className="status">
         <span>المبدأ: الآلة ترسم وتكشف وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
-        <span className="mono">MAQAM ZINE v0.6.0 + Prosody Lab</span>
+        <span className="mono">MAQAM TEXT-DAW v1.0.0</span>
       </footer>
     </div>
   )
