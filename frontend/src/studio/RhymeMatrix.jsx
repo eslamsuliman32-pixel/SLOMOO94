@@ -109,7 +109,7 @@ export default function RhymeMatrix({ lines }) {
                       onPointerDown={(e) => onPointerDown(e, b)}
                       title={`${b.text} — ${b.syllables} مقاطع`}
                     >
-                      {b.text}
+                      <span className="mb-label">{b.text}</span>
                     </div>
                   )
                 })}

@@ -1,6 +1,8 @@
 export const PILLARS = [
   {
     id: 'training',
+    wc: 'var(--lime)',
+    en: 'WEIGHT TRAINER',
     doodle: 'Grid',
     strip: {
       title: 'منهجية التدريب — سُلَّم الوزن',
@@ -20,6 +22,8 @@ export const PILLARS = [
   },
   {
     id: 'studio',
+    wc: 'var(--mango)',
+    en: 'CHANNEL STUDIO',
     doodle: 'Pen',
     strip: {
       title: 'كيف تعمل معاينة القافية؟',
@@ -38,6 +42,8 @@ export const PILLARS = [
   },
   {
     id: 'analysis',
+    wc: 'var(--violet)',
+    en: 'BEAT ANALYZER',
     doodle: 'Boombox',
     strip: {
       title: 'خط تحليل البيت — كما سيُبنى',
@@ -56,6 +62,8 @@ export const PILLARS = [
   },
   {
     id: 'library',
+    wc: 'var(--gold)',
+    en: 'SAMPLE LIBRARY',
     doodle: 'Notebook',
     strip: {
       title: 'مستودعك — دفتر بارات لا يضيع',
@@ -74,6 +82,8 @@ export const PILLARS = [
   },
   {
     id: 'prosody',
+    wc: 'var(--teal)',
+    en: 'PROSODY LAB',
     doodle: 'Wave',
     strip: {
       title: 'كيف يعمل مختبر النبض العروضي؟',
