@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PILLARS } from './pillars.js'
 import RhythmCanvas from './RhythmCanvas.jsx'
 import StudioScreen from './StudioScreen.jsx'
@@ -35,6 +35,35 @@ function Seal({ className }) {
   )
 }
 
+/** أزرار النقل وعداد الزمن — نبض الشاسيه الحي */
+function Transport() {
+  const [playing, setPlaying] = useState(true)
+  const [rec, setRec] = useState(false)
+  const [cs, setCs] = useState(0) // أجزاء الثانية (centiseconds)
+
+  useEffect(() => {
+    if (!playing) return undefined
+    const id = setInterval(() => setCs((c) => c + 5), 50)
+    return () => clearInterval(id)
+  }, [playing])
+
+  const m = Math.floor(cs / 6000)
+  const s = Math.floor(cs / 100) % 60
+  const c = cs % 100
+
+  return (
+    <>
+      <button className={`ibtn ${playing ? 'on-lime' : ''}`} title="تشغيل" onClick={() => setPlaying(!playing)}>▶</button>
+      <button className="ibtn" title="إيقاف" onClick={() => { setPlaying(false); setCs(0); setRec(false) }}>■</button>
+      <button className={`ibtn ${rec ? 'on-red' : ''}`} title="تسجيل" onClick={() => setRec(!rec)}>●</button>
+      <div className="lcd">
+        <span className="big">{m}:{String(s).padStart(2, '0')}:{String(c).padStart(2, '0')}</span>
+        <small>M:S:CS</small>
+      </div>
+    </>
+  )
+}
+
 /** شريط الأدوات العلوي — شاسيه محطة العمل */
 function Toolbar() {
   return (
@@ -51,7 +80,7 @@ function Toolbar() {
         <span className="menu">أنماط</span><span className="menu">عرض</span><span className="menu">أدوات</span>
       </div>
       <div className="tb-group">
-        <div className="lcd"><span className="big">READY</span><small>ENGINE</small></div>
+        <Transport />
         <div className="lcd"><span className="big orange">TEXT-DAW</span><small>MODE</small></div>
       </div>
       <div className="tb-group tb-wave">
