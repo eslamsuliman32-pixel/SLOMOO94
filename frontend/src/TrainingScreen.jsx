@@ -85,6 +85,70 @@ function RawiExercise({ onScore }) {
   )
 }
 
+/** تمرين ٣ — المحاذاة (المهارة الرابعة في السُّلَّم): توافق النبر مع ضربات البيت.
+ * نافذة STRESS ↔ BEAT ALIGNMENT من هوية v3: صف الضربات ثابت، وصف النبر
+ * تفاعلي (نقرة تدور: فارغ ← ● متحرك ← ▬ ساكن)، وخطوط تيل تصل كل توافق. */
+const ALIGN_BEAT = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1]
+
+function AlignmentExercise() {
+  const [stress, setStress] = useState([1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 1, 1, 2, 0, 1])
+
+  function cycle(i) {
+    setStress((s) => s.map((v, j) => (j === i ? (v + 1) % 3 : v)))
+  }
+
+  const hits = stress.filter((v, i) => v && ALIGN_BEAT[i]).length
+  const total = stress.filter(Boolean).length
+  const pct = total ? Math.round((hits / total) * 100) : 0
+  const verdict = pct >= 80 ? '● STRONG' : pct >= 55 ? '◐ FAIR' : '○ WEAK'
+
+  const W = 400, H = 190, cw = W / 16
+
+  return (
+    <div className="exercise wob">
+      <h3>تمرين ٣ — المحاذاة</h3>
+      <p className="gate-note">
+        بار موزون داخليًا لا يكفي — الثقل ▬ لازم يقع على ضربة البيت ليطق الفلو.
+        انقر أي عمود لتغيير نبره (فارغ ← ● ← ▬) وراقب نسبة التوافق.
+      </p>
+      <div className="align-well">
+        <svg viewBox={`0 0 ${W} ${H}`} className="align-svg" role="img" aria-label="توافق النبر مع الضربات">
+          {Array.from({ length: 17 }).map((_, i) => (
+            <line key={i} x1={i * cw} y1={0} x2={i * cw} y2={H} stroke={`rgba(255,255,255,${i % 4 ? 0.04 : 0.1})`} />
+          ))}
+          {ALIGN_BEAT.map((b, i) => b ? (
+            <rect key={`b${i}`} x={i * cw + 4} y={34} width={cw - 8} height={26} rx={4}
+              fill="#8B5CF6" opacity=".9" style={{ filter: 'drop-shadow(0 0 6px #8B5CF6)' }} />
+          ) : null)}
+          {stress.map((v, i) => {
+            if (v === 1) return <circle key={`s${i}`} cx={i * cw + cw / 2} cy={118} r={9} fill="#FF9F1C" style={{ filter: 'drop-shadow(0 0 7px #FF9F1C)' }} />
+            if (v === 2) return <rect key={`s${i}`} x={i * cw + 5} y={112} width={cw - 10} height={12} rx={3} fill="#F2C14E" style={{ filter: 'drop-shadow(0 0 7px #F2C14E)' }} />
+            return null
+          })}
+          {stress.map((v, i) => (v && ALIGN_BEAT[i]) ? (
+            <line key={`m${i}`} x1={i * cw + cw / 2} y1={62} x2={i * cw + cw / 2} y2={106}
+              stroke="#19D3C5" strokeWidth={2.5} strokeDasharray="3 3" style={{ filter: 'drop-shadow(0 0 5px #19D3C5)' }} />
+          ) : null)}
+          <text x={6} y={24} fontFamily="Cairo" fontSize={11} fontWeight={800} fill="#98A2A8">ضربات البيت</text>
+          <text x={6} y={150} fontFamily="Cairo" fontSize={11} fontWeight={800} fill="#98A2A8">نبر السطر ● ▬</text>
+          <text x={6} y={180} fontFamily="Space Mono" fontSize={9} fill="#59636A">MUTAHARRIK ● / SAKIN ▬ · 16-GRID</text>
+          {Array.from({ length: 16 }).map((_, i) => (
+            <rect key={`h${i}`} x={i * cw} y={0} width={cw} height={H} fill="transparent"
+              style={{ cursor: 'pointer' }} onClick={() => cycle(i)} />
+          ))}
+        </svg>
+      </div>
+      <div className="align-foot">
+        <span className="band" style={{ '--bc': 'var(--violet)' }} title="ضربة" />
+        <span className="band" style={{ '--bc': 'var(--mango)' }} title="متحرك ●" />
+        <span className="band" style={{ '--bc': 'var(--gold)' }} title="ساكن ▬" />
+        <span className="band" style={{ '--bc': 'var(--teal)' }} title="توافق" />
+        <span className="align-verdict mono">MATCH {pct}% {verdict}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function TrainingScreen() {
   const [score, setScore] = useState({ right: 0, total: 0 })
   const onScore = (ok) => setScore((s) => ({ right: s.right + (ok ? 1 : 0), total: s.total + 1 }))
@@ -96,6 +160,7 @@ export default function TrainingScreen() {
       </div>
       <TaqteeExercise onScore={onScore} />
       <RawiExercise onScore={onScore} />
+      <AlignmentExercise />
       <p className="gate-note">التمارين تستخدم نفس محرك التطبيق — ما تتعلمه هنا هو حرفيًا ما يقيسه الاستوديو. مستويات أعلى ومسارات معزولة حقيقية قادمة مع المرحلة 6 الكاملة.</p>
       <Coach />
     </div>

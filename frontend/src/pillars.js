@@ -1,6 +1,8 @@
 export const PILLARS = [
   {
     id: 'training',
+    wc: 'var(--lime)',
+    en: 'WEIGHT TRAINER',
     doodle: 'Grid',
     strip: {
       title: 'منهجية التدريب — سُلَّم الوزن',
@@ -20,6 +22,8 @@ export const PILLARS = [
   },
   {
     id: 'studio',
+    wc: 'var(--mango)',
+    en: 'CHANNEL STUDIO',
     doodle: 'Pen',
     strip: {
       title: 'كيف تعمل معاينة القافية؟',
@@ -38,6 +42,8 @@ export const PILLARS = [
   },
   {
     id: 'analysis',
+    wc: 'var(--violet)',
+    en: 'BEAT ANALYZER',
     doodle: 'Boombox',
     strip: {
       title: 'خط تحليل البيت — كما سيُبنى',
@@ -56,6 +62,8 @@ export const PILLARS = [
   },
   {
     id: 'library',
+    wc: 'var(--gold)',
+    en: 'SAMPLE LIBRARY',
     doodle: 'Notebook',
     strip: {
       title: 'مستودعك — دفتر بارات لا يضيع',
@@ -71,5 +79,26 @@ export const PILLARS = [
     motif: '▬ ▬ ● ▬ ●',
     planned: ['مكتبة البارات المنقولة والجديدة', 'المراجع: منهجية الوزن، أسرار الحروف، وغيرها', 'بحث ذكي يربط كل شيء', 'قاعدة letter_semantics'],
     step: 'يُبنى في المرحلة 2 والخطوة 65',
+  },
+  {
+    id: 'prosody',
+    wc: 'var(--teal)',
+    en: 'PROSODY LAB',
+    doodle: 'Wave',
+    strip: {
+      title: 'كيف يعمل مختبر النبض العروضي؟',
+      steps: [
+        { icon: 'Wave', title: 'ابنِ البصمة', text: 'أضف - و~ لتكتشف اسم القدم' },
+        { icon: 'Star', title: 'شخّص النهاية', text: 'مذكرة أم مؤنثة؟ اعرف الأثر' },
+        { icon: 'Grid', title: 'امسح التكرار', text: '٩ مستويات بنيوية للتتبع' },
+        { icon: 'Notebook', title: 'راجع القاموس', text: '٣٠ قدمًا عروضية مصنفة' },
+      ],
+    },
+    num: '05',
+    title: 'مختبر النبض العروضي',
+    tagline: 'تصنيف الأقدام الشعرية ونهايات الأبيات ومصفوفة التكرار البنيوي',
+    motif: '- ~ - ~ -',
+    planned: [],
+    step: '',
   },
 ]

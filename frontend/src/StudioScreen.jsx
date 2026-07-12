@@ -5,6 +5,16 @@ import { analyzeLinesV1 } from './lib/rhyme.js'
 import Representations from './Representations.jsx'
 import { analyzeEmotions } from './lib/semantics.js'
 import Coach from './Coach.jsx'
+import RhymeMatrix from './studio/RhymeMatrix.jsx'
+import StructureCanvas from './studio/StructureCanvas.jsx'
+import SyllableSequencer from './studio/SyllableSequencer.jsx'
+
+const TABS = [
+  { id: 'editor', label: 'المحرر' },
+  { id: 'matrix', label: 'المصفوفة' },
+  { id: 'structure', label: 'التركيب' },
+  { id: 'sequencer', label: 'الإيقاع' },
+]
 
 function EmotionSpectrum({ text }) {
   const r = analyzeEmotions(text)
@@ -35,6 +45,7 @@ function Editor() {
   const [saveState, setSaveState] = useState('') // '' | جارٍ الحفظ | تم الحفظ | خطأ
   const [modeA, setModeA] = useState(false)
   const [modeB, setModeB] = useState(false)
+  const [tab, setTab] = useState('editor')
   const saveTimer = useRef(null)
 
   async function refresh() {
@@ -86,6 +97,20 @@ function Editor() {
         <span className="save-state mono">{saveState}</span>
       </div>
 
+      <div className="studio-tabs">
+        {TABS.map((t) => (
+          <button key={t.id} className={`studio-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'matrix' && <RhymeMatrix lines={lines} />}
+      {tab === 'structure' && <StructureCanvas />}
+      {tab === 'sequencer' && <SyllableSequencer />}
+
+      {tab === 'editor' && (
+      <>
       <textarea
         className="studio-editor"
         dir="rtl"
@@ -150,6 +175,8 @@ function Editor() {
         </div>
       )}
       <Representations />
+      </>
+      )}
       <Coach />
     </div>
   )

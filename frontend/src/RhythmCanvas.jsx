@@ -58,7 +58,7 @@ export default function RhythmCanvas({ seed = 941994 }) {
         const near = Math.max(0, 1 - Math.abs(sweep - i) / 2.5)       // توهج قرب المؤشر
         const a = 0.16 + jitter[i] * 0.12 + near * 0.65 + beat * 0.06
 
-        ctx.fillStyle = near > 0.15 ? `rgba(196,146,26,${Math.min(a,0.95)})` : `rgba(24,21,18,${Math.min(a*0.85,0.9)})`
+        ctx.fillStyle = near > 0.15 ? `rgba(255,159,28,${Math.min(a,0.95)})` : `rgba(152,162,168,${Math.min(a*0.85,0.9)})`
         ctx.strokeStyle = ctx.fillStyle
 
         if (units[i]) {
@@ -75,7 +75,7 @@ export default function RhythmCanvas({ seed = 941994 }) {
       }
 
       // خط الزمن الخافت
-      ctx.fillStyle = 'rgba(24,21,18,0.15)'
+      ctx.fillStyle = 'rgba(255,255,255,0.08)'
       ctx.fillRect(0, mid - 0.5, W, 1)
 
       if (!reduced) raf = requestAnimationFrame(draw)
