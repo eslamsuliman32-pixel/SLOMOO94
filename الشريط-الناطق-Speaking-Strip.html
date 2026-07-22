@@ -207,10 +207,12 @@ const PCore = (() => {
     const groups=[]; let i=0;
     while(i<symbolArr.length){
       const three=s.slice(i,i+3), two=s.slice(i,i+2);
+      const sameWord3 = three.length===3 && symbolArr[i].wordIndex===symbolArr[i+1].wordIndex && symbolArr[i+1].wordIndex===symbolArr[i+2].wordIndex;
+      const sameWord2 = two.length===2 && symbolArr[i].wordIndex===symbolArr[i+1].wordIndex;
       let len, type;
-      if(three==='●●▬'){ len=3; type='وتد مجموع'; }
-      else if(two==='●▬'){ len=2; type='سبب خفيف'; }
-      else if(two==='●●'){ len=2; type='سبب ثقيل'; }
+      if(three==='●●▬' && sameWord3){ len=3; type='وتد مجموع'; }
+      else if(two==='●▬' && sameWord2){ len=2; type='سبب خفيف'; }
+      else if(two==='●●' && sameWord2){ len=2; type='سبب ثقيل'; }
       else { len=1; type = symbolArr[i].symbol==='●' ? 'متحرك مفرد' : 'ساكن مفرد'; }
       const chunk=symbolArr.slice(i,i+len);
       const mutaharrikCount=chunk.filter(c=>c.symbol==='●').length;
@@ -596,10 +598,17 @@ $('btnJson').addEventListener('click',()=>{
 function frame(){
   let nowMs=null;
   if(S.playing && S.ctx){
-    const t=S.ctx.currentTime-S.startAt;
-    nowMs=t*1000;
-    if(nowMs>=totalDur()*1000){ stop(); nowMs=null; }
-    else {
+    nowMs=(S.ctx.currentTime-S.startAt)*1000;
+    if(S.loop){
+      const loopStart=lineStartOffset(S.sel), loopEnd=loopStart+lineData(S.sel).totalMs;
+      if(nowMs>=loopEnd){
+        S.seek=loopStart/1000;
+        S.startAt=S.ctx.currentTime-S.seek;
+        S.tickPtr=events.findIndex(e=>e.t>=S.seek); if(S.tickPtr<0) S.tickPtr=events.length;
+        nowMs=loopStart;
+      }
+    } else if(nowMs>=totalDur()*1000){ stop(); nowMs=null; }
+    if(nowMs!==null){
       let acc=0, li=0;
       for(;li<S.lines.length;li++){ const d=lineData(li).totalMs; if(nowMs<acc+d) break; acc+=d; }
       if(li!==S.sel && li<S.lines.length){ if(!S.loop) selectLine(li); }
