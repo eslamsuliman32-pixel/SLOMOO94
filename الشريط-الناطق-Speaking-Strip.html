@@ -1,148 +1,174 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#070707" />
-<title>الشريط الناطق — Speaking Strip | مقام</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مقام · الشريط الناطق — Speaking Strip</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#070707;
-    --gold:#D4AF37;
-    --gold-dim:#8a731f;
-    --panel:#101010;
-    --line:#2a2a2a;
-    --text:#EDE6D6;
-    --text-dim:#8a8578;
-  }
-  *{ box-sizing:border-box; }
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family:'Cairo',sans-serif;
-    min-height:100vh; padding:24px;
-  }
-  .bevel{
-    border:1px solid var(--line);
-    box-shadow: inset 1px 1px 0 rgba(255,255,255,.05), inset -1px -1px 0 rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.5);
-    background:var(--panel);
-  }
-  .app{ max-width:1100px; margin:0 auto; }
-  header{ text-align:center; margin-bottom:20px; }
-  header h1{
-    font-family:'Amiri',serif; color:var(--gold); font-size:2.1rem; margin:0 0 4px;
-    text-shadow:0 0 18px rgba(212,175,55,.25);
-  }
-  header p{ color:var(--text-dim); font-family:'Space Mono',monospace; font-size:.8rem; letter-spacing:.05em; }
-
-  .controls{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; padding:18px; border-radius:6px; margin-bottom:18px; }
-  .field{ display:flex; flex-direction:column; gap:6px; }
-  .field label{ font-size:.72rem; color:var(--gold); font-family:'Space Mono',monospace; letter-spacing:.06em; }
-  .field .readout{ font-family:'Space Mono',monospace; font-size:.72rem; color:var(--text-dim); }
-  input[type=range]{ accent-color:var(--gold); width:100%; }
-  input[type=number], select, textarea{
-    background:#0c0c0c; border:1px solid var(--line); color:var(--text);
-    padding:8px 10px; border-radius:4px; font-family:'Space Mono',monospace; font-size:.85rem;
-  }
-  select{ font-family:'Cairo',sans-serif; }
-  textarea{ min-height:64px; font-family:'Amiri',serif; font-size:1.1rem; resize:vertical; grid-column:1/-1; }
-  .row-full{ grid-column:1/-1; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-
-  button{
-    font-family:'Cairo',sans-serif; font-weight:800; cursor:pointer;
-    background:linear-gradient(180deg,#1a1a1a,#0c0c0c); color:var(--gold);
-    border:1px solid var(--gold-dim); border-radius:4px; padding:10px 20px;
-    box-shadow: inset 1px 1px 0 rgba(255,255,255,.06), inset -1px -1px 0 rgba(0,0,0,.7);
-    transition: all .15s ease;
-  }
-  button:hover{ border-color:var(--gold); color:#fff; box-shadow:0 0 12px rgba(212,175,55,.35); }
-  button.active{ background:var(--gold); color:#070707; }
-
-  .strip-wrap{ padding:20px; border-radius:6px; margin-bottom:18px; overflow-x:auto; }
-  .strip{ display:flex; gap:4px; min-height:140px; align-items:flex-end; direction:rtl; }
-  .cell{
-    flex:0 0 auto; min-width:46px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
-    padding:8px 6px 10px; border-radius:4px; border:1px solid var(--line);
-    background:#0c0c0c; transition:transform .2s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
-  }
-  .cell .glyph{ font-family:'Amiri',serif; font-size:1.35rem; margin-bottom:6px; }
-  .cell .symbols{ font-family:'Space Mono',monospace; font-size:.68rem; color:var(--text-dim); letter-spacing:.1em; }
-  .cell .units{ font-family:'Space Mono',monospace; font-size:.6rem; color:var(--gold-dim); margin-top:2px; }
-
-  .cell.phase-idle{ opacity:.45; transform:translateY(0); }
-  .cell.phase-precursor{ opacity:.7; border-color:var(--gold-dim); }
-  .cell.phase-ready{ opacity:.9; border-color:var(--gold); box-shadow:0 0 10px rgba(212,175,55,.25); transform:translateY(-2px); }
-  .cell.phase-speaking{ opacity:1; border-color:var(--gold); background:#1a1508; box-shadow:0 0 22px rgba(212,175,55,.55); transform:translateY(-6px) scale(1.05); }
-  .cell.phase-done{ opacity:.5; transform:translateY(0); }
-
-  .json-view{
-    font-family:'Space Mono',monospace; font-size:.72rem; color:#9fdca0;
-    background:#0a0a0a; padding:16px; border-radius:6px; max-height:340px; overflow:auto;
-    border:1px solid var(--line); white-space:pre-wrap; word-break:break-all;
-  }
-  .json-view.hidden{ display:none; }
-  .drift{ font-family:'Space Mono',monospace; font-size:.7rem; color:var(--text-dim); margin-top:8px; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070707; --gold:#D4AF37; --gold-dim:#8a7223; --gold-glow:rgba(212,175,55,.35);
+  --txt:#e8e2d0; --muted:#8b8574; --line:#221f18; --lcd:#3aff8e; --lcd-bg:#04140b;
+  --blue:#4da6ff; --blue-soft:#96c4f0;
+  --bev: inset 1px 1px 0 rgba(255,255,255,.06), inset -1px -1px 0 rgba(0,0,0,.65);
+}
+body{background:var(--bg) radial-gradient(1100px 520px at 50% -8%, #14110a 0%, transparent 60%);
+  color:var(--txt);font-family:'Cairo',sans-serif;min-height:100vh;padding:20px 16px 60px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.panel{background:linear-gradient(180deg,#121210,#0b0b0a);border:1px solid #000;border-radius:12px;
+  padding:16px;box-shadow:var(--bev),0 8px 22px rgba(0,0,0,.55)}
+.p-title{font-size:.82rem;font-weight:700;color:var(--gold);letter-spacing:.06em;
+  border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.p-title::before{content:"◈";color:var(--gold-dim);font-size:.7rem}
+.p-title .en{color:var(--muted);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.12em;margin-inline-start:auto}
+.app-head{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.logo{width:58px;height:58px;border-radius:11px;display:grid;place-items:center;font-family:'Amiri',serif;
+  font-weight:700;font-size:1.5rem;color:#0a0903;background:linear-gradient(160deg,#f0d372,var(--gold) 45%,#96741f);
+  box-shadow:0 0 18px var(--gold-glow),var(--bev)}
+.brand h1{font-size:1.22rem;font-weight:900}
+.brand .en{display:block;font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.22em;margin-top:2px}
+.lcd-row{display:flex;gap:10px;margin-inline-start:auto;flex-wrap:wrap}
+.lcd-box{background:var(--lcd-bg);border:1px solid #000;border-radius:8px;padding:7px 14px;min-width:96px;text-align:center;box-shadow:inset 0 2px 8px rgba(0,0,0,.8)}
+.lcd-box label{display:block;font-size:.58rem;color:#2a7a4d;letter-spacing:.14em;font-weight:700}
+.lcd-box span{font-family:'Space Mono',monospace;font-size:1.12rem;color:var(--lcd);text-shadow:0 0 9px rgba(58,255,142,.6)}
+#stageHolder{border-radius:9px;overflow-x:auto;overflow-y:hidden;border:1px solid #000;background:#0d0b09;box-shadow:inset 0 2px 12px rgba(0,0,0,.7)}
+#stage{display:block;height:auto}
+.transport{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{font-family:'Cairo',sans-serif;font-weight:700;font-size:.82rem;color:var(--txt);cursor:pointer;
+  background:linear-gradient(180deg,#1b1a16,#100f0d);border:1px solid #000;border-radius:8px;padding:8px 17px;
+  box-shadow:var(--bev),0 3px 8px rgba(0,0,0,.5);transition:all .12s}
+.btn:hover{color:var(--gold);box-shadow:0 0 12px var(--gold-glow),var(--bev)}
+.btn.play{background:linear-gradient(180deg,#2a2412,#1a1608);color:var(--gold);padding:8px 24px}
+.btn.on{color:#0a0903;background:linear-gradient(180deg,#f0d372,var(--gold));box-shadow:0 0 14px var(--gold-glow)}
+.btn.small{font-size:.7rem;padding:5px 12px}
+.bpm-box{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700}
+.bpm-box input[type=number]{width:70px;background:var(--lcd-bg);border:1px solid #000;border-radius:7px;color:var(--lcd);
+  font-family:'Space Mono',monospace;font-size:1.05rem;padding:6px 8px;text-align:center;box-shadow:inset 0 2px 8px rgba(0,0,0,.8)}
+.bpm-box input[type=range]{accent-color:var(--gold);width:120px}
+.k-box{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700}
+.k-box input{width:58px;background:var(--lcd-bg);border:1px solid #000;border-radius:7px;color:var(--lcd);
+  font-family:'Space Mono',monospace;font-size:.95rem;padding:6px 8px;text-align:center;box-shadow:inset 0 2px 8px rgba(0,0,0,.8)}
+#linesStrip{display:flex;direction:rtl;gap:6px;overflow-x:auto;padding-bottom:6px}
+.bar-card{min-width:150px;flex:0 0 150px;background:linear-gradient(180deg,#131311,#0c0c0b);border:1px solid #000;
+  border-radius:8px;border-top:3px solid #3a382e;padding:7px 9px;cursor:pointer;box-shadow:var(--bev);transition:.12s}
+.bar-card.sel{border-top-color:var(--gold);outline:2px solid var(--gold);box-shadow:0 0 14px var(--gold-glow)}
+.bar-card.now{outline:2px solid var(--lcd)}
+.bar-card .bno{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);display:flex;justify-content:space-between}
+.bar-card .prev{font-family:'Amiri',serif;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:3px 0}
+.bar-card .meta{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--gold)}
+.ed-row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.ed-main{flex:1;min-width:300px;display:flex;flex-direction:column;gap:8px}
+.ed-main textarea{background:#0d0d0c;border:1px solid #000;border-radius:9px;color:var(--txt);
+  font-family:'Amiri',serif;font-size:1.3rem;padding:12px 14px;min-height:110px;resize:vertical;
+  box-shadow:inset 0 2px 10px rgba(0,0,0,.7);line-height:2}
+.ed-side{display:flex;flex-direction:column;gap:8px;min-width:230px}
+.hint{font-size:.66rem;color:var(--muted);line-height:1.8}
+.meter{display:flex;align-items:center;gap:8px;font-size:.7rem}
+.meter .m{flex:1;height:7px;background:#0a0a09;border-radius:4px;overflow:hidden;border:1px solid #000}
+.meter .m i{display:block;height:100%;background:var(--lcd);transition:.2s}
+.meter.warn .m i{background:#ff5e3a}
+.legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.legend .lg{display:flex;align-items:center;gap:6px}
+.legend .sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+.legend .dot{width:9px;height:9px;border-radius:50%;background:var(--blue);display:inline-block}
+footer{text-align:center;margin-top:20px;font-family:'Space Mono',monospace;font-size:.6rem;color:#55503f;letter-spacing:.18em}
 </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <h1>الشريط الناطق — Speaking Strip</h1>
-    <p>SLOMOO94 / مقام — امتداد لـ «شبكة تجمعات النبر 16» بمحرك تقطيع عروضي حرفي</p>
-  </header>
+<div class="wrap">
 
-  <section class="controls bevel">
-    <div class="field">
-      <label for="bpm">BPM</label>
-      <input type="range" id="bpm" min="40" max="220" value="92" />
-      <span class="readout" id="bpmReadout">92</span>
-    </div>
-    <div class="field">
-      <label for="subdivision">التقسيمة</label>
-      <select id="subdivision">
-        <option value="4">16 (مستقيمة)</option>
-        <option value="3">12 (ثلاثية)</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="k">معامل k (ثِقَل الساكن/المدّ)</label>
-      <input type="number" id="k" min="1" max="4" step="0.1" value="1.5" />
-    </div>
-    <div class="field">
-      <label for="bars">عدد البارات</label>
-      <input type="number" id="bars" min="1" max="8" step="1" value="1" />
-    </div>
-    <textarea id="textInput" placeholder="اكتب نصًا عربيًا مُشكَّلًا بالكامل هنا…">مَكْتُوبٌ فَوْقَ الشَّريطِ النَّاطِقِ</textarea>
-    <div class="row-full">
-      <button id="playBtn">▶ تشغيل</button>
-      <button id="stopBtn">■ إيقاف</button>
-      <button id="jsonToggle">عرض JSON</button>
-      <span class="drift" id="driftReadout"></span>
-    </div>
-  </section>
-
-  <div class="strip-wrap bevel">
-    <div id="strip" class="strip"></div>
+<header class="app-head panel">
+  <div class="logo">مقام</div>
+  <div class="brand">
+    <h1>الشريط الناطق</h1>
+    <span class="en">MAQAM · SPEAKING STRIP · EXTENDS شبكة-تجمعات-النبر-16 v1.0</span>
   </div>
+  <div class="lcd-row">
+    <div class="lcd-box"><label>BPM</label><span id="lcdBpm">92</span></div>
+    <div class="lcd-box"><label>السطر</label><span id="lcdLine">١/١</span></div>
+    <div class="lcd-box"><label>المقاطع</label><span id="lcdCells">--</span></div>
+    <div class="lcd-box"><label>محاذاة الثِّقَل</label><span id="lcdStick">--%</span></div>
+  </div>
+</header>
 
-  <pre id="jsonView" class="json-view hidden"></pre>
+<section class="panel">
+  <h3 class="p-title">الشريط الناطق — العرض الحي <span class="en" id="stageCap">GRID 1/16</span></h3>
+  <div id="stageHolder"><canvas id="stage"></canvas></div>
+  <div class="transport">
+    <button id="btnPlay" class="btn play">▶ تشغيل الكل</button>
+    <button id="btnLoop" class="btn">↻ تكرار السطر: OFF</button>
+    <button id="btnStop" class="btn">⏹</button>
+    <div class="bpm-box">
+      <label>BPM</label>
+      <input type="range" id="bpmRange" min="40" max="220" value="92">
+      <input type="number" id="bpmIn" value="92" min="40" max="220">
+    </div>
+    <div class="k-box"><label>k</label><input type="number" id="kIn" value="1.5" min="1" max="4" step="0.1"></div>
+    <button id="btnGrid" class="btn small">الشبكة: ١/١٦</button>
+    <button id="btnClick" class="btn on small">كليك: ON</button>
+    <div class="lcd-box" style="min-width:70px"><label>الضربة</label><span id="lcdBeat">-</span></div>
+    <div class="lcd-box" style="min-width:70px"><label>الكلمة</label><span id="lcdGroup">-</span></div>
+    <button id="btnPng" class="btn small">⬇ PNG</button>
+    <button id="btnJson" class="btn small">⬇ JSON</button>
+  </div>
+  <div class="legend">
+    <span class="en">MAQAM · READ RIGHT→LEFT</span>
+    <span class="lg"><span class="sw" style="background:#6b5a1e"></span> المنطقة الناطقة</span>
+    <span class="lg"><span class="sw" style="background:#4a0f14"></span> المنطقة المتأهبة</span>
+    <span class="lg"><span class="sw" style="background:rgba(74,15,20,.35)"></span> خلية السَّبق</span>
+    <span class="lg">⌐ تجمّع الإحساس</span>
+    <span class="lg">▼ ثِقَل (▬)</span>
+    <span class="lg"><span class="dot"></span> مقطع منطوق</span>
+  </div>
+</section>
+
+<section class="panel">
+  <h3 class="p-title">أسطر النص <span class="en">TEXT LINES</span></h3>
+  <div id="linesStrip"></div>
+  <div style="display:flex;gap:8px;margin-top:9px">
+    <button id="btnAdd" class="btn small">＋ سطر جديد</button>
+    <button id="btnDup" class="btn small">⧉ تكرار السطر</button>
+    <button id="btnDel" class="btn small">✕ حذف السطر</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h3 class="p-title">محرر السطر — نص عربي مُشكَّل بالكامل <span class="en">FULLY VOCALIZED INPUT</span></h3>
+  <div class="ed-row">
+    <div class="ed-main">
+      <textarea id="txtIn" spellcheck="false"></textarea>
+    </div>
+    <div class="ed-side">
+      <div class="k-box"><label>عدد البارات</label><input type="number" id="barsIn" value="1" min="1" max="8" step="1"></div>
+      <div class="meter" id="densBox"><span>كثافة الثِّقَل</span><div class="m"><i id="densBar"></i></div><span id="densTxt">--</span></div>
+      <div class="hint">
+        المثلث ▼ فوق الدائرة = مقطع فيه ساكن/مدّ (▬) حسب منهجية الوزن الصوتي. الأقواس المرقمة تُشتق تلقائيًا من تجمّع مقاطع كل كلمة.
+        عرض الخانة يعكس وزنها الزمني الفعلي — لا شبكة موحّدة تقريبية.
+      </div>
+    </div>
+  </div>
+  <pre id="jsonView" style="display:none;font-family:'Space Mono',monospace;font-size:.7rem;color:#9fdca0;background:#0a0a09;padding:14px;border-radius:8px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:10px;border:1px solid #000"></pre>
+</section>
+
+<footer>MAQAM · SPEAKING STRIP — الهيكل المُضيء · محرك تقطيع عروضي حرفي · كل المعالجة محلية</footer>
 </div>
 
 <script>
-(function(){
-  "use strict";
+/*==PCORE-BEGIN==*/
+/* محرك التقطيع العروضي + الزمن الموزون — DOM-free، وفق docs/RHYME_PROSODY_SPEC.md */
+const PCore = (() => {
+  const AR='٠١٢٣٤٥٦٧٨٩';
+  const toAr = n => String(n).replace(/\d/g, d => AR[+d]);
 
-  // ---------- الطبقة 1: محرك التقطيع العروضي الحرفي ----------
   const FATHA='َ', DAMMA='ُ', KASRA='ِ', SUKUN='ْ', SHADDA='ّ';
   const TANWEEN=['ً','ٌ','ٍ'];
-  const DIACRITIC_RE=/[ً-ٰٓ]/;
+  const DIACRITIC_RE=/[ً-ٰٓ]/;
   const ARABIC_LETTER_RE=/[ء-ي]/;
   const MADD_LETTERS=['ا','و','ي','ى'];
 
   function segmentToSymbols(text){
-    const chars=Array.from(text);
+    const chars=Array.from(text||'');
     const out=[]; let wordIndex=0; let i=0;
     while(i<chars.length){
       const ch=chars[i];
@@ -176,7 +202,6 @@
     return out;
   }
 
-  // تجميع سبب خفيف ●▬ / سبب ثقيل ●● / وتد مجموع ●●▬ — أولوية الأكبر أولًا
   function groupSyllables(symbolArr){
     const s=symbolArr.map(x=>x.symbol).join('');
     const groups=[]; let i=0;
@@ -200,7 +225,6 @@
     return groups;
   }
 
-  // ---------- الطبقة 2: محرك الزمن الموزون ----------
   function computeTiming(groups, {bpm, subdivision, bars, k}){
     const beatMs=60000/bpm;
     const tickMs=beatMs/subdivision;
@@ -211,149 +235,385 @@
     const timeline=groups.map((g,idx)=>{
       const dur=weights[idx]/sumW*totalMs;
       const start=acc; acc+=dur;
-      return { ...g, weight_units:+weights[idx].toFixed(4), weight_type:g.symbols, start_ms:+start.toFixed(3), end_ms:+acc.toFixed(3), group_id:g.wordIndex };
+      return { ...g, weight_units:+weights[idx].toFixed(4), weight_type:g.symbols,
+        start_ms:+start.toFixed(3), end_ms:+acc.toFixed(3), group_id:g.wordIndex };
     });
     if(timeline.length) timeline[timeline.length-1].end_ms = +totalMs.toFixed(3);
     return { timeline, tickMs, totalMs };
   }
 
-  // ---------- الطبقة 3+4: الساعة المزدوجة + آلة الحالات الثلاثية الطور ----------
-  let audioCtx=null, isPlaying=false, schedulerTimer=null, rafId=null;
-  let scheduleData=null, cells=[], currentBpm=92;
-  const LOOKAHEAD=0.1, SCHEDULE_INTERVAL_MS=25, LEAD_FACTOR=0.6;
-
-  function clickSound(time, accent){
-    const osc=audioCtx.createOscillator();
-    const gain=audioCtx.createGain();
-    osc.frequency.value = accent ? 1500 : 950;
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(accent?0.55:0.35, time+0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time+0.06);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(time); osc.stop(time+0.07);
+  /* تجميع كلمات: مقاطع نفس group_id متتالية */
+  function wordGroups(timeline){
+    const out=[];
+    for(const t of timeline){
+      const last=out[out.length-1];
+      if(last && last.group_id===t.group_id){ last.end_ms=t.end_ms; last.count++; last.anyHeavy=last.anyHeavy||t.hasSakin; }
+      else out.push({ group_id:t.group_id, start_ms:t.start_ms, end_ms:t.end_ms, count:1, anyHeavy:t.hasSakin });
+    }
+    return out;
   }
 
-  function scheduler(){
-    if(!scheduleData) return;
-    while(scheduleData._nextTick < scheduleData.ticks.length &&
-          scheduleData.ticks[scheduleData._nextTick].time < audioCtx.currentTime + LOOKAHEAD){
-      const t=scheduleData.ticks[scheduleData._nextTick];
-      clickSound(t.time, t.accent);
-      scheduleData._nextTick++;
+  /* محاذاة الثِّقَل: كسر المقاطع الثقيلة (▬) الواقعة قرب بداية ضربة (tick % subdivision === 0) */
+  function heavyAlignment(timeline, tickMs, subdivision){
+    const heavy=timeline.filter(t=>t.hasSakin);
+    if(!heavy.length) return null;
+    let onBeat=0;
+    for(const t of heavy){
+      const centerTick=Math.round(((t.start_ms+t.end_ms)/2)/tickMs);
+      if(centerTick % subdivision === 0) onBeat++;
+    }
+    return onBeat/heavy.length;
+  }
+
+  return {toAr, segmentToSymbols, groupSyllables, computeTiming, wordGroups, heavyAlignment};
+})();
+if (typeof module!=='undefined'&&module.exports) module.exports=PCore;
+/*==PCORE-END==*/
+</script>
+<script>
+(() => {
+const $=id=>document.getElementById(id), P=PCore, AR=P.toAr;
+const COL={bg:'#0d0b09',blue:'#4da6ff',blueSoft:'#96c4f0',yellow:'#ffd53e',gold:'#D4AF37',
+  ink:'#0a0903',wht:'#e8e2d0',mut:'#8b8574',dim:'#1c1a14',
+  goldOv:'rgba(107,90,30,.55)',goldOvB:'rgba(160,132,44,.9)',
+  redOv:'rgba(74,15,20,.62)',redOvB:'rgba(120,26,34,.9)',
+  redOvSoft:'rgba(74,15,20,.3)',redOvSoftB:'rgba(120,26,34,.5)'};
+
+const S={
+  lines:[
+    {text:'مَكْتُوبٌ فَوْقَ الشَّريطِ النَّاطِقِ', bars:1},
+    {text:'يَتَكَلَّمُ بِوَزْنٍ دَقيقٍ لا يَنْحَرِفُ', bars:1},
+  ],
+  sel:0, sub:4, bpm:92, k:1.5,
+  playing:false, loop:false, seek:0, startAt:0, ctx:null,
+  clickOn:true, tickPtr:0, lastDom:{},
+  LEAD_FACTOR:0.6, LOOKAHEAD:0.1, SCHEDULE_MS:25,
+};
+const beatDur=()=>60/S.bpm, tickDur=()=>beatDur()/S.sub;
+function lineData(i){
+  const line=S.lines[i];
+  const groups=P.groupSyllables(P.segmentToSymbols(line.text));
+  const {timeline, tickMs, totalMs}=P.computeTiming(groups, {bpm:S.bpm, subdivision:S.sub, bars:line.bars, k:S.k});
+  return {timeline, tickMs, totalMs, words:P.wordGroups(timeline)};
+}
+function lineStartOffset(i){ let acc=0; for(let k=0;k<i;k++) acc+=lineData(k).totalMs; return acc; }
+function totalDur(){ let acc=0; for(let k=0;k<S.lines.length;k++) acc+=lineData(k).totalMs; return acc/1000; }
+
+/* ─── Stage canvas ─── */
+const cv=$('stage'), DPR=Math.min(2,window.devicePixelRatio||1);
+const PADR=28, PADL=28, MINW=42;
+const Y={brk:38,tri:76,circ:116,str:150,strH:42,cnt:226,cap:270};
+let CW=1240, CH=300;
+
+function layoutCols(timeline){
+  const n=timeline.length||1;
+  const weights=timeline.map(t=>t.weight_units||1);
+  const availDefault=1240-PADL-PADR;
+  const rawSum=weights.reduce((a,b)=>a+b,0)||1;
+  const neededMin=MINW*n;
+  const availW=Math.max(availDefault, neededMin);
+  CW=availW+PADL+PADR;
+  const extra=availW-neededMin;
+  const widths=weights.map(w=>MINW+(w/rawSum)*extra);
+  const centers=[]; let acc=0;
+  for(let i=0;i<n;i++){ centers.push(acc+widths[i]/2); acc+=widths[i]; }
+  return {widths, centers, total:acc};
+}
+function xcOf(centers,total,i){ return CW-PADR-(total-centers[i]); }
+
+function cellTime(lineIdx,t){ return lineStartOffset(lineIdx)+t; }
+
+function drawStage(nowMs){
+  const L=lineData(S.sel);
+  const {timeline, words}=L;
+  const {centers, widths, total}=layoutCols(timeline);
+  cv.width=CW*DPR; cv.height=CH*DPR; cv.style.width=CW+'px'; cv.style.height=CH+'px';
+  const g=cv.getContext('2d'); g.setTransform(DPR,0,0,DPR,0,0);
+  g.clearRect(0,0,CW,CH);
+  g.fillStyle=COL.bg; g.fillRect(0,0,CW,CH);
+  g.textAlign='center'; g.textBaseline='middle';
+
+  const relMs = nowMs===null?null:(nowMs-lineStartOffset(S.sel));
+
+  /* region sweep: كلمة حالية (ناطقة، ذهبي) + التالية (متأهبة، أحمر) + خلية السبق (أحمر خافت لما بعدها) */
+  let curW=-1;
+  if(relMs!==null){
+    for(let i=0;i<words.length;i++) if(relMs>=words[i].start_ms && relMs<words[i].end_ms){ curW=i; break; }
+  }
+  const regionBox=(fromIdx,toIdx,fill,stroke)=>{
+    const x1=xcOf(centers,total,toIdx)-widths[toIdx]/2+2;
+    const x2=xcOf(centers,total,fromIdx)+widths[fromIdx]/2-2;
+    g.fillStyle=fill; g.strokeStyle=stroke; g.lineWidth=1;
+    g.beginPath(); g.roundRect(x1,20,x2-x1,Y.cnt-2,8); g.fill(); g.stroke();
+  };
+  const idxRangeForWord=(wIdx)=>{
+    let from=-1,to=-1;
+    timeline.forEach((t,i)=>{ if(t.group_id===words[wIdx].group_id){ if(from<0)from=i; to=i; } });
+    return [from,to];
+  };
+  if(curW>=0){
+    const [f,t]=idxRangeForWord(curW);
+    regionBox(f,t,COL.goldOv,COL.goldOvB);
+    if(curW+1<words.length){
+      const [f2,t2]=idxRangeForWord(curW+1);
+      regionBox(f2,t2,COL.redOv,COL.redOvB);
+      if(curW+2<words.length){
+        const [f3,t3]=idxRangeForWord(curW+2);
+        regionBox(f3,t3,COL.redOvSoft,COL.redOvSoftB);
+      }
     }
   }
 
-  function renderStrip(timeline){
-    const strip=document.getElementById('strip');
-    strip.innerHTML='';
-    cells=timeline.map(seg=>{
-      const cell=document.createElement('div');
-      cell.className='cell phase-idle';
-      cell.innerHTML = `<div class="glyph">${seg.text||'·'}</div><div class="symbols">${seg.symbols}</div><div class="units">${seg.weight_units}</div>`;
-      strip.appendChild(cell);
-      return cell;
-    });
-  }
+  /* أقواس تجمّع الإحساس — مشتقة تلقائيًا من كلمات النص */
+  g.font='700 14px "Space Mono"';
+  words.forEach(w=>{
+    const [f,t]=idxRangeForWord(words.indexOf(w));
+    if(f<0) return;
+    const x1=xcOf(centers,total,t), x2=xcOf(centers,total,f);
+    g.strokeStyle=COL.yellow; g.lineWidth=2;
+    g.beginPath(); g.moveTo(x1,Y.brk+12); g.lineTo(x1,Y.brk+4); g.lineTo(x2,Y.brk+4); g.lineTo(x2,Y.brk+12); g.stroke();
+    g.fillStyle=COL.yellow; g.fillText(AR(w.count), (x1+x2)/2, Y.brk-9);
+  });
 
-  function uiLoop(){
-    if(!isPlaying || !scheduleData) return;
-    const now=audioCtx.currentTime;
-    const leadPrecursorSec = (LEAD_FACTOR*(60000/currentBpm))/1000;
-    const readySec = leadPrecursorSec/3;
-    scheduleData.timeline.forEach((t,idx)=>{
-      let phase;
-      if(now < t.absStart - leadPrecursorSec) phase='idle';
-      else if(now < t.absStart - readySec) phase='precursor';
-      else if(now < t.absStart) phase='ready';
-      else if(now < t.absEnd) phase='speaking';
+  /* الخلايا */
+  const tick=tickDur()*1000;
+  const subLbl = S.sub===4 ? ['إي','و','آ'] : ['ثا','لِث'];
+  timeline.forEach((t,i)=>{
+    const x=xcOf(centers,total,i);
+    /* مثلث الثِّقَل */
+    if(t.hasSakin){
+      g.fillStyle=COL.gold;
+      g.beginPath(); g.moveTo(x-8,Y.tri); g.lineTo(x+8,Y.tri); g.lineTo(x,Y.tri+12); g.closePath(); g.fill();
+      g.strokeStyle='rgba(212,175,55,.45)'; g.setLineDash([2,4]);
+      g.beginPath(); g.moveTo(x,Y.tri+15); g.lineTo(x,Y.circ-16); g.stroke(); g.setLineDash([]);
+    }
+    /* حالة الطور الثلاثي لكل مقطع */
+    let phase='idle';
+    if(relMs!==null){
+      const leadMs=(S.LEAD_FACTOR*(60000/S.bpm));
+      const readyMs=leadMs/3;
+      if(relMs < t.start_ms - leadMs) phase='idle';
+      else if(relMs < t.start_ms - readyMs) phase='precursor';
+      else if(relMs < t.start_ms) phase='ready';
+      else if(relMs < t.end_ms) phase='speaking';
       else phase='done';
-      const cell=cells[idx];
-      if(cell && cell.dataset.phase!==phase){
-        cell.dataset.phase=phase;
-        cell.className='cell phase-'+phase;
+    }
+    const r = t.mutaharrikCount>1 ? 13 : 10;
+    if(phase==='speaking'){
+      g.fillStyle='rgba(255,213,62,.30)'; g.beginPath(); g.arc(x,Y.circ,r+9,0,7); g.fill();
+    } else if(phase==='ready'){
+      g.strokeStyle='rgba(212,175,55,.65)'; g.lineWidth=2;
+      g.beginPath(); g.arc(x,Y.circ,r+6,0,7); g.stroke();
+    } else if(phase==='precursor'){
+      g.strokeStyle='rgba(120,26,34,.55)'; g.lineWidth=1.5;
+      g.beginPath(); g.arc(x,Y.circ,r+5,0,7); g.stroke();
+    }
+    g.beginPath(); g.arc(x,Y.circ,r,0,7);
+    g.fillStyle = phase==='speaking' ? COL.yellow : (phase==='done' ? COL.blueSoft : COL.blue);
+    g.fill();
+    if(t.hasSakin){ g.strokeStyle=COL.gold; g.lineWidth=2; g.stroke(); }
+
+    /* صف العدّ: رقم ضربة ذهبي كبير أو همسة عدّ رمادية */
+    const centerTick=Math.round(((t.start_ms+t.end_ms)/2)/tick);
+    const beatNum=(Math.floor(centerTick/S.sub)%4)+1;
+    const subIdx=((centerTick%S.sub)+S.sub)%S.sub;
+    const onNow = relMs!==null && relMs>=t.start_ms && relMs<t.end_ms;
+    if(subIdx===0){ g.font='700 22px "Amiri"'; g.fillStyle=onNow?'#fff':'#f5c400'; g.fillText(AR(beatNum),x,Y.cnt); }
+    else { g.font='14px "Amiri"'; g.fillStyle=onNow?COL.yellow:'rgba(200,195,180,.75)'; g.fillText(subLbl[subIdx-1]||'',x,Y.cnt); }
+  });
+
+  /* الشريط الأصفر */
+  if(timeline.length){
+    const sx1=xcOf(centers,total,timeline.length-1)-widths[timeline.length-1]/2+3;
+    const sx2=xcOf(centers,total,0)+widths[0]/2-3;
+    g.fillStyle=COL.yellow;
+    g.beginPath(); g.roundRect(sx1,Y.str,sx2-sx1,Y.strH,6); g.fill();
+    g.fillStyle=COL.ink;
+    timeline.forEach((t,i)=>{
+      const x=xcOf(centers,total,i);
+      g.font=(t.hasSakin?'700 ':'')+'20px "Amiri"';
+      g.fillText(t.text,x,Y.str+Y.strH/2+2);
+      const nextSame = timeline[i+1] && timeline[i+1].group_id===t.group_id;
+      if(nextSame){
+        const xm=(x+xcOf(centers,total,i+1))/2;
+        g.strokeStyle='rgba(10,9,3,.5)'; g.lineWidth=2;
+        g.beginPath(); g.moveTo(xm-5,Y.str+Y.strH/2); g.lineTo(xm+5,Y.str+Y.strH/2); g.stroke();
       }
     });
-    if(now > scheduleData.startBase + scheduleData.totalMs/1000 + 0.3){ stop(); return; }
-    rafId=requestAnimationFrame(uiLoop);
   }
 
-  // ---------- الطبقة 5: التكامل مع Beat Profile Schema ----------
-  function buildSyllableTimeline(timeline){
-    return timeline.map(t=>({
-      syllable: t.text,
-      weight_type: t.weight_type,
-      weight_units: t.weight_units,
-      start_ms: t.start_ms,
-      end_ms: t.end_ms,
-      group_id: t.group_id
-    }));
+  /* رأس التشغيل */
+  if(relMs!==null && relMs>=-500 && timeline.length){
+    const frac=Math.max(0,Math.min(1,relMs/(timeline[timeline.length-1].end_ms||1)));
+    const px=CW-PADR-frac*total;
+    g.strokeStyle='#3aff8e'; g.lineWidth=2;
+    g.beginPath(); g.moveTo(px,20); g.lineTo(px,Y.cnt+14); g.stroke();
+    g.fillStyle='#3aff8e';
+    g.beginPath(); g.moveTo(px-5,20); g.lineTo(px+5,20); g.lineTo(px,28); g.closePath(); g.fill();
   }
 
-  function updateJsonView(timeline, meta){
-    const payload={
-      schema_version:1,
-      module:"speaking_strip",
-      params: meta,
-      syllable_timeline: buildSyllableTimeline(timeline)
-    };
-    document.getElementById('jsonView').textContent = JSON.stringify(payload, null, 2);
-  }
+  /* تعليق */
+  g.font='12px "Space Mono"'; g.fillStyle=COL.mut; g.textAlign='left';
+  g.fillText('MAQAM · READ RIGHT>LEFT · '+(S.sub===4?'GRID 1/16':'GRID TRIPLET'),PADL,Y.cap);
+  g.textAlign='right'; g.font='13px "Cairo"'; g.fillText('مقام',CW-PADL,Y.cap);
+  g.textAlign='center';
 
-  // ---------- التشغيل/الإيقاف ----------
-  function play(){
-    stop();
-    const bpm=+document.getElementById('bpm').value;
-    const subdivision=+document.getElementById('subdivision').value;
-    const k=+document.getElementById('k').value;
-    const bars=+document.getElementById('bars').value;
-    const text=document.getElementById('textInput').value;
-    currentBpm=bpm;
+  return {L, curW};
+}
 
-    const groups=groupSyllables(segmentToSymbols(text));
-    if(!groups.length) return;
-    const {timeline, tickMs, totalMs}=computeTiming(groups, {bpm, subdivision, bars, k});
+/* ─── DOM: lines strip + editor ─── */
+function renderLines(){
+  const st=$('linesStrip'); st.innerHTML='';
+  S.lines.forEach((line,i)=>{
+    const L=lineData(i);
+    const d=document.createElement('div');
+    d.className='bar-card'+(i===S.sel?' sel':'');
+    d.innerHTML=`<div class="bno"><span>سطر ${AR(i+1)}</span><span>${AR(line.bars)} بار</span></div>
+      <div class="prev">${line.text||'—'}</div>
+      <div class="meta">${AR(L.timeline.length)} مقطع</div>`;
+    d.addEventListener('click',()=>{ selectLine(i); if(!S.playing) S.seek=lineStartOffset(i)/1000; });
+    st.appendChild(d);
+  });
+}
+function selectLine(i){
+  S.sel=i;
+  document.querySelectorAll('.bar-card').forEach((el,k)=>el.classList.toggle('sel',k===i));
+  $('txtIn').value=S.lines[i].text;
+  $('barsIn').value=S.lines[i].bars;
+  $('lcdLine').textContent=AR(i+1)+'/'+AR(S.lines.length);
+  refreshMeters();
+}
+function refreshMeters(){
+  const L=lineData(S.sel);
+  $('lcdCells').textContent=AR(L.timeline.length);
+  const align=P.heavyAlignment(L.timeline, L.tickMs, S.sub);
+  $('lcdStick').textContent = align===null ? '--%' : Math.round(align*100)+'%';
+  const heavyCount=L.timeline.filter(t=>t.hasSakin).length;
+  const dens = L.timeline.length ? heavyCount/L.timeline.length : 0;
+  $('densTxt').textContent = L.timeline.length ? Math.round(dens*100)+'%' : '--';
+  $('densBar').style.width=(dens*100)+'%';
+  $('densBox').classList.toggle('warn', dens>0.7);
+}
+$('txtIn').addEventListener('input',()=>{ S.lines[S.sel].text=$('txtIn').value; renderLines(); selectLineSoft(); });
+$('barsIn').addEventListener('input',()=>{ S.lines[S.sel].bars=Math.max(1,+$('barsIn').value||1); renderLines(); selectLineSoft(); });
+function selectLineSoft(){ document.querySelectorAll('.bar-card').forEach((el,k)=>el.classList.toggle('sel',k===S.sel)); refreshMeters(); }
+$('btnAdd').addEventListener('click',()=>{ S.lines.push({text:'',bars:1}); renderLines(); selectLine(S.lines.length-1); });
+$('btnDup').addEventListener('click',()=>{ S.lines.splice(S.sel+1,0,{...S.lines[S.sel]}); renderLines(); selectLine(S.sel+1); });
+$('btnDel').addEventListener('click',()=>{ if(S.lines.length<=1) return; S.lines.splice(S.sel,1); renderLines(); selectLine(Math.min(S.sel,S.lines.length-1)); });
 
-    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state==='suspended') audioCtx.resume();
-
-    const startBase=audioCtx.currentTime + 0.15;
-    const absTimeline=timeline.map(t=>({...t, absStart:startBase+t.start_ms/1000, absEnd:startBase+t.end_ms/1000}));
-    const totalTicks=Math.round(totalMs/tickMs);
-    const ticks=[];
+/* ─── Audio: double-clock scheduler (lookahead) + click ─── */
+function ensureCtx(){
+  if(!S.ctx) S.ctx=new (window.AudioContext||window.webkitAudioContext)();
+  if(S.ctx.state==='suspended') S.ctx.resume();
+}
+function clickSound(time, accent){
+  const osc=S.ctx.createOscillator(), gain=S.ctx.createGain();
+  osc.frequency.value = accent ? 1500 : 950;
+  gain.gain.setValueAtTime(0.0001, time);
+  gain.gain.exponentialRampToValueAtTime(accent?0.5:0.32, time+0.003);
+  gain.gain.exponentialRampToValueAtTime(0.0001, time+0.06);
+  osc.connect(gain).connect(S.ctx.destination);
+  osc.start(time); osc.stop(time+0.07);
+}
+let events=[];
+function rebuildEvents(){
+  events=[];
+  let offsetMs=0;
+  S.lines.forEach((line,li)=>{
+    const L=lineData(li);
+    const totalTicks=Math.round(L.totalMs/L.tickMs);
     for(let n=0;n<=totalTicks;n++){
-      ticks.push({ time: startBase + (n*tickMs)/1000, accent: n % subdivision === 0 });
+      events.push({ t:(offsetMs+n*L.tickMs)/1000, kind:'click', accent:n%S.sub===0 });
     }
-    scheduleData={ startBase, timeline:absTimeline, ticks, totalMs, _nextTick:0 };
-
-    renderStrip(timeline);
-    updateJsonView(timeline, {bpm, subdivision, k, bars, tick_ms:+tickMs.toFixed(3), total_ms:+totalMs.toFixed(3)});
-
-    isPlaying=true;
-    document.getElementById('playBtn').classList.add('active');
-    schedulerTimer=setInterval(scheduler, SCHEDULE_INTERVAL_MS);
-    rafId=requestAnimationFrame(uiLoop);
-  }
-
-  function stop(){
-    isPlaying=false;
-    document.getElementById('playBtn').classList.remove('active');
-    if(schedulerTimer){ clearInterval(schedulerTimer); schedulerTimer=null; }
-    if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
-    cells.forEach(c=>{ c.className='cell phase-idle'; c.dataset.phase='idle'; });
-  }
-
-  // ---------- ربط الواجهة ----------
-  document.getElementById('bpm').addEventListener('input', e=>{
-    document.getElementById('bpmReadout').textContent = e.target.value;
+    offsetMs+=L.totalMs;
   });
-  document.getElementById('playBtn').addEventListener('click', play);
-  document.getElementById('stopBtn').addEventListener('click', stop);
-  document.getElementById('jsonToggle').addEventListener('click', ()=>{
-    document.getElementById('jsonView').classList.toggle('hidden');
-  });
+  events.sort((a,b)=>a.t-b.t);
+}
+function scheduler(){
+  if(!S.playing) return;
+  const hz=S.ctx.currentTime-S.startAt+S.LOOKAHEAD;
+  while(S.tickPtr<events.length && events[S.tickPtr].t<=hz){
+    const e=events[S.tickPtr];
+    if(S.clickOn) clickSound(S.startAt+e.t, e.accent);
+    S.tickPtr++;
+  }
+}
+let schedulerTimer=null;
+function play(){
+  ensureCtx();
+  if(S.playing){ S.seek=S.ctx.currentTime-S.startAt; stopClock(); return; }
+  rebuildEvents();
+  if(S.loop) S.seek=lineStartOffset(S.sel)/1000;
+  else if(S.seek>=totalDur()-0.05) S.seek=0;
+  S.startAt=S.ctx.currentTime-S.seek;
+  S.tickPtr=events.findIndex(e=>e.t>=S.seek); if(S.tickPtr<0) S.tickPtr=events.length;
+  S.playing=true; $('btnPlay').textContent='⏸ إيقاف مؤقت';
+  schedulerTimer=setInterval(scheduler, S.SCHEDULE_MS);
+}
+function stopClock(){ S.playing=false; if(schedulerTimer){ clearInterval(schedulerTimer); schedulerTimer=null; } $('btnPlay').textContent='▶ تشغيل الكل'; }
+function stop(){ stopClock(); S.seek = S.loop ? lineStartOffset(S.sel)/1000 : 0; }
+$('btnPlay').addEventListener('click',play);
+$('btnStop').addEventListener('click',stop);
+$('btnLoop').addEventListener('click',()=>{ S.loop=!S.loop; $('btnLoop').textContent='↻ تكرار السطر: '+(S.loop?'ON':'OFF'); $('btnLoop').classList.toggle('on',S.loop); });
+$('btnClick').addEventListener('click',()=>{ S.clickOn=!S.clickOn; $('btnClick').textContent='كليك: '+(S.clickOn?'ON':'OFF'); $('btnClick').classList.toggle('on',S.clickOn); });
+function syncBpm(v){
+  const was=S.playing; if(was) play();
+  S.bpm=Math.max(40,Math.min(220,+v||92));
+  $('lcdBpm').textContent=S.bpm; $('bpmIn').value=S.bpm; $('bpmRange').value=S.bpm;
+  S.seek=0; renderLines(); selectLineSoft();
+  if(was) play();
+}
+$('bpmIn').addEventListener('input',()=>syncBpm($('bpmIn').value));
+$('bpmRange').addEventListener('input',()=>syncBpm($('bpmRange').value));
+$('kIn').addEventListener('input',()=>{ S.k=Math.max(1,+$('kIn').value||1.5); renderLines(); selectLineSoft(); });
+$('btnGrid').addEventListener('click',()=>{
+  S.sub = S.sub===4?3:4;
+  $('btnGrid').textContent = S.sub===4 ? 'الشبكة: ١/١٦' : 'الشبكة: ثلاثية';
+  $('stageCap').textContent = S.sub===4 ? 'GRID 1/16' : 'GRID TRIPLET';
+  renderLines(); selectLineSoft();
+});
+$('btnPng').addEventListener('click',()=>{
+  const a=document.createElement('a');
+  a.href=cv.toDataURL('image/png'); a.download='speaking_strip_line_'+(S.sel+1)+'.png'; a.click();
+});
+$('btnJson').addEventListener('click',()=>{
+  const data={ schema_version:1, module:'speaking_strip', bpm:S.bpm, subdivision:S.sub, k:S.k,
+    lines: S.lines.map((line,i)=>{
+      const L=lineData(i);
+      return { line:i+1, text:line.text, bars:line.bars, tick_ms:+L.tickMs.toFixed(3), total_ms:+L.totalMs.toFixed(3),
+        syllable_timeline: L.timeline.map(t=>({ syllable:t.text, weight_type:t.weight_type, weight_units:t.weight_units,
+          start_ms:t.start_ms, end_ms:t.end_ms, group_id:t.group_id })) };
+    })
+  };
+  $('jsonView').textContent=JSON.stringify(data,null,2);
+  $('jsonView').style.display='block';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='speaking_strip.json'; a.click();
+});
 
-  // تعريض دوال المحرك للاختبار الآلي (Playwright) دون تعديل سلوك الواجهة
-  window.__speakingStrip = { segmentToSymbols, groupSyllables, computeTiming };
+/* ─── Main loop: rAF عرض فقط، التوقيت من audioCtx.currentTime المُحسوب مسبقًا ─── */
+function frame(){
+  let nowMs=null;
+  if(S.playing && S.ctx){
+    const t=S.ctx.currentTime-S.startAt;
+    nowMs=t*1000;
+    if(nowMs>=totalDur()*1000){ stop(); nowMs=null; }
+    else {
+      let acc=0, li=0;
+      for(;li<S.lines.length;li++){ const d=lineData(li).totalMs; if(nowMs<acc+d) break; acc+=d; }
+      if(li!==S.sel && li<S.lines.length){ if(!S.loop) selectLine(li); }
+      const beat=Math.floor(((nowMs-lineStartOffset(S.sel))%(4*beatDur()*1000))/(beatDur()*1000))+1;
+      if(S.lastDom.beat!==beat){ S.lastDom.beat=beat; $('lcdBeat').textContent=AR(Math.max(1,Math.min(4,beat))); }
+    }
+  }
+  const res=drawStage(S.playing?nowMs:null);
+  if(S.playing && res.curW>=0 && S.lastDom.w!==res.curW){ S.lastDom.w=res.curW; $('lcdGroup').textContent=AR(res.curW+1)+'/'+AR(res.L.words.length); }
+  requestAnimationFrame(frame);
+}
+renderLines(); selectLine(0); frame();
+
+window.__speakingStrip = { segmentToSymbols:P.segmentToSymbols, groupSyllables:P.groupSyllables, computeTiming:P.computeTiming, wordGroups:P.wordGroups, heavyAlignment:P.heavyAlignment };
 })();
 </script>
 </body>
