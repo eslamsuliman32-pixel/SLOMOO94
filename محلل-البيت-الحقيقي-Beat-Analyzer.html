@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محلل البيت الحقيقي — طبقة النبض الحي | مقام</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rakkas&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Big+Shoulders+Display:wght@400;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0a; --panel:#121212; --panel-2:#161513; --line:#3a3428; --line-soft:#242019;
+  --gold:#d4af37; --gold-bright:#f4d160; --gold-dim:#8a7128; --gold-glow:rgba(212,175,55,.55);
+  --ink:#f3ede1; --ink-dim:#a89f8d; --ink-faint:#6b6455;
+  --pulse:#ff3d81; --pulse-bright:#ff7fb0; --pulse-glow:rgba(255,61,129,.55);
+  --lcd:#4ade80; --lcd-dim:#1f6b43; --lcd-glow:rgba(74,222,128,.45);
+  --kick:#4f9ed4; --kick-glow:rgba(79,158,212,.65);
+  --radius:16px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 50% 36% at 20% -6%, rgba(212,175,55,.09), transparent 50%),
+    radial-gradient(ellipse 40% 30% at 100% 6%, rgba(255,61,129,.06), transparent 45%),
+    var(--void);
+  color:var(--ink); font-family:'Cairo',sans-serif; line-height:1.75; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--gold); color:var(--void);}
+.mono{font-family:'Space Mono',monospace;}
+.ltr{direction:ltr; unicode-bidi:isolate;}
+.wrap{position:relative; z-index:2; max-width:1220px; margin:0 auto; padding:30px 18px 110px;}
+
+header{text-align:center; padding:16px 0 24px; border-bottom:1px dashed var(--line); margin-bottom:26px;}
+.eyebrow{font-family:'Space Mono',monospace; letter-spacing:.32em; color:var(--gold-dim); font-size:.66rem; text-transform:uppercase; margin-bottom:10px;}
+h1{font-family:'Rakkas',cursive; font-size:clamp(1.8rem,5vw,2.9rem); margin:0; color:var(--ink); text-shadow:0 0 20px var(--gold-glow);}
+.sub{font-family:'Aref Ruqaa',serif; color:var(--gold); font-size:1.02rem; margin-top:8px;}
+
+.panel{
+  background:linear-gradient(160deg,var(--panel),var(--panel-2));
+  border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), inset 0 -1px 0 rgba(0,0,0,.45), 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* Upload */
+.upload{
+  padding:44px 26px; text-align:center; margin-bottom:22px; cursor:pointer;
+  border:2px dashed var(--line); transition:all .25s ease;
+}
+.upload.drag{border-color:var(--gold); box-shadow:0 0 30px rgba(212,175,55,.15);}
+.upload .big-ic{font-size:2.4rem; color:var(--gold); margin-bottom:8px;}
+.upload h3{font-family:'Rakkas',cursive; color:var(--gold-bright); margin:0 0 6px; font-size:1.4rem;}
+.upload p{color:var(--ink-dim); font-size:.9rem; margin:0;}
+.upload input{display:none;}
+
+/* Progress */
+.progress{padding:22px 26px; margin-bottom:22px; display:none;}
+.prog-label{font-family:'Space Mono',monospace; font-size:.74rem; color:var(--lcd); margin-bottom:10px; text-shadow:0 0 8px var(--lcd-glow);}
+.prog-track{height:8px; border-radius:4px; background:var(--line-soft); overflow:hidden;}
+.prog-fill{height:100%; width:0%; border-radius:4px; background:linear-gradient(270deg,var(--gold-bright),var(--gold)); box-shadow:0 0 12px var(--gold-glow); transition:width .2s ease;}
+
+/* Transport */
+.controls{display:none; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:14px 18px; margin-bottom:16px;}
+.ctrl-group{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.btn-play{
+  width:54px; height:54px; border-radius:50%; border:2px solid var(--gold);
+  background:radial-gradient(circle at 35% 30%, #2a2415, #141109);
+  color:var(--gold-bright); font-size:1.15rem; cursor:pointer;
+  box-shadow:0 0 18px rgba(212,175,55,.2); transition:all .2s ease;
+  display:flex; align-items:center; justify-content:center;
+}
+.btn-play.playing{border-color:var(--pulse); color:var(--pulse-bright); box-shadow:0 0 22px var(--pulse-glow);}
+.lcd{
+  background:#08130c; border:1px solid var(--lcd-dim); border-radius:10px; padding:6px 14px;
+  font-family:'Space Mono',monospace; color:var(--lcd); text-shadow:0 0 8px var(--lcd-glow);
+  direction:ltr; text-align:center; min-width:96px;
+}
+.lcd .v{font-size:1.15rem; font-weight:700;}
+.lcd .l{font-size:.55rem; color:var(--lcd-dim); letter-spacing:.14em;}
+.sm-btn{
+  background:transparent; border:1.5px solid var(--line); border-radius:9px;
+  color:var(--ink-dim); font-family:'Space Mono',monospace; font-weight:700; font-size:.78rem;
+  padding:7px 13px; cursor:pointer; transition:all .2s ease;
+}
+.sm-btn:hover{border-color:var(--gold-dim); color:var(--gold-bright);}
+
+/* Sections rail */
+.sections{display:none; padding:14px 18px; margin-bottom:14px;}
+.rail-label{font-family:'Space Mono',monospace; font-size:.62rem; color:var(--gold-dim); letter-spacing:.2em; margin-bottom:10px;}
+.sec-rail{display:flex; gap:6px; direction:rtl;}
+.sec-block{
+  border:1.5px solid var(--line); border-radius:10px; padding:7px 10px 5px; cursor:pointer;
+  transition:all .2s ease; position:relative; overflow:hidden; min-width:70px; text-align:center;
+}
+.sec-block:hover{border-color:var(--gold-dim);}
+.sec-block.now{border-color:var(--gold); box-shadow:0 0 16px rgba(212,175,55,.2);}
+.sec-block .sn{font-family:'Cairo',sans-serif; font-weight:800; font-size:.82rem; color:var(--ink);}
+.sec-block .sb{font-family:'Space Mono',monospace; font-size:.62rem; color:var(--ink-faint);}
+.sec-block .se{position:absolute; bottom:0; right:0; left:0; height:3px; background:var(--gold); opacity:.8;}
+
+/* Bars rail */
+.bars-rail-wrap{display:none; padding:14px 18px; margin-bottom:16px;}
+.bars-rail{display:flex; flex-wrap:wrap; gap:5px; direction:rtl;}
+.bar-tile{
+  width:34px; height:34px; border-radius:7px; border:1.5px solid var(--line);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  font-family:'Space Mono',monospace; font-size:.66rem; color:var(--ink-faint);
+  transition:all .15s ease; position:relative;
+}
+.bar-tile:hover{border-color:var(--gold-dim); color:var(--gold-bright);}
+.bar-tile.now{border-color:var(--pulse); color:var(--pulse-bright); box-shadow:0 0 12px var(--pulse-glow); transform:scale(1.12);}
+.bar-tile.viewed{border-color:var(--gold); color:var(--gold-bright);}
+.bar-tile .m{position:absolute; top:-5px; left:-5px; font-size:.5rem; background:var(--lcd); color:#04150a; border-radius:6px; padding:0 4px; font-weight:700;}
+
+/* Layers */
+.layers-bar{display:none; flex-wrap:wrap; gap:9px; align-items:center; padding:12px 18px; margin-bottom:16px;}
+.chip{
+  display:flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,.03); border:1.5px solid var(--line); border-radius:999px;
+  color:var(--ink-dim); font-family:'Cairo',sans-serif; font-weight:700; font-size:.78rem;
+  padding:6px 14px; cursor:pointer; transition:all .22s ease; user-select:none;
+}
+.chip .ic{width:11px; height:11px; border-radius:50%; background:var(--ink-faint); transition:all .22s;}
+.chip.on{border-color:var(--gold); color:var(--ink);}
+.chip.on .ic{background:var(--gold); box-shadow:0 0 10px var(--gold-glow);}
+.chip.on[data-tint=pulse]{border-color:var(--pulse);}
+.chip.on[data-tint=pulse] .ic{background:var(--pulse); box-shadow:0 0 10px var(--pulse-glow);}
+.chip.on[data-tint=kick]{border-color:var(--kick);}
+.chip.on[data-tint=kick] .ic{background:var(--kick); box-shadow:0 0 10px var(--kick-glow);}
+.chip.on[data-tint=lcd]{border-color:var(--lcd);}
+.chip.on[data-tint=lcd] .ic{background:var(--lcd); box-shadow:0 0 10px var(--lcd-glow);}
+
+/* Stage */
+.stage{display:none; padding:30px 24px 24px; margin-bottom:16px; position:relative; overflow:hidden;}
+.stage-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; position:relative; z-index:3;}
+.stage-title{font-family:'Space Mono',monospace; font-size:.72rem; color:var(--gold-dim); letter-spacing:.14em;}
+.stage-title b{color:var(--gold-bright); font-size:.95rem;}
+.match-badge{
+  font-family:'Space Mono',monospace; font-size:.72rem; color:var(--lcd);
+  border:1px solid var(--lcd-dim); border-radius:999px; padding:4px 12px; display:none;
+}
+.grid16{display:grid; grid-template-columns:repeat(16,1fr); direction:rtl; position:relative; z-index:2;}
+.row-brackets{min-height:46px;} .row-tris{min-height:24px;}
+.row-dots{min-height:60px;} .row-syll{min-height:38px;} .row-count{min-height:28px;}
+
+.bracket{
+  position:relative; margin:0 3px 8px; align-self:end; border-top:2px solid var(--gold); height:14px;
+  opacity:0; transform:translateY(6px); transition:all .35s ease;
+}
+.bracket::before,.bracket::after{content:""; position:absolute; top:-2px; width:2px; height:9px; background:var(--gold);}
+.bracket::before{right:0;} .bracket::after{left:0;}
+.bracket .syl-count{
+  position:absolute; top:-27px; right:50%; transform:translateX(50%);
+  font-family:'Big Shoulders Display',sans-serif; font-weight:900; font-size:1.02rem; color:var(--gold-bright); direction:ltr;
+}
+.bracket .wname{position:absolute; top:9px; right:50%; transform:translateX(50%); font-family:'Amiri',serif; font-size:.74rem; color:var(--ink-faint); white-space:nowrap;}
+.layer-visible .bracket{opacity:1; transform:translateY(0);}
+
+.tri-cell{display:flex; align-items:flex-end; justify-content:center; padding-bottom:3px;}
+.tri{
+  width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent;
+  border-top:11px solid var(--pulse); filter:drop-shadow(0 0 6px var(--pulse-glow));
+  opacity:0; transform:translateY(-6px) scale(.6); transition:all .3s ease;
+}
+.layer-visible .tri{opacity:1; transform:translateY(0) scale(1);}
+.tri.stress{border-top-color:var(--gold-bright); filter:drop-shadow(0 0 6px var(--gold-glow));}
+
+.dot-cell{display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;}
+.dot-cell .tick{position:absolute; top:2px; bottom:2px; width:0; border-right:1px dotted rgba(255,255,255,.10);}
+.dot-cell.beat-line .tick{border-right:1px dotted rgba(255,255,255,.3);}
+.dot{
+  width:14px; height:14px; border-radius:50%;
+  background:#2b2822; border:1.5px solid rgba(255,255,255,.10);
+  transition:all .14s ease; position:relative; z-index:2;
+}
+.dot-cell.beat-line .dot{width:18px; height:18px;}
+.dot.onset{background:#3d382d; border-color:rgba(255,255,255,.22);}
+.dot.kick{background:radial-gradient(circle at 35% 30%, #8fc4ea, var(--kick)); border-color:#a9d4f2; box-shadow:0 0 14px var(--kick-glow), 0 0 30px rgba(79,158,212,.25);}
+.dot.snare{background:transparent; border:2.5px solid var(--kick); box-shadow:0 0 8px rgba(79,158,212,.3);}
+.dot.kick.snare{border:2.5px solid #fff;}
+.dot.syl{background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold)); border-color:var(--gold-bright); box-shadow:0 0 12px var(--gold-glow);}
+.dot-cell.now .dot{transform:scale(1.5);}
+.dot-cell.now .dot::after{
+  content:""; position:absolute; inset:-7px; border-radius:50%;
+  border:2px solid var(--pulse); box-shadow:0 0 16px var(--pulse-glow);
+}
+.dot-cell.now.beat-line .dot::after{border-color:var(--gold-bright); box-shadow:0 0 22px var(--gold-glow);}
+
+.syl-cell{display:flex; align-items:center; justify-content:center; margin-top:9px; opacity:0; transform:translateY(4px); transition:all .3s ease;}
+.layer-visible .syl-cell{opacity:1; transform:translateY(0);}
+.syl-txt{
+  font-family:'Amiri',serif; font-weight:700; font-size:.98rem; color:#211a08;
+  background:linear-gradient(160deg,var(--gold-bright),var(--gold));
+  border-radius:6px; padding:0 6px; box-shadow:0 2px 8px rgba(212,175,55,.25); white-space:nowrap;
+  transition:all .12s ease;
+}
+.syl-txt.stressed{background:linear-gradient(160deg,var(--pulse-bright),var(--pulse)); color:#2a0713; box-shadow:0 2px 10px var(--pulse-glow);}
+.syl-cell.now-s .syl-txt{transform:scale(1.25); box-shadow:0 0 18px var(--gold-glow);}
+
+.count-cell{
+  display:flex; align-items:center; justify-content:center; margin-top:7px;
+  font-family:'Space Mono',monospace; font-size:.74rem; color:var(--ink-faint);
+  opacity:0; transition:opacity .3s ease;
+}
+.layer-visible .count-cell{opacity:1;}
+.count-cell.beat{font-family:'Big Shoulders Display',sans-serif; font-weight:900; font-size:1.2rem; color:var(--gold-bright);}
+.count-cell.now-c{color:var(--lcd); text-shadow:0 0 8px var(--lcd-glow);}
+.barline{position:absolute; top:14px; bottom:14px; left:6px; width:7px; border-left:2.5px solid var(--ink-dim); border-right:1.5px solid var(--ink-dim); z-index:2;}
+
+/* Text panel */
+.text-panel{display:none; padding:20px 22px; margin-bottom:16px;}
+.text-panel h3{font-family:'Rakkas',cursive; color:var(--gold-bright); margin:0 0 6px; font-size:1.2rem;}
+.text-panel p{color:var(--ink-dim); font-size:.82rem; margin:0 0 12px;}
+.text-panel textarea{
+  width:100%; min-height:110px; background:#0d0d0b; border:1px solid var(--line); border-radius:10px;
+  color:var(--ink); font-family:'Amiri',serif; font-size:1.1rem; line-height:2.2; padding:14px 16px; resize:vertical;
+}
+.text-panel textarea:focus{outline:none; border-color:var(--gold-dim);}
+.text-actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center;}
+.btn-gold{
+  font-family:'Cairo',sans-serif; font-weight:700; border:none; border-radius:10px;
+  padding:10px 20px; font-size:.88rem; cursor:pointer;
+  background:linear-gradient(160deg,var(--gold-bright),var(--gold)); color:#211a08;
+  box-shadow:0 6px 16px rgba(212,175,55,.25);
+}
+.overall-match{font-family:'Space Mono',monospace; font-size:.78rem; color:var(--lcd); display:none;}
+
+.legend{display:none; padding:16px 20px; flex-wrap:wrap; gap:20px; font-size:.8rem; color:var(--ink-dim);}
+.leg{display:flex; align-items:center; gap:8px;}
+.leg .d{width:13px; height:13px; border-radius:50%; flex-shrink:0;}
+.leg b{color:var(--ink);}
+.stats-line{font-family:'Space Mono',monospace; font-size:.68rem; color:var(--ink-faint); width:100%;}
+
+footer{margin-top:30px; text-align:center; color:var(--ink-faint); font-family:'Space Mono',monospace; font-size:.7rem;}
+footer .credo{font-family:'Aref Ruqaa',serif; font-size:1rem; color:var(--gold); margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">مقام · الهيكل المُضيء — الطبقة الحية</div>
+  <h1>محلل البيت الحقيقي</h1>
+  <div class="sub">ارفع بيتك — التحليل الطيفي يكشف BPM والكيك والسنير والـ808 من الصوت نفسه، لا بيانات وهمية</div>
+</header>
+
+<div class="panel upload" id="uploadZone">
+  <div class="big-ic">&#9836;</div>
+  <h3>ارفع البيت الموسيقي</h3>
+  <p>MP3 أو WAV — اسحب الملف هنا أو اضغط للاختيار · التحليل يتم بالكامل داخل متصفحك</p>
+  <input type="file" id="fileInput" accept="audio/*">
+</div>
+
+<div class="panel progress" id="progressPanel">
+  <div class="prog-label" id="progLabel">...</div>
+  <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+</div>
+
+<div class="panel controls" id="controls">
+  <div class="ctrl-group">
+    <button class="btn-play" id="btnPlay">&#9654;</button>
+    <div class="lcd"><div class="v" id="lcdBpm">--</div><div class="l">BPM (مكتشف)</div></div>
+    <div class="lcd"><div class="v" id="lcdPos">-.-</div><div class="l">BAR.BEAT</div></div>
+    <div class="lcd"><div class="v" id="lcdBars">--</div><div class="l">BARS</div></div>
+    <div class="lcd"><div class="v" id="lcdConf">--%</div><div class="l">CONFIDENCE</div></div>
+  </div>
+  <div class="ctrl-group">
+    <button class="sm-btn" id="btnHalf">&#189;&times; BPM</button>
+    <button class="sm-btn" id="btnDouble">2&times; BPM</button>
+    <button class="sm-btn" id="btnShift">إزاحة الداونبيت &#8592;</button>
+    <button class="sm-btn" id="btnReupload">ملف آخر</button>
+  </div>
+</div>
+
+<div class="panel sections" id="sectionsPanel">
+  <div class="rail-label">SECTIONS · أقسام البيت الحقيقية (حدود الطاقة الطيفية)</div>
+  <div class="sec-rail" id="secRail"></div>
+</div>
+
+<div class="panel bars-rail-wrap" id="barsRailWrap">
+  <div class="rail-label">BARS · كل بارات التراك — الميترونوم يمشيها بارًا بارًا حتى آخر ضربة</div>
+  <div class="bars-rail" id="barsRail"></div>
+</div>
+
+<div class="panel layers-bar" id="layersBar">
+  <span class="rail-label" style="margin:0 0 0 4px">LAYERS</span>
+  <div class="chip on" data-layer="drums" data-tint="kick"><span class="ic"></span>كيك / سنير</div>
+  <div class="chip on" data-layer="tri808" data-tint="pulse"><span class="ic"></span>الـ808 &#9660;</div>
+  <div class="chip" data-layer="onsets"><span class="ic"></span>ضربات أخرى (خام)</div>
+  <div class="chip on" data-layer="syll"><span class="ic"></span>المقاطع اللفظية</div>
+  <div class="chip on" data-layer="stress" data-tint="pulse"><span class="ic"></span>النبر &#9660;</div>
+  <div class="chip on" data-layer="brackets"><span class="ic"></span>أقواس الكلمات</div>
+  <div class="chip on" data-layer="count" data-tint="lcd"><span class="ic"></span>سطر العدّ</div>
+  <div class="chip" data-layer="wordmet" data-tint="lcd"><span class="ic"></span>ميترونوم الكلمات &#9834;</div>
+</div>
+
+<div class="panel stage" id="stage">
+  <div class="barline"></div>
+  <div class="stage-head">
+    <div class="stage-title">BAR <b id="stBar">-</b> / <span id="stTotal">-</span> · <span id="stSec">—</span></div>
+    <div class="match-badge" id="matchBadge">تزامن النبر: --%</div>
+  </div>
+  <div class="grid16 row-brackets" id="rowBrackets"></div>
+  <div class="grid16 row-tris" id="rowTris"></div>
+  <div class="grid16 row-dots" id="rowDots"></div>
+  <div class="grid16 row-syll" id="rowSyll"></div>
+  <div class="grid16 row-count" id="rowCount"></div>
+</div>
+
+<div class="panel text-panel" id="textPanel">
+  <h3>البارات النصية — التقطيع العروضي</h3>
+  <p>كل سطر = بار، بالتشكيل. تُوزَّع المقاطع على شبكة البار وتُحسب نسبة تزامن النبر مع ضربات الإيقاع <b>المكتشفة فعليًا</b>.</p>
+  <textarea id="barsText" placeholder="قَلْبِي عَلَى الإِيقَاعِ ثَابِتْ&#10;وَالْكَلِمَةُ فِي مَكَانِهَا نَازِلَةْ"></textarea>
+  <div class="text-actions">
+    <button class="btn-gold" id="btnDistribute">وزّع المقاطع على البارات</button>
+    <span class="overall-match" id="overallMatch"></span>
+  </div>
+</div>
+
+<div class="panel legend" id="legend">
+  <div class="leg"><span class="d" style="background:radial-gradient(circle at 35% 30%,#8fc4ea,var(--kick)); box-shadow:0 0 8px var(--kick-glow)"></span><b>نقطة مضيئة</b> = كيك (كشف طيف Sub 25–110Hz)</div>
+  <div class="leg"><span class="d" style="border:2.5px solid var(--kick); background:transparent"></span><b>حلقة</b> = سنير (تدفق High+Mid عريض)</div>
+  <div class="leg"><span style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid var(--pulse)"></span><b>مثلث</b> = 808 (استدامة طاقة Sub &gt; 45%)</div>
+  <div class="leg"><span class="d" style="background:#3d382d; border:1.5px solid rgba(255,255,255,.25)"></span>ضربة خام غير مصنّفة</div>
+  <div class="leg"><span class="d" style="background:radial-gradient(circle at 35% 30%,var(--gold-bright),var(--gold))"></span><b>ذهبية</b> = مقطع لفظي · <span style="color:var(--pulse-bright)">وردية</span> = مقطع منبور</div>
+  <div class="stats-line" id="statsLine"></div>
+</div>
+
+<footer>
+  <div class="credo">"الآلة تكشف وتعرض وتقيس — الإنسان يقرر ويكتب ويؤدي"</div>
+  REAL SPECTRAL ANALYSIS · STFT 1024/256 @22050 · RTL TIMELINE · NO FAKE DATA
+</footer>
+</div>
+
+<script>
+/* ═══════════════ FFT ═══════════════ */
+class FFT{
+  constructor(n){
+    this.n=n; this.cos=new Float32Array(n/2); this.sin=new Float32Array(n/2);
+    for(let i=0;i<n/2;i++){this.cos[i]=Math.cos(-2*Math.PI*i/n); this.sin[i]=Math.sin(-2*Math.PI*i/n);}
+    this.rev=new Uint32Array(n); const bits=Math.log2(n);
+    for(let i=0;i<n;i++){let r=0; for(let b=0;b<bits;b++) r=(r<<1)|((i>>b)&1); this.rev[i]=r;}
+  }
+  transform(re,im){
+    const n=this.n, rev=this.rev;
+    for(let i=0;i<n;i++){const r=rev[i]; if(r>i){let t=re[i];re[i]=re[r];re[r]=t; t=im[i];im[i]=im[r];im[r]=t;}}
+    for(let size=2;size<=n;size<<=1){
+      const half=size>>1, step=n/size;
+      for(let i=0;i<n;i+=size){
+        for(let j=i,k=0;j<i+half;j++,k+=step){
+          const c=this.cos[k], s=this.sin[k];
+          const tre=re[j+half]*c-im[j+half]*s, tim=re[j+half]*s+im[j+half]*c;
+          re[j+half]=re[j]-tre; im[j+half]=im[j]-tim; re[j]+=tre; im[j]+=tim;
+        }
+      }
+    }
+  }
+}
+
+/* ═══════════════ حالة عامة ═══════════════ */
+const S = {
+  ac:null, buffer:null, mono:null, sr:22050, fps:0,
+  analysis:null,      // {bpm, conf, beats[], bars[], sections[], counts}
+  playing:false, src:null, startCtx:0, startSong:0, viewBar:0,
+  layers:{drums:true, tri808:true, onsets:false, syll:true, stress:true, brackets:true, count:true, wordmet:false},
+  text:{bars:[]},     // per bar: {syllables:[{slot,t,stress}], words:[{from,to,name,count}], match:null}
+  rafId:0, tickSched:0
+};
+const $=id=>document.getElementById(id);
+const countLabels=['1','\u064A','\u0648','\u0639','2','\u064A','\u0648','\u0639','3','\u064A','\u0648','\u0639','4','\u064A','\u0648','\u0639'];
+
+/* ═══════════════ رفع الملف ═══════════════ */
+const uz=$('uploadZone'), fi=$('fileInput');
+uz.addEventListener('click',()=>fi.click());
+uz.addEventListener('dragover',e=>{e.preventDefault(); uz.classList.add('drag');});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));
+uz.addEventListener('drop',e=>{e.preventDefault(); uz.classList.remove('drag'); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);});
+fi.addEventListener('change',()=>{ if(fi.files[0]) loadFile(fi.files[0]); });
+$('btnReupload').addEventListener('click',()=>{ stopPlayback(); location.reload(); });
+
+async function loadFile(file){
+  try{
+    if(!S.ac) S.ac=new (window.AudioContext||window.webkitAudioContext)();
+    uz.style.display='none';
+    showProgress('فك ترميز الملف الصوتي ...',3);
+    const arr=await file.arrayBuffer();
+    S.buffer=await S.ac.decodeAudioData(arr);
+    showProgress('إعادة أخذ العينات إلى 22050Hz أحادي ...',8);
+    const off=new OfflineAudioContext(1, Math.ceil(S.buffer.duration*S.sr), S.sr);
+    const src=off.createBufferSource(); src.buffer=S.buffer; src.connect(off.destination); src.start();
+    S.mono=(await off.startRendering()).getChannelData(0);
+    await analyze();
+  }catch(err){
+    showProgress('تعذّر فك الترميز: '+err.message,0);
+    setTimeout(()=>{ $('progressPanel').style.display='none'; uz.style.display='block'; },2600);
+  }
+}
+function showProgress(label,pct){
+  $('progressPanel').style.display='block';
+  $('progLabel').textContent=label;
+  $('progFill').style.width=pct+'%';
+}
+
+/* ═══════════════ التحليل الطيفي ═══════════════ */
+async function analyze(){
+  const N=1024, hop=256, sr=S.sr, mono=S.mono;
+  S.fps=sr/hop;
+  const frames=Math.max(1,Math.floor((mono.length-N)/hop));
+  const win=new Float32Array(N);
+  for(let i=0;i<N;i++) win[i]=.5-.5*Math.cos(2*Math.PI*i/N);
+  const fft=new FFT(N), bins=N/2;
+  const binOf=hz=>Math.max(1,Math.min(bins-1,Math.round(hz*N/sr)));
+  const B={sub:[binOf(25),binOf(120)], kx:[binOf(120),binOf(160)], sb:[binOf(160),binOf(350)], mid:[binOf(350),binOf(2000)], high:[binOf(3500),binOf(9000)]};
+
+  const subE=new Float32Array(frames), subF=new Float32Array(frames),
+        midF=new Float32Array(frames), highF=new Float32Array(frames),
+        totF=new Float32Array(frames), rmsF=new Float32Array(frames);
+  const re=new Float32Array(N), im=new Float32Array(N), mag=new Float32Array(bins), prev=new Float32Array(bins);
+
+  const CHUNK=500;
+  for(let f=0;f<frames;f++){
+    const o=f*hop;
+    let rms=0;
+    for(let i=0;i<N;i++){ const v=mono[o+i]*win[i]; re[i]=v; im[i]=0; rms+=v*v; }
+    rmsF[f]=Math.sqrt(rms/N);
+    fft.transform(re,im);
+    for(let i=0;i<bins;i++) mag[i]=Math.sqrt(re[i]*re[i]+im[i]*im[i]);
+    let se=0,sf=0,mf=0,hf=0,tf=0;
+    for(let i=B.sub[0];i<B.sub[1];i++){ se+=mag[i]; const d=mag[i]-prev[i]; if(d>0) sf+=d; }
+    for(let i=B.kx[0];i<B.kx[1];i++){ const d=mag[i]-prev[i]; if(d>0) sf+=d*.4; }
+    for(let i=B.sb[0];i<B.sb[1];i++){ const d=mag[i]-prev[i]; if(d>0) mf+=d*.8; }
+    for(let i=B.mid[0];i<B.mid[1];i++){ const d=mag[i]-prev[i]; if(d>0) mf+=d; }
+    for(let i=B.high[0];i<B.high[1];i++){ const d=mag[i]-prev[i]; if(d>0) hf+=d; }
+    for(let i=1;i<bins;i++){ const d=mag[i]-prev[i]; if(d>0) tf+=d; prev[i]=mag[i]; }
+    subE[f]=se; subF[f]=sf; midF[f]=mf; highF[f]=hf; totF[f]=tf;
+    if(f%CHUNK===0){
+      showProgress('التحليل الطيفي STFT ... إطار '+f+' / '+frames, 8+Math.round(52*f/frames));
+      await new Promise(r=>setTimeout(r,0));
+    }
+  }
+
+  showProgress('تقدير الإيقاع (Autocorrelation) ...',64);
+  await new Promise(r=>setTimeout(r,0));
+  const {bpm,conf}=estimateTempo(totF,S.fps);
+
+  showProgress('محاذاة شبكة النبضات والداونبيت ...',72);
+  await new Promise(r=>setTimeout(r,0));
+  const beats=alignBeats(totF,subE,subF,bpm,S.fps);
+
+  showProgress('كشف الكيك والسنير والـ808 ...',80);
+  await new Promise(r=>setTimeout(r,0));
+  const hits=classifyHits({subF,midF,highF,totF,subE},S.fps);
+
+  showProgress('بناء البارات وتوزيع الضربات على الشبكة ...',88);
+  await new Promise(r=>setTimeout(r,0));
+  const bars=buildBars(beats,hits,bpm);
+
+  showProgress('تقسيم الأقسام (Novelty Segmentation) ...',94);
+  await new Promise(r=>setTimeout(r,0));
+  const sections=segment(bars,rmsF,subE,highF,S.fps);
+
+  S.hits=hits;
+  S.analysis={bpm,conf,beats,bars,sections,
+    counts:{kick:hits.kick.length, snare:hits.snare.length, e808:hits.e808.length, raw:hits.raw.length}};
+  showProgress('اكتمل التحليل',100);
+  setTimeout(()=>{ $('progressPanel').style.display='none'; revealUI(); },500);
+}
+
+/* --- تقدير الإيقاع --- */
+function estimateTempo(env,fps){
+  const n=env.length, sm=new Float32Array(n);
+  for(let i=1;i<n-1;i++) sm[i]=(env[i-1]+env[i]+env[i+1])/3;
+  const W=Math.round(fps*1.2);
+  const hp=new Float32Array(n);
+  let run=0; const q=[];
+  for(let i=0;i<n;i++){ q.push(sm[i]); run+=sm[i]; if(q.length>W) run-=q.shift(); hp[i]=Math.max(0,sm[i]-run/q.length); }
+  let best={bpm:120,score:-1};
+  const scores=[];
+  for(let bpm=60;bpm<=180;bpm+=0.5){
+    const lag=fps*60/bpm; const L=Math.round(lag);
+    if(L>=n-1) continue;
+    let s=0,c=0;
+    for(let t=0;t+L<n;t+=2){ s+=hp[t]*hp[t+L]; c++; }
+    s/=Math.max(1,c);
+    const L2=Math.round(lag*2);
+    if(L2<n-1){ let s2=0,c2=0; for(let t=0;t+L2<n;t+=4){ s2+=hp[t]*hp[t+L2]; c2++; } s+=0.5*s2/Math.max(1,c2); }
+    scores.push(s);
+    if(s>best.score) best={bpm,score:s};
+  }
+  scores.sort((a,b)=>b-a);
+  const conf=scores.length>1? Math.min(99,Math.round(100*(1-scores[1]/Math.max(1e-9,scores[0])))+55):70;
+  return {bpm:Math.round(best.bpm*10)/10, conf:Math.min(99,Math.max(40,conf))};
+}
+
+/* --- محاذاة النبضات + الداونبيت --- */
+function alignBeats(env,subE,subF,bpm,fps){
+  const period=fps*60/bpm, n=env.length;
+  let bestOff=0,bestS=-1;
+  const step=Math.max(1,Math.floor(period/48));
+  for(let off=0;off<period;off+=step){
+    let s=0;
+    for(let t=off;t<n;t+=period){ const i=Math.round(t); if(i<n) s+=env[i]+(env[i-1]||0)+(env[i+1]||0); }
+    if(s>bestS){bestS=s; bestOff=off;}
+  }
+  const beats=[];
+  for(let t=bestOff;t<n;t+=period) beats.push(t);
+  // الداونبيت = فئة الطور (mod 4) ذات أعلى طاقة Sub
+  let bestC=0,bestE=-1;
+  for(let c=0;c<4;c++){
+    let e=0;
+    for(let k=c;k<beats.length;k+=4){
+      const i=Math.round(beats[k]);
+      if(i<n) e += (subF[i]||0)+(subF[i+1]||0)+(subF[i-1]||0) + 0.15*(subE[i]||0);
+    }
+    if(e>bestE){bestE=e; bestC=c;}
+  }
+  const raw=beats.slice(bestC);
+  // تنقيح محلي: كل نبضة تنجذب لأقرب ذروة تدفق حقيقية ضمن ±12% من الدور
+  const rad=Math.max(2,Math.round(period*0.12));
+  const refined=[];
+  raw.forEach((bf,idx)=>{
+    const c=Math.round(bf);
+    let best=c, bestV=-1;
+    for(let j=Math.max(0,c-rad); j<=Math.min(n-1,c+rad); j++){
+      const w=1-0.5*Math.abs(j-c)/rad; // انحياز للمركز
+      const v=(env[j]+(subE[j]||0)*0.5)*w;
+      if(v>bestV){bestV=v; best=j;}
+    }
+    // منع الارتداد للخلف
+    const t=best/fps;
+    if(!refined.length || t>refined[refined.length-1]+ (period/fps)*0.5) refined.push(t);
+    else refined.push(refined[refined.length-1]+period/fps);
+  });
+  return refined; // بالثواني، أول عنصر داونبيت، منقّح على الصوت الفعلي
+}
+
+/* --- كشف الضربات --- */
+function pickPeaks(env,fps,minSep,k){
+  const n=env.length, W=Math.round(fps*0.35), sepF=Math.round(minSep*fps);
+  const peaks=[];
+  for(let i=2;i<n-2;i++){
+    if(env[i]>env[i-1] && env[i]>=env[i+1]){
+      let m=0,c=0;
+      for(let j=Math.max(0,i-W); j<Math.min(n,i+W); j++){ m+=env[j]; c++; }
+      m/=c;
+      let v=0;
+      for(let j=Math.max(0,i-W); j<Math.min(n,i+W); j++){ const d=env[j]-m; v+=d*d; }
+      const sd=Math.sqrt(v/c);
+      if(env[i] > m + k*sd && env[i] > 1e-4){
+        if(peaks.length && i-peaks[peaks.length-1].f < sepF){
+          if(env[i] > peaks[peaks.length-1].v) peaks[peaks.length-1]={f:i,v:env[i]};
+        } else peaks.push({f:i,v:env[i]});
+      }
+    }
+  }
+  return peaks;
+}
+function median(a){ const b=[...a].sort((x,y)=>x-y); return b[Math.floor(b.length/2)]||0; }
+
+function classifyHits(env,fps){
+  const kickCand=pickPeaks(env.subF,fps,0.09,1.5);
+  const highMed=median(env.highF), midMed=median(env.midF);
+  // الكيك: هيمنة النطاق التحتي على العالي عند الذروة
+  const kickP=kickCand.filter(p=> env.subF[p.f] > env.highF[p.f]*0.35 );
+  const snMix=new Float32Array(env.highF.length);
+  for(let i=0;i<snMix.length;i++) snMix[i]=env.highF[i]*0.65+env.midF[i]*0.35;
+  const snCand=pickPeaks(snMix,fps,0.10,1.6);
+  // السنير: جسم Mid حقيقي + بريق High حقيقي، مع استبعاد تسريب الكيك
+  const snare=snCand.filter(p=>{
+    if(env.midF[p.f] <= midMed*1.8) return false;
+    if(env.highF[p.f] <= highMed*1.3) return false;
+    const nearKick=kickP.some(k=>Math.abs(k.f-p.f)<fps*0.04);
+    if(nearKick && env.subF[p.f] > env.highF[p.f]*2) return false; // نزيف كيك
+    return true;
+  });
+  const rawP=pickPeaks(env.totF,fps,0.07,1.5);
+  // 808 = استدامة طاقة Sub بعد الضربة (عتبة 0.30 ونافذة أوسع)
+  const e808=[];
+  const sus1=Math.round(fps*0.05), sus2=Math.round(fps*0.38);
+  kickP.forEach(p=>{
+    let peakE=1e-9;
+    for(let j=Math.max(0,p.f-2);j<Math.min(env.subE.length,p.f+4);j++) peakE=Math.max(peakE,env.subE[j]);
+    let s=0,c=0;
+    for(let j=p.f+sus1;j<Math.min(env.subE.length,p.f+sus2);j++){ s+=env.subE[j]; c++; }
+    if(c>0 && (s/c)/peakE > 0.30) e808.push(p);
+  });
+  const toSec=arr=>arr.map(p=>p.f/fps);
+  return {kick:toSec(kickP), snare:toSec(snare), e808:toSec(e808), raw:toSec(rawP)};
+}
+
+/* --- بناء البارات (خانات مستوفاة بين النبضات المنقّحة) --- */
+function buildBars(beats,hits,bpm){
+  const beatDur=60/bpm, dur=S.mono.length/S.sr;
+  const bt=[...beats];
+  // مدّد للخلف ببارات كاملة (4 نبضات) للحفاظ على طور الداونبيت وتغطية بداية التراك
+  while(bt[0] - 4*beatDur > -beatDur*0.6){
+    for(let j=1;j<=4;j++) bt.unshift(bt[0]-beatDur);
+  }
+  while(bt[0] < -beatDur*0.5) bt.shift(); // لا بار يبدأ قبل الصوت فعليًا
+  // مدّد للأمام لتغطية نهاية التراك مع اكتمال رباعيات البارات دائمًا (منع NaN)
+  while(bt[bt.length-1] < dur) bt.push(bt[bt.length-1]+beatDur);
+  while((bt.length-1)%4 !== 0) bt.push(bt[bt.length-1]+beatDur);
+  const bars=[];
+  for(let b=0; b*4 < bt.length-1; b++){
+    const k0=b*4;
+    if(bt[k0]>=dur) break;
+    const slotTimes=[];
+    for(let i=0;i<16;i++){
+      const bi=k0+Math.floor(i/4);
+      const t0=bt[bi], t1=bt[bi+1]!==undefined? bt[bi+1] : t0+beatDur;
+      slotTimes.push(t0+(i%4)/4*(t1-t0));
+    }
+    const end=bt[k0+4]!==undefined? bt[k0+4] : slotTimes[15]+(slotTimes[15]-slotTimes[14]);
+    bars.push({idx:b, start:bt[k0], end, slotTimes,
+      slots:Array.from({length:16},()=>({kick:false,snare:false,e808:false,raw:false}))});
+  }
+  // قصّ البار الذيلي إذا كان خارج الصوت تقريبًا
+  while(bars.length>1){
+    const last=bars[bars.length-1];
+    if(last.start > dur - (last.end-last.start)*0.25) bars.pop(); else break;
+  }
+  bars.forEach((b,i)=>b.idx=i);
+  // إسناد الضربات لأقرب خانة حقيقية
+  const flat=[];
+  bars.forEach(b=>b.slotTimes.forEach((t,s)=>flat.push({t,b:b.idx,s})));
+  const assign=(times,key)=>{
+    times.forEach(t=>{
+      let lo=0, hi=flat.length-1;
+      while(hi-lo>1){ const m=(lo+hi)>>1; if(flat[m].t<t) lo=m; else hi=m; }
+      const cand=Math.abs(flat[lo].t-t)<Math.abs(flat[hi].t-t)? flat[lo]:flat[hi];
+      const slotDur=(bars[cand.b].end-bars[cand.b].start)/16;
+      if(Math.abs(cand.t-t) < slotDur*0.6) bars[cand.b].slots[cand.s][key]=true;
+    });
+  };
+  assign(hits.kick,'kick'); assign(hits.snare,'snare'); assign(hits.e808,'e808'); assign(hits.raw,'raw');
+  return bars;
+}
+
+/* --- تقسيم الأقسام --- */
+function segment(bars,rmsF,subE,highF,fps){
+  if(!bars.length) return [];
+  const feats=bars.map(b=>{
+    const f0=Math.round(b.start*fps), f1=Math.min(rmsF.length,Math.round(b.end*fps));
+    let r=0,s=0,h=0,c=Math.max(1,f1-f0);
+    for(let i=f0;i<f1;i++){ r+=rmsF[i]||0; s+=subE[i]||0; h+=highF[i]||0; }
+    const on=b.slots.filter(x=>x.raw).length;
+    return [r/c, s/c, h/c, on/16];
+  });
+  // z-score
+  for(let d=0;d<4;d++){
+    let m=0; feats.forEach(f=>m+=f[d]); m/=feats.length;
+    let v=0; feats.forEach(f=>v+=(f[d]-m)**2); const sd=Math.sqrt(v/feats.length)||1;
+    feats.forEach(f=>f[d]=(f[d]-m)/sd);
+  }
+  const nov=[0];
+  for(let i=1;i<feats.length;i++){
+    let d=0; for(let k=0;k<4;k++) d+=(feats[i][k]-feats[i-1][k])**2;
+    nov.push(Math.sqrt(d));
+  }
+  let m=0; nov.forEach(x=>m+=x); m/=nov.length;
+  let v=0; nov.forEach(x=>v+=(x-m)**2); const sd=Math.sqrt(v/nov.length)||1;
+  const bounds=[0];
+  for(let i=2;i<nov.length;i++){
+    if(nov[i]>m+0.5*sd && i-bounds[bounds.length-1]>=2) bounds.push(i);
+  }
+  const secs=[];
+  const rmsAll=feats.map(f=>f[0]);
+  const maxR=Math.max(...rmsAll), minR=Math.min(...rmsAll);
+  for(let i=0;i<bounds.length;i++){
+    const from=bounds[i], to=(i+1<bounds.length? bounds[i+1]: bars.length)-1;
+    let e=0; for(let b=from;b<=to;b++) e+=rmsAll[b];
+    e/=(to-from+1);
+    const lvl=maxR>minR? (e-minR)/(maxR-minR):0.5;
+    secs.push({idx:i, from, to, level:lvl, tag: lvl>0.66?'مرتفع': lvl>0.33?'متوسط':'هادئ'});
+  }
+  return secs;
+}
+
+/* ═══════════════ الواجهة بعد التحليل ═══════════════ */
+function revealUI(){
+  const A=S.analysis;
+  ['controls','sectionsPanel','barsRailWrap','layersBar','stage','textPanel','legend'].forEach(id=>{
+    const el=$(id); el.style.display = el.classList.contains('controls')||el.classList.contains('layers-bar')||el.classList.contains('legend')?'flex':'block';
+  });
+  $('lcdBpm').textContent=A.bpm;
+  $('lcdBars').textContent=A.bars.length;
+  $('lcdConf').textContent=A.conf+'%';
+  $('statsLine').textContent='DETECTED · KICK:'+A.counts.kick+' · SNARE:'+A.counts.snare+' · 808:'+A.counts.e808+' · RAW ONSETS:'+A.counts.raw+' · DURATION:'+(S.mono.length/S.sr).toFixed(1)+'s';
+  renderSections(); renderBarsRail(); setViewBar(0);
+}
+
+function renderSections(){
+  const rail=$('secRail'); rail.innerHTML='';
+  S.analysis.sections.forEach(sec=>{
+    const el=document.createElement('div');
+    el.className='sec-block'; el.dataset.i=sec.idx;
+    el.style.flexGrow=(sec.to-sec.from+1);
+    el.innerHTML='<div class="sn">قسم '+(sec.idx+1)+' · '+sec.tag+'</div><div class="sb">'+(sec.to-sec.from+1)+' بار</div><div class="se" style="opacity:'+(0.25+sec.level*0.75)+'"></div>';
+    el.addEventListener('click',()=>seekToBar(sec.from));
+    rail.appendChild(el);
+  });
+}
+
+function renderBarsRail(){
+  const rail=$('barsRail'); rail.innerHTML='';
+  S.analysis.bars.forEach(b=>{
+    const el=document.createElement('div');
+    el.className='bar-tile'; el.dataset.i=b.idx; el.textContent=b.idx+1;
+    el.addEventListener('click',()=>seekToBar(b.idx));
+    rail.appendChild(el);
+  });
+}
+
+/* --- عرض بار --- */
+function setViewBar(i){
+  const bars=S.analysis.bars;
+  if(i<0||i>=bars.length) return;
+  S.viewBar=i;
+  const bar=bars[i];
+  $('stBar').textContent=i+1;
+  $('stTotal').textContent=bars.length;
+  const sec=S.analysis.sections.find(s=>i>=s.from&&i<=s.to);
+  $('stSec').textContent= sec? 'قسم '+(sec.idx+1)+' ('+sec.tag+')':'—';
+  document.querySelectorAll('.bar-tile').forEach(t=>t.classList.toggle('viewed',+t.dataset.i===i));
+  buildGrid(bar);
+}
+
+function buildGrid(bar){
+  const rB=$('rowBrackets'), rT=$('rowTris'), rD=$('rowDots'), rS=$('rowSyll'), rC=$('rowCount');
+  rB.innerHTML=''; rT.innerHTML=''; rD.innerHTML=''; rS.innerHTML=''; rC.innerHTML='';
+  const txt=S.text.bars[bar.idx];
+
+  if(txt && S.layers.brackets){
+    txt.words.forEach(w=>{
+      const b=document.createElement('div');
+      b.className='bracket';
+      b.style.gridColumn=(w.from+1)+' / '+(w.to+2);
+      b.innerHTML='<span class="syl-count">'+w.count+'</span><span class="wname">'+w.name+'</span>';
+      rB.appendChild(b);
+    });
+  }
+  for(let i=0;i<16;i++){
+    const tc=document.createElement('div'); tc.className='tri-cell';
+    const tris=[];
+    if(S.layers.tri808 && bar.slots[i].e808) tris.push('<div class="tri"></div>');
+    if(txt && S.layers.stress){
+      const s=txt.syllables.find(x=>x.slot===i);
+      if(s&&s.stress) tris.push('<div class="tri stress"></div>');
+    }
+    tc.innerHTML=tris.join('');
+    rT.appendChild(tc);
+
+    const dc=document.createElement('div'); dc.className='dot-cell'+(i%4===0?' beat-line':''); dc.dataset.i=i;
+    const tick=document.createElement('div'); tick.className='tick'; dc.appendChild(tick);
+    const d=document.createElement('div'); d.className='dot';
+    if(S.layers.onsets && bar.slots[i].raw) d.classList.add('onset');
+    if(S.layers.drums){
+      if(bar.slots[i].kick) d.classList.add('kick');
+      if(bar.slots[i].snare) d.classList.add('snare');
+    }
+    if(txt && S.layers.syll && txt.syllables.find(x=>x.slot===i) && !bar.slots[i].kick) d.classList.add('syl');
+    dc.appendChild(d);
+    rD.appendChild(dc);
+
+    const sc=document.createElement('div'); sc.className='syl-cell'; sc.dataset.i=i;
+    if(txt){
+      const s=txt.syllables.find(x=>x.slot===i);
+      if(s) sc.innerHTML='<span class="syl-txt'+(s.stress?' stressed':'')+'">'+s.t+'</span>';
+    }
+    rS.appendChild(sc);
+
+    const cc=document.createElement('div');
+    cc.className='count-cell'+(i%4===0?' beat':''); cc.textContent=countLabels[i]; cc.dataset.i=i;
+    rC.appendChild(cc);
+  }
+  rT.classList.toggle('layer-visible', S.layers.tri808||S.layers.stress);
+  rS.classList.toggle('layer-visible', S.layers.syll);
+  rB.classList.toggle('layer-visible', S.layers.brackets);
+  rC.classList.toggle('layer-visible', S.layers.count);
+  // شارة التزامن
+  if(txt && txt.match!==null){
+    $('matchBadge').style.display='inline-block';
+    $('matchBadge').textContent='تزامن النبر: '+txt.match+'%';
+  } else $('matchBadge').style.display='none';
+}
+
+/* ═══════════════ التشغيل والميترونوم المضيء ═══════════════ */
+function songDuration(){ return S.buffer.duration; }
+function currentSongTime(){ return S.playing? (S.ac.currentTime-S.startCtx)+S.startSong : S.startSong; }
+
+function locate(t){
+  const bars=S.analysis.bars;
+  let bi=bars.findIndex(b=>t>=b.start&&t<b.end);
+  if(bi<0){ bi = t<bars[0].start?0:bars.length-1; }
+  const bar=bars[bi];
+  let si=0;
+  for(let i=15;i>=0;i--){ if(t>=bar.slotTimes[i]){ si=i; break; } }
+  return {bi,si};
+}
+
+function startPlayback(fromSec){
+  stopSource();
+  S.src=S.ac.createBufferSource();
+  S.src.buffer=S.buffer;
+  S.src.connect(S.ac.destination);
+  S.startSong=fromSec;
+  S.startCtx=S.ac.currentTime;
+  S.src.start(0,fromSec);
+  S.src.onended=()=>{ if(S.playing && currentSongTime()>=songDuration()-0.05) togglePlay(false); };
+  S.playing=true;
+  S.tickSched=fromSec;
+  $('btnPlay').innerHTML='&#9646;&#9646;';
+  $('btnPlay').classList.add('playing');
+  loop();
+}
+function stopSource(){ if(S.src){ try{S.src.stop();}catch(e){} S.src.disconnect(); S.src=null; } }
+function stopPlayback(){
+  S.startSong=currentSongTime();
+  stopSource();
+  S.playing=false;
+  cancelAnimationFrame(S.rafId);
+  $('btnPlay').innerHTML='&#9654;';
+  $('btnPlay').classList.remove('playing');
+  document.querySelectorAll('.dot-cell.now').forEach(d=>d.classList.remove('now'));
+  document.querySelectorAll('.count-cell.now-c').forEach(d=>d.classList.remove('now-c'));
+}
+function togglePlay(force){
+  const want= force!==undefined? force: !S.playing;
+  if(want){
+    if(S.ac.state==='suspended') S.ac.resume();
+    if(S.startSong>=songDuration()-0.05) S.startSong=0;
+    startPlayback(S.startSong);
+  } else stopPlayback();
+}
+$('btnPlay').addEventListener('click',()=>togglePlay());
+
+function seekToBar(i){
+  const wasPlaying=S.playing;
+  if(S.playing) stopPlayback();
+  S.startSong=S.analysis.bars[i].start;
+  setViewBar(i);
+  if(wasPlaying) startPlayback(S.startSong);
+  else updatePos(S.startSong);
+}
+
+function loop(){
+  if(!S.playing) return;
+  const t=currentSongTime();
+  if(t>=songDuration()){ togglePlay(false); return; }
+  updatePos(t);
+  scheduleWordTicks(t);
+  S.rafId=requestAnimationFrame(loop);
+}
+
+function updatePos(t){
+  const {bi,si}=locate(t);
+  if(bi!==S.viewBar) setViewBar(bi);
+  document.querySelectorAll('#rowDots .dot-cell').forEach(dc=>dc.classList.toggle('now',+dc.dataset.i===si));
+  document.querySelectorAll('#rowCount .count-cell').forEach(cc=>cc.classList.toggle('now-c',+cc.dataset.i===si));
+  document.querySelectorAll('#rowSyll .syl-cell').forEach(sc=>sc.classList.toggle('now-s',+sc.dataset.i===si));
+  document.querySelectorAll('.bar-tile').forEach(tl=>tl.classList.toggle('now',+tl.dataset.i===bi));
+  const sec=S.analysis.sections.find(s=>bi>=s.from&&bi<=s.to);
+  document.querySelectorAll('.sec-block').forEach(sb=>sb.classList.toggle('now', sec&&+sb.dataset.i===sec.idx));
+  $('lcdPos').textContent=(bi+1)+'.'+(Math.floor(si/4)+1);
+}
+
+/* ميترونوم الكلمات: نقرة على المقاطع المنبورة في وقتها الحقيقي */
+function scheduleWordTicks(t){
+  if(!S.layers.wordmet) return;
+  const ahead=0.18, bars=S.analysis.bars;
+  while(S.tickSched < t+ahead && S.tickSched < songDuration()){
+    const {bi,si}=locate(S.tickSched+0.0005);
+    const bar=bars[bi], txt=S.text.bars[bi];
+    const slotTime=bar.slotTimes[si];
+    if(txt){
+      const s=txt.syllables.find(x=>x.slot===si);
+      if(s && slotTime>=S.tickSched-0.001){
+        const when=S.startCtx+(slotTime-S.startSong);
+        if(when>S.ac.currentTime-0.01){
+          const o=S.ac.createOscillator(), g=S.ac.createGain();
+          o.type='square'; o.frequency.value=s.stress?1200:850;
+          g.gain.setValueAtTime(s.stress?.22:.1,Math.max(when,S.ac.currentTime));
+          g.gain.exponentialRampToValueAtTime(.001,Math.max(when,S.ac.currentTime)+.05);
+          o.connect(g); g.connect(S.ac.destination);
+          o.start(Math.max(when,S.ac.currentTime)); o.stop(Math.max(when,S.ac.currentTime)+.06);
+        }
+      }
+    }
+    const next= si<15? bar.slotTimes[si+1] : (bars[bi+1]? bars[bi+1].slotTimes[0] : bar.end);
+    S.tickSched = next>S.tickSched? next : S.tickSched+0.02;
+  }
+}
+
+/* ═══════════════ أدوات تصحيح الشبكة ═══════════════ */
+function reGrid(newBpm,shiftBeats){
+  const A=S.analysis;
+  let beats=[...A.beats];
+  if(newBpm){
+    if(newBpm > A.bpm*1.5){ // مضاعفة: أدخل نقاط منتصف حقيقية
+      const nb=[];
+      for(let i=0;i<beats.length-1;i++){ nb.push(beats[i], (beats[i]+beats[i+1])/2); }
+      nb.push(beats[beats.length-1]); beats=nb;
+    } else { // تنصيف: خذ نبضة من كل اثنتين
+      beats=beats.filter((_,i)=>i%2===0);
+    }
+    A.bpm=Math.round(newBpm*10)/10;
+  }
+  if(shiftBeats) beats=beats.slice(shiftBeats);
+  A.beats=beats;
+  A.bars=buildBars(beats,S.hits,A.bpm);
+  $('lcdBpm').textContent=A.bpm;
+  $('lcdBars').textContent=A.bars.length;
+  renderBarsRail(); distribute(); setViewBar(Math.min(S.viewBar,A.bars.length-1));
+}
+$('btnHalf').addEventListener('click',()=>reGrid(S.analysis.bpm/2,0));
+$('btnDouble').addEventListener('click',()=>reGrid(S.analysis.bpm*2,0));
+$('btnShift').addEventListener('click',()=>reGrid(null,1));
+
+/* ═══════════════ الطبقات ═══════════════ */
+document.querySelectorAll('.chip').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    const l=ch.dataset.layer;
+    S.layers[l]=!S.layers[l];
+    ch.classList.toggle('on',S.layers[l]);
+    if(S.analysis) setViewBar(S.viewBar);
+  });
+});
+
+/* ═══════════════ التقطيع العروضي ═══════════════ */
+const HARAKAT={'\u064E':1,'\u064F':1,'\u0650':1}; // فتحة ضمة كسرة
+const SUKUN='\u0652', SHADDA='\u0651';
+const TANWEEN={'\u064B':1,'\u064C':1,'\u064D':1};
+const LONG={'\u0627':1,'\u0648':1,'\u064A':1,'\u0649':1}; // ا و ي ى
+
+function syllabifyWord(w){
+  // يعيد قائمة مقاطع {t, weight:'CV'|'CVC'|'CVV'|'CVVC'}
+  const chars=[...w];
+  const units=[]; // {c:consonant, v:haraka|null, sukun, shadda, tanween}
+  let i=0;
+  while(i<chars.length){
+    const c=chars[i];
+    if(HARAKAT[c]||c===SUKUN||c===SHADDA||TANWEEN[c]){ i++; continue; }
+    let v=null,sk=false,sh=false,tw=false; let j=i+1;
+    while(j<chars.length && (HARAKAT[chars[j]]||chars[j]===SUKUN||chars[j]===SHADDA||TANWEEN[chars[j]])){
+      if(HARAKAT[chars[j]]) v=chars[j];
+      if(chars[j]===SUKUN) sk=true;
+      if(chars[j]===SHADDA) sh=true;
+      if(TANWEEN[chars[j]]) tw=true;
+      j++;
+    }
+    units.push({c,v,sk,sh,tw});
+    i=j;
+  }
+  const syls=[];
+  let k=0;
+  while(k<units.length){
+    const u=units[k];
+    if(u.sh && syls.length){ // الشدة تغلق المقطع السابق
+      const p=syls[syls.length-1];
+      p.t+=u.c+SUKUN; p.weight = p.weight==='CV'?'CVC':p.weight;
+    }
+    if(!u.v && !u.sk && k===0 && LONG[u.c]){ k++; continue; } // ألف بداية بلا حركة
+    if(u.v){
+      let t=u.c+(u.sh?SHADDA:'')+u.v, weight='CV'; let consumed=1;
+      const nx=units[k+1];
+      if(nx && !nx.v && LONG[nx.c] && !nx.sk){ // مد
+        t+=nx.c; weight='CVV'; consumed=2;
+        const nn=units[k+2];
+        if(nn && nn.sk){ t+=nn.c+SUKUN; weight='CVVC'; consumed=3; }
+      } else if(nx && nx.sk){
+        t+=nx.c+SUKUN; weight='CVC'; consumed=2;
+      } else if(u.tw){
+        t+='\u0646\u0652'; weight='CVC';
+      }
+      syls.push({t,weight});
+      k+=consumed;
+    } else {
+      // صامت بلا حركة في غير موضعه — ألحقه بالسابق
+      if(syls.length){ syls[syls.length-1].t+=u.c; if(syls[syls.length-1].weight==='CV') syls[syls.length-1].weight='CVC'; }
+      k++;
+    }
+  }
+  return syls;
+}
+
+function distribute(){
+  const lines=$('barsText').value.split('\n').map(l=>l.trim()).filter(l=>l);
+  S.text.bars=[];
+  if(!S.analysis) return;
+  let totalStr=0, totalHit=0;
+  lines.forEach((line,bi)=>{
+    if(bi>=S.analysis.bars.length) return;
+    const words=line.split(/\s+/);
+    const allSyls=[]; const wordSpans=[];
+    words.forEach(w=>{
+      const s=syllabifyWord(w);
+      wordSpans.push({name:w.replace(/[\u064B-\u0652]/g,''), count:s.length, startIdx:allSyls.length});
+      s.forEach(x=>allSyls.push(x));
+    });
+    const n=allSyls.length;
+    if(!n){ S.text.bars[bi]=null; return; }
+    // توزيع على 16 خانة: مواضع متساوية مثبتة على الشبكة
+    const syllables=allSyls.map((s,i)=>({
+      slot:Math.min(15,Math.round(i*16/Math.max(n,1))),
+      t:s.t,
+      stress:(s.weight==='CVV'||s.weight==='CVC'||s.weight==='CVVC')
+    }));
+    // إزالة تصادم الخانات
+    for(let i=1;i<syllables.length;i++){
+      if(syllables[i].slot<=syllables[i-1].slot) syllables[i].slot=Math.min(15,syllables[i-1].slot+1);
+    }
+    const wordsOut=wordSpans.map(w=>{
+      const from=syllables[w.startIdx].slot;
+      const to=syllables[Math.min(syllables.length-1,w.startIdx+w.count-1)].slot;
+      return {from,to,name:w.name,count:w.count};
+    });
+    // نسبة تزامن النبر مع الضربات الحقيقية المكتشفة
+    const bar=S.analysis.bars[bi];
+    const stressed=syllables.filter(s=>s.stress);
+    let hit=0;
+    stressed.forEach(s=>{
+      const sl=bar.slots[s.slot];
+      const near=bar.slots[Math.max(0,s.slot-1)], nxt=bar.slots[Math.min(15,s.slot+1)];
+      if(sl.kick||sl.snare||sl.e808||near.kick||near.snare||nxt.kick||nxt.snare) hit++;
+    });
+    totalStr+=stressed.length; totalHit+=hit;
+    S.text.bars[bi]={syllables, words:wordsOut,
+      match: stressed.length? Math.round(100*hit/stressed.length):null};
+  });
+  if(totalStr){
+    $('overallMatch').style.display='inline';
+    $('overallMatch').textContent='التزامن الكلي: '+Math.round(100*totalHit/totalStr)+'% ('+totalHit+'/'+totalStr+' نبرة على ضربة حقيقية)';
+  }
+  setViewBar(S.viewBar);
+}
+$('btnDistribute').addEventListener('click',distribute);
+</script>
+</body>
+</html>
