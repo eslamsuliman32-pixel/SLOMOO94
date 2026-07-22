@@ -267,12 +267,16 @@ footer .credo{font-family:'Aref Ruqaa',serif; font-size:1rem; color:var(--gold);
     <div class="lcd"><div class="v" id="lcdPos">-.-</div><div class="l">BAR.BEAT</div></div>
     <div class="lcd"><div class="v" id="lcdBars">--</div><div class="l">BARS</div></div>
     <div class="lcd"><div class="v" id="lcdConf">--%</div><div class="l">CONFIDENCE</div></div>
+    <div class="lcd" id="lcdSourceBox" style="display:none"><div class="v" style="font-size:.82rem" id="lcdSource">JSON</div><div class="l">DATA SOURCE</div></div>
   </div>
   <div class="ctrl-group">
     <button class="sm-btn" id="btnHalf">&#189;&times; BPM</button>
     <button class="sm-btn" id="btnDouble">2&times; BPM</button>
     <button class="sm-btn" id="btnShift">إزاحة الداونبيت &#8592;</button>
     <button class="sm-btn" id="btnReupload">ملف آخر</button>
+    <button class="sm-btn" id="btnExport" style="border-color:var(--lcd-dim); color:var(--lcd)">⬇ تصدير Beat Profile JSON</button>
+    <button class="sm-btn" id="btnImport" style="border-color:var(--gold-dim); color:var(--gold-bright)">⬆ استيراد Beat Profile</button>
+    <input type="file" id="profileInput" accept="application/json" style="display:none">
   </div>
 </div>
 
@@ -384,6 +388,7 @@ $('btnReupload').addEventListener('click',()=>{ stopPlayback(); location.reload(
 
 async function loadFile(file){
   try{
+    S.fileName = file.name;
     if(!S.ac) S.ac=new (window.AudioContext||window.webkitAudioContext)();
     uz.style.display='none';
     showProgress('فك ترميز الملف الصوتي ...',3);
@@ -601,6 +606,7 @@ function buildBars(beats,hits,bpm){
     for(let j=1;j<=4;j++) bt.unshift(bt[0]-beatDur);
   }
   while(bt[0] < -beatDur*0.5) bt.shift(); // لا بار يبدأ قبل الصوت فعليًا
+  if(bt[0] < 0) bt[0] = 0; // لا زمن سالب أبدًا — الصوت يبدأ عند 0 دائمًا
   // مدّد للأمام لتغطية نهاية التراك مع اكتمال رباعيات البارات دائمًا (منع NaN)
   while(bt[bt.length-1] < dur) bt.push(bt[bt.length-1]+beatDur);
   while((bt.length-1)%4 !== 0) bt.push(bt[bt.length-1]+beatDur);
@@ -689,7 +695,8 @@ function revealUI(){
   $('lcdBpm').textContent=A.bpm;
   $('lcdBars').textContent=A.bars.length;
   $('lcdConf').textContent=A.conf+'%';
-  $('statsLine').textContent='DETECTED · KICK:'+A.counts.kick+' · SNARE:'+A.counts.snare+' · 808:'+A.counts.e808+' · RAW ONSETS:'+A.counts.raw+' · DURATION:'+(S.mono.length/S.sr).toFixed(1)+'s';
+  const durTxt = S.mono? (S.mono.length/S.sr).toFixed(1) : (A.bars.length? A.bars[A.bars.length-1].end.toFixed(1) : '?');
+  $('statsLine').textContent='DETECTED · KICK:'+A.counts.kick+' · SNARE:'+A.counts.snare+' · 808:'+A.counts.e808+' · RAW ONSETS:'+A.counts.raw+' · DURATION:'+durTxt+'s'+(S.buffer?'':' · (بلا ملف صوتي — عرض بصري فقط، ارفع نفس الملف للتشغيل)');
   renderSections(); renderBarsRail(); setViewBar(0);
 }
 
@@ -829,6 +836,7 @@ function stopPlayback(){
   document.querySelectorAll('.count-cell.now-c').forEach(d=>d.classList.remove('now-c'));
 }
 function togglePlay(force){
+  if(!S.buffer){ alert('لا يوجد ملف صوتي محمَّل — هذا العرض مبني من Beat Profile JSON فقط. ارفع نفس ملف الصوت لتفعيل التشغيل والميترونوم الصوتي.'); return; }
   const want= force!==undefined? force: !S.playing;
   if(want){
     if(S.ac.state==='suspended') S.ac.resume();
@@ -1038,6 +1046,147 @@ function distribute(){
   setViewBar(S.viewBar);
 }
 $('btnDistribute').addEventListener('click',distribute);
+
+/* ═══════════════════════════════════════════════════════
+   Beat Profile JSON Schema — النسيج الرابط بين التحليل الصوتي
+   والطبقة اللغوية، ليتغذى عليه أي مستهلك لاحق (Command Center،
+   Puzzle Grid، Training) دون إعادة تحليل الصوت من الصفر.
+   ═══════════════════════════════════════════════════════ */
+const BEAT_PROFILE_SCHEMA_VERSION = "1.0";
+
+function buildBeatProfile(){
+  const A = S.analysis;
+  if(!A) return null;
+  const beatDur = 60/A.bpm;
+  const profile = {
+    schema: "maqam.beatProfile",
+    schemaVersion: BEAT_PROFILE_SCHEMA_VERSION,
+    generatedAt: new Date().toISOString(),
+    generatedBy: "Maqam Beat Analyzer v1 (STFT/Autocorrelation, real spectral data — no synthetic values)",
+    source: {
+      filename: S.fileName || null,
+      durationSec: S.mono ? +(S.mono.length/S.sr).toFixed(4) : (A.bars.length ? +A.bars[A.bars.length-1].end.toFixed(4) : 0),
+      sampleRateAnalysis: S.sr
+    },
+    tempo: {
+      bpm: A.bpm,
+      confidencePercent: A.conf,
+      beatDurationSec: +beatDur.toFixed(6)
+    },
+    grid: {
+      slotsPerBar: 16,
+      subdivisionLabels: ["1","e","+","a"],
+      subdivisionLabelsAr: ["١","ي","و","ع"]
+    },
+    detectionCounts: { ...A.counts },
+    sections: A.sections.map(s=>({
+      index: s.idx,
+      fromBar: s.from,
+      toBar: s.to,
+      barsCount: s.to - s.from + 1,
+      energyLevel: +s.level.toFixed(3),
+      tag: s.tag
+    })),
+    bars: A.bars.map(b=>({
+      index: b.idx,
+      startSec: +b.start.toFixed(6),
+      endSec: +b.end.toFixed(6),
+      slotTimesSec: b.slotTimes.map(t=>+t.toFixed(6)),
+      slots: b.slots.map((sl,i)=>({
+        index: i,
+        beat: Math.floor(i/4)+1,
+        subdivision: ["1","e","+","a"][i%4],
+        kick: sl.kick, snare: sl.snare, e808: sl.e808, rawOnset: sl.raw
+      }))
+    })),
+    lyrics: null
+  };
+  // الطبقة النصية — اختيارية، تُضاف فقط إذا وُزّعت
+  const textBars = S.text.bars.filter(Boolean);
+  if(textBars.length){
+    let totalStr=0,totalHit=0;
+    const lyricsBars = S.text.bars.map((txt,bi)=>{
+      if(!txt) return null;
+      const stressedCount = txt.syllables.filter(s=>s.stress).length;
+      if(txt.match!==null){ totalStr+=stressedCount; totalHit+=Math.round(txt.match*stressedCount/100); }
+      return {
+        barIndex: bi,
+        matchPercent: txt.match,
+        syllables: txt.syllables.map(s=>({slot:s.slot, text:s.t, stress:s.stress})),
+        words: txt.words.map(w=>({fromSlot:w.from, toSlot:w.to, name:w.name, syllableCount:w.count}))
+      };
+    });
+    profile.lyrics = {
+      bars: lyricsBars,
+      overallMatchPercent: totalStr? Math.round(100*totalHit/totalStr) : null
+    };
+  }
+  return profile;
+}
+
+function downloadJSON(obj,name){
+  const blob = new Blob([JSON.stringify(obj,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+
+$('btnExport').addEventListener('click',()=>{
+  const profile = buildBeatProfile();
+  if(!profile){ alert('حلّل ملفًا صوتيًا أولاً'); return; }
+  const base = (S.fileName||'beat').replace(/\.[^.]+$/,'');
+  downloadJSON(profile, 'maqam_beat_profile_'+base+'.json');
+});
+
+/* ─── استيراد Beat Profile: يعيد بناء العرض بالكامل من JSON فقط،
+   دون أي إعادة تحليل طيفي — هذا هو إثبات فصل المحلل الثقيل عن العارض الخفيف ─── */
+$('btnImport').addEventListener('click',()=>$('profileInput').click());
+$('profileInput').addEventListener('change', async ()=>{
+  const f = $('profileInput').files[0];
+  if(!f) return;
+  try{
+    const txt = await f.text();
+    const profile = JSON.parse(txt);
+    hydrateFromProfile(profile);
+  }catch(err){ alert('ملف JSON غير صالح: '+err.message); }
+});
+
+function hydrateFromProfile(profile){
+  if(profile.schema !== 'maqam.beatProfile'){ alert('هذا الملف ليس Beat Profile متوافقًا مع مقام'); return; }
+  stopPlayback();
+  S.analysis = {
+    bpm: profile.tempo.bpm,
+    conf: profile.tempo.confidencePercent,
+    beats: profile.bars.map(b=>b.startSec),
+    counts: profile.detectionCounts,
+    sections: profile.sections.map(s=>({idx:s.index, from:s.fromBar, to:s.toBar, level:s.energyLevel, tag:s.tag})),
+    bars: profile.bars.map(b=>({
+      idx: b.index, start: b.startSec, end: b.endSec, slotTimes: b.slotTimesSec,
+      slots: b.slots.map(sl=>({kick:sl.kick, snare:sl.snare, e808:sl.e808, raw:sl.rawOnset}))
+    }))
+  };
+  S.text.bars = [];
+  if(profile.lyrics){
+    profile.lyrics.bars.forEach(lb=>{
+      if(!lb) return;
+      S.text.bars[lb.barIndex] = {
+        syllables: lb.syllables.map(s=>({slot:s.slot, t:s.text, stress:s.stress})),
+        words: lb.words.map(w=>({from:w.fromSlot, to:w.toSlot, name:w.name, count:w.syllableCount})),
+        match: lb.matchPercent
+      };
+    });
+    if(profile.lyrics.overallMatchPercent!==null){
+      $('overallMatch').style.display='inline';
+      $('overallMatch').textContent='التزامن الكلي (من الملف المستورد): '+profile.lyrics.overallMatchPercent+'%';
+    }
+  }
+  S.fileName = profile.source.filename || S.fileName;
+  $('lcdSourceBox').style.display='block';
+  $('lcdSource').textContent='JSON مستورد';
+  revealUI();
+}
+
 </script>
 </body>
 </html>

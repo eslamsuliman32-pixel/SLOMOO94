@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://maqam.app/schemas/beat_profile.schema.json",
+  "title": "Maqam Beat Profile",
+  "description": "المخطط الموحّد الذي ينقل مخرجات التحليل الصوتي الحقيقي (BPM، الكيك، السنير، الـ808، الأقسام، البارات) وطبقة التقطيع العروضي إلى أي مستهلك لاحق (Rapper's Command Center، Puzzle Grid، Training) دون إعادة تحليل الصوت.",
+  "type": "object",
+  "required": ["schema", "schemaVersion", "source", "tempo", "grid", "sections", "bars"],
+  "properties": {
+    "schema": { "const": "maqam.beatProfile" },
+    "schemaVersion": { "type": "string", "examples": ["1.0"] },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "generatedBy": { "type": "string" },
+
+    "source": {
+      "type": "object",
+      "required": ["durationSec", "sampleRateAnalysis"],
+      "properties": {
+        "filename": { "type": ["string", "null"] },
+        "durationSec": { "type": "number", "minimum": 0 },
+        "sampleRateAnalysis": { "type": "integer", "description": "معدّل العينات المستخدم أثناء التحليل الطيفي (مُعاد أخذه دائمًا إلى 22050Hz أحادي)" }
+      }
+    },
+
+    "tempo": {
+      "type": "object",
+      "required": ["bpm", "confidencePercent", "beatDurationSec"],
+      "properties": {
+        "bpm": { "type": "number", "minimum": 20, "maximum": 300 },
+        "confidencePercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "beatDurationSec": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+
+    "grid": {
+      "type": "object",
+      "required": ["slotsPerBar", "subdivisionLabels"],
+      "properties": {
+        "slotsPerBar": { "const": 16 },
+        "subdivisionLabels": {
+          "type": "array", "items": { "type": "string" }, "minItems": 4, "maxItems": 4
+        },
+        "subdivisionLabelsAr": {
+          "type": "array", "items": { "type": "string" }, "minItems": 4, "maxItems": 4
+        }
+      }
+    },
+
+    "detectionCounts": {
+      "type": "object",
+      "description": "إحصاءات خام من التحليل الطيفي — لا قيم افتراضية، هذه أعداد الضربات الفعلية المكتشفة",
+      "properties": {
+        "kick": { "type": "integer", "minimum": 0 },
+        "snare": { "type": "integer", "minimum": 0 },
+        "e808": { "type": "integer", "minimum": 0 },
+        "raw": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "sections": {
+      "type": "array",
+      "description": "أقسام البيت الحقيقية المكتشفة عبر Novelty Segmentation على طاقة الطيف",
+      "items": {
+        "type": "object",
+        "required": ["index", "fromBar", "toBar", "barsCount", "energyLevel", "tag"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "fromBar": { "type": "integer", "minimum": 0 },
+          "toBar": { "type": "integer", "minimum": 0 },
+          "barsCount": { "type": "integer", "minimum": 1 },
+          "energyLevel": { "type": "number", "minimum": 0, "maximum": 1 },
+          "tag": { "type": "string", "enum": ["هادئ", "متوسط", "مرتفع"] }
+        }
+      }
+    },
+
+    "bars": {
+      "type": "array",
+      "description": "كل بار بأزمنته الحقيقية وخاناته الـ16 المُستوفاة بين النبضات المنقّحة",
+      "items": {
+        "type": "object",
+        "required": ["index", "startSec", "endSec", "slotTimesSec", "slots"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "startSec": { "type": "number", "minimum": 0 },
+          "endSec": { "type": "number", "minimum": 0 },
+          "slotTimesSec": {
+            "type": "array", "items": { "type": "number" }, "minItems": 16, "maxItems": 16,
+            "description": "الزمن الحقيقي بالثواني لكل خانة من الـ16 — هذا ما يُشغّل الميترونوم المضيء والمزامنة الصوتية دون أي حساب إضافي"
+          },
+          "slots": {
+            "type": "array", "minItems": 16, "maxItems": 16,
+            "items": {
+              "type": "object",
+              "required": ["index", "beat", "subdivision", "kick", "snare", "e808", "rawOnset"],
+              "properties": {
+                "index": { "type": "integer", "minimum": 0, "maximum": 15 },
+                "beat": { "type": "integer", "minimum": 1, "maximum": 4 },
+                "subdivision": { "type": "string", "enum": ["1", "e", "+", "a"] },
+                "kick": { "type": "boolean" },
+                "snare": { "type": "boolean" },
+                "e808": { "type": "boolean" },
+                "rawOnset": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "lyrics": {
+      "type": ["object", "null"],
+      "description": "طبقة التقطيع العروضي — تُضاف فقط عند توزيع نص على البارات؛ null إن لم يُدخَل نص",
+      "properties": {
+        "overallMatchPercent": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "bars": {
+          "type": "array",
+          "items": {
+            "type": ["object", "null"],
+            "properties": {
+              "barIndex": { "type": "integer", "minimum": 0 },
+              "matchPercent": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "syllables": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["slot", "text", "stress"],
+                  "properties": {
+                    "slot": { "type": "integer", "minimum": 0, "maximum": 15 },
+                    "text": { "type": "string", "description": "المقطع اللفظي مشكولاً" },
+                    "stress": { "type": "boolean", "description": "منبور (CVC/CVV/CVVC) أم لا (CV)" }
+                  }
+                }
+              },
+              "words": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["fromSlot", "toSlot", "name", "syllableCount"],
+                  "properties": {
+                    "fromSlot": { "type": "integer" },
+                    "toSlot": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "syllableCount": { "type": "integer", "minimum": 1 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
