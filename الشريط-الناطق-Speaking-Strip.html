@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#070707" />
+<title>الشريط الناطق — Speaking Strip | مقام</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070707;
+    --gold:#D4AF37;
+    --gold-dim:#8a731f;
+    --panel:#101010;
+    --line:#2a2a2a;
+    --text:#EDE6D6;
+    --text-dim:#8a8578;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Cairo',sans-serif;
+    min-height:100vh; padding:24px;
+  }
+  .bevel{
+    border:1px solid var(--line);
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,.05), inset -1px -1px 0 rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.5);
+    background:var(--panel);
+  }
+  .app{ max-width:1100px; margin:0 auto; }
+  header{ text-align:center; margin-bottom:20px; }
+  header h1{
+    font-family:'Amiri',serif; color:var(--gold); font-size:2.1rem; margin:0 0 4px;
+    text-shadow:0 0 18px rgba(212,175,55,.25);
+  }
+  header p{ color:var(--text-dim); font-family:'Space Mono',monospace; font-size:.8rem; letter-spacing:.05em; }
+
+  .controls{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; padding:18px; border-radius:6px; margin-bottom:18px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{ font-size:.72rem; color:var(--gold); font-family:'Space Mono',monospace; letter-spacing:.06em; }
+  .field .readout{ font-family:'Space Mono',monospace; font-size:.72rem; color:var(--text-dim); }
+  input[type=range]{ accent-color:var(--gold); width:100%; }
+  input[type=number], select, textarea{
+    background:#0c0c0c; border:1px solid var(--line); color:var(--text);
+    padding:8px 10px; border-radius:4px; font-family:'Space Mono',monospace; font-size:.85rem;
+  }
+  select{ font-family:'Cairo',sans-serif; }
+  textarea{ min-height:64px; font-family:'Amiri',serif; font-size:1.1rem; resize:vertical; grid-column:1/-1; }
+  .row-full{ grid-column:1/-1; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+  button{
+    font-family:'Cairo',sans-serif; font-weight:800; cursor:pointer;
+    background:linear-gradient(180deg,#1a1a1a,#0c0c0c); color:var(--gold);
+    border:1px solid var(--gold-dim); border-radius:4px; padding:10px 20px;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,.06), inset -1px -1px 0 rgba(0,0,0,.7);
+    transition: all .15s ease;
+  }
+  button:hover{ border-color:var(--gold); color:#fff; box-shadow:0 0 12px rgba(212,175,55,.35); }
+  button.active{ background:var(--gold); color:#070707; }
+
+  .strip-wrap{ padding:20px; border-radius:6px; margin-bottom:18px; overflow-x:auto; }
+  .strip{ display:flex; gap:4px; min-height:140px; align-items:flex-end; direction:rtl; }
+  .cell{
+    flex:0 0 auto; min-width:46px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    padding:8px 6px 10px; border-radius:4px; border:1px solid var(--line);
+    background:#0c0c0c; transition:transform .2s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+  }
+  .cell .glyph{ font-family:'Amiri',serif; font-size:1.35rem; margin-bottom:6px; }
+  .cell .symbols{ font-family:'Space Mono',monospace; font-size:.68rem; color:var(--text-dim); letter-spacing:.1em; }
+  .cell .units{ font-family:'Space Mono',monospace; font-size:.6rem; color:var(--gold-dim); margin-top:2px; }
+
+  .cell.phase-idle{ opacity:.45; transform:translateY(0); }
+  .cell.phase-precursor{ opacity:.7; border-color:var(--gold-dim); }
+  .cell.phase-ready{ opacity:.9; border-color:var(--gold); box-shadow:0 0 10px rgba(212,175,55,.25); transform:translateY(-2px); }
+  .cell.phase-speaking{ opacity:1; border-color:var(--gold); background:#1a1508; box-shadow:0 0 22px rgba(212,175,55,.55); transform:translateY(-6px) scale(1.05); }
+  .cell.phase-done{ opacity:.5; transform:translateY(0); }
+
+  .json-view{
+    font-family:'Space Mono',monospace; font-size:.72rem; color:#9fdca0;
+    background:#0a0a0a; padding:16px; border-radius:6px; max-height:340px; overflow:auto;
+    border:1px solid var(--line); white-space:pre-wrap; word-break:break-all;
+  }
+  .json-view.hidden{ display:none; }
+  .drift{ font-family:'Space Mono',monospace; font-size:.7rem; color:var(--text-dim); margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>الشريط الناطق — Speaking Strip</h1>
+    <p>SLOMOO94 / مقام — امتداد لـ «شبكة تجمعات النبر 16» بمحرك تقطيع عروضي حرفي</p>
+  </header>
+
+  <section class="controls bevel">
+    <div class="field">
+      <label for="bpm">BPM</label>
+      <input type="range" id="bpm" min="40" max="220" value="92" />
+      <span class="readout" id="bpmReadout">92</span>
+    </div>
+    <div class="field">
+      <label for="subdivision">التقسيمة</label>
+      <select id="subdivision">
+        <option value="4">16 (مستقيمة)</option>
+        <option value="3">12 (ثلاثية)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="k">معامل k (ثِقَل الساكن/المدّ)</label>
+      <input type="number" id="k" min="1" max="4" step="0.1" value="1.5" />
+    </div>
+    <div class="field">
+      <label for="bars">عدد البارات</label>
+      <input type="number" id="bars" min="1" max="8" step="1" value="1" />
+    </div>
+    <textarea id="textInput" placeholder="اكتب نصًا عربيًا مُشكَّلًا بالكامل هنا…">مَكْتُوبٌ فَوْقَ الشَّريطِ النَّاطِقِ</textarea>
+    <div class="row-full">
+      <button id="playBtn">▶ تشغيل</button>
+      <button id="stopBtn">■ إيقاف</button>
+      <button id="jsonToggle">عرض JSON</button>
+      <span class="drift" id="driftReadout"></span>
+    </div>
+  </section>
+
+  <div class="strip-wrap bevel">
+    <div id="strip" class="strip"></div>
+  </div>
+
+  <pre id="jsonView" class="json-view hidden"></pre>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- الطبقة 1: محرك التقطيع العروضي الحرفي ----------
+  const FATHA='َ', DAMMA='ُ', KASRA='ِ', SUKUN='ْ', SHADDA='ّ';
+  const TANWEEN=['ً','ٌ','ٍ'];
+  const DIACRITIC_RE=/[ً-ٰٓ]/;
+  const ARABIC_LETTER_RE=/[ء-ي]/;
+  const MADD_LETTERS=['ا','و','ي','ى'];
+
+  function segmentToSymbols(text){
+    const chars=Array.from(text);
+    const out=[]; let wordIndex=0; let i=0;
+    while(i<chars.length){
+      const ch=chars[i];
+      if(/\s/.test(ch)){ if(out.length && out[out.length-1].wordIndex===wordIndex) wordIndex++; i++; continue; }
+      if(!ARABIC_LETTER_RE.test(ch)){ i++; continue; }
+      let j=i+1, marks=[];
+      while(j<chars.length && DIACRITIC_RE.test(chars[j])){ marks.push(chars[j]); j++; }
+      const hasShadda=marks.includes(SHADDA);
+      const hasSukun=marks.includes(SUKUN);
+      const hasShortVowel=marks.includes(FATHA)||marks.includes(DAMMA)||marks.includes(KASRA);
+      const hasTanween=marks.some(m=>TANWEEN.includes(m));
+
+      if(MADD_LETTERS.includes(ch) && marks.length===0){
+        out.push({ch, symbol:'▬', wordIndex});
+      } else if(hasShadda){
+        out.push({ch, symbol:'▬', wordIndex});
+        out.push({ch, symbol:'●', wordIndex});
+        if(hasTanween) out.push({ch:'ن', symbol:'▬', wordIndex});
+      } else if(hasSukun){
+        out.push({ch, symbol:'▬', wordIndex});
+      } else if(hasTanween){
+        out.push({ch, symbol:'●', wordIndex});
+        out.push({ch:'ن', symbol:'▬', wordIndex});
+      } else if(hasShortVowel){
+        out.push({ch, symbol:'●', wordIndex});
+      } else {
+        out.push({ch, symbol:'▬', wordIndex});
+      }
+      i=j;
+    }
+    return out;
+  }
+
+  // تجميع سبب خفيف ●▬ / سبب ثقيل ●● / وتد مجموع ●●▬ — أولوية الأكبر أولًا
+  function groupSyllables(symbolArr){
+    const s=symbolArr.map(x=>x.symbol).join('');
+    const groups=[]; let i=0;
+    while(i<symbolArr.length){
+      const three=s.slice(i,i+3), two=s.slice(i,i+2);
+      let len, type;
+      if(three==='●●▬'){ len=3; type='وتد مجموع'; }
+      else if(two==='●▬'){ len=2; type='سبب خفيف'; }
+      else if(two==='●●'){ len=2; type='سبب ثقيل'; }
+      else { len=1; type = symbolArr[i].symbol==='●' ? 'متحرك مفرد' : 'ساكن مفرد'; }
+      const chunk=symbolArr.slice(i,i+len);
+      const mutaharrikCount=chunk.filter(c=>c.symbol==='●').length;
+      const hasSakin=chunk.some(c=>c.symbol==='▬');
+      groups.push({
+        text: chunk.map(c=>c.ch).join(''),
+        symbols: chunk.map(c=>c.symbol).join(''),
+        type, wordIndex: chunk[0].wordIndex, mutaharrikCount, hasSakin
+      });
+      i+=len;
+    }
+    return groups;
+  }
+
+  // ---------- الطبقة 2: محرك الزمن الموزون ----------
+  function computeTiming(groups, {bpm, subdivision, bars, k}){
+    const beatMs=60000/bpm;
+    const tickMs=beatMs/subdivision;
+    const totalMs=bars*4*beatMs;
+    const weights=groups.map(g=>g.mutaharrikCount*1 + (g.hasSakin?(k-1):0));
+    const sumW=weights.reduce((a,b)=>a+b,0) || 1;
+    let acc=0;
+    const timeline=groups.map((g,idx)=>{
+      const dur=weights[idx]/sumW*totalMs;
+      const start=acc; acc+=dur;
+      return { ...g, weight_units:+weights[idx].toFixed(4), weight_type:g.symbols, start_ms:+start.toFixed(3), end_ms:+acc.toFixed(3), group_id:g.wordIndex };
+    });
+    if(timeline.length) timeline[timeline.length-1].end_ms = +totalMs.toFixed(3);
+    return { timeline, tickMs, totalMs };
+  }
+
+  // ---------- الطبقة 3+4: الساعة المزدوجة + آلة الحالات الثلاثية الطور ----------
+  let audioCtx=null, isPlaying=false, schedulerTimer=null, rafId=null;
+  let scheduleData=null, cells=[], currentBpm=92;
+  const LOOKAHEAD=0.1, SCHEDULE_INTERVAL_MS=25, LEAD_FACTOR=0.6;
+
+  function clickSound(time, accent){
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.frequency.value = accent ? 1500 : 950;
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(accent?0.55:0.35, time+0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time+0.06);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(time); osc.stop(time+0.07);
+  }
+
+  function scheduler(){
+    if(!scheduleData) return;
+    while(scheduleData._nextTick < scheduleData.ticks.length &&
+          scheduleData.ticks[scheduleData._nextTick].time < audioCtx.currentTime + LOOKAHEAD){
+      const t=scheduleData.ticks[scheduleData._nextTick];
+      clickSound(t.time, t.accent);
+      scheduleData._nextTick++;
+    }
+  }
+
+  function renderStrip(timeline){
+    const strip=document.getElementById('strip');
+    strip.innerHTML='';
+    cells=timeline.map(seg=>{
+      const cell=document.createElement('div');
+      cell.className='cell phase-idle';
+      cell.innerHTML = `<div class="glyph">${seg.text||'·'}</div><div class="symbols">${seg.symbols}</div><div class="units">${seg.weight_units}</div>`;
+      strip.appendChild(cell);
+      return cell;
+    });
+  }
+
+  function uiLoop(){
+    if(!isPlaying || !scheduleData) return;
+    const now=audioCtx.currentTime;
+    const leadPrecursorSec = (LEAD_FACTOR*(60000/currentBpm))/1000;
+    const readySec = leadPrecursorSec/3;
+    scheduleData.timeline.forEach((t,idx)=>{
+      let phase;
+      if(now < t.absStart - leadPrecursorSec) phase='idle';
+      else if(now < t.absStart - readySec) phase='precursor';
+      else if(now < t.absStart) phase='ready';
+      else if(now < t.absEnd) phase='speaking';
+      else phase='done';
+      const cell=cells[idx];
+      if(cell && cell.dataset.phase!==phase){
+        cell.dataset.phase=phase;
+        cell.className='cell phase-'+phase;
+      }
+    });
+    if(now > scheduleData.startBase + scheduleData.totalMs/1000 + 0.3){ stop(); return; }
+    rafId=requestAnimationFrame(uiLoop);
+  }
+
+  // ---------- الطبقة 5: التكامل مع Beat Profile Schema ----------
+  function buildSyllableTimeline(timeline){
+    return timeline.map(t=>({
+      syllable: t.text,
+      weight_type: t.weight_type,
+      weight_units: t.weight_units,
+      start_ms: t.start_ms,
+      end_ms: t.end_ms,
+      group_id: t.group_id
+    }));
+  }
+
+  function updateJsonView(timeline, meta){
+    const payload={
+      schema_version:1,
+      module:"speaking_strip",
+      params: meta,
+      syllable_timeline: buildSyllableTimeline(timeline)
+    };
+    document.getElementById('jsonView').textContent = JSON.stringify(payload, null, 2);
+  }
+
+  // ---------- التشغيل/الإيقاف ----------
+  function play(){
+    stop();
+    const bpm=+document.getElementById('bpm').value;
+    const subdivision=+document.getElementById('subdivision').value;
+    const k=+document.getElementById('k').value;
+    const bars=+document.getElementById('bars').value;
+    const text=document.getElementById('textInput').value;
+    currentBpm=bpm;
+
+    const groups=groupSyllables(segmentToSymbols(text));
+    if(!groups.length) return;
+    const {timeline, tickMs, totalMs}=computeTiming(groups, {bpm, subdivision, bars, k});
+
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+
+    const startBase=audioCtx.currentTime + 0.15;
+    const absTimeline=timeline.map(t=>({...t, absStart:startBase+t.start_ms/1000, absEnd:startBase+t.end_ms/1000}));
+    const totalTicks=Math.round(totalMs/tickMs);
+    const ticks=[];
+    for(let n=0;n<=totalTicks;n++){
+      ticks.push({ time: startBase + (n*tickMs)/1000, accent: n % subdivision === 0 });
+    }
+    scheduleData={ startBase, timeline:absTimeline, ticks, totalMs, _nextTick:0 };
+
+    renderStrip(timeline);
+    updateJsonView(timeline, {bpm, subdivision, k, bars, tick_ms:+tickMs.toFixed(3), total_ms:+totalMs.toFixed(3)});
+
+    isPlaying=true;
+    document.getElementById('playBtn').classList.add('active');
+    schedulerTimer=setInterval(scheduler, SCHEDULE_INTERVAL_MS);
+    rafId=requestAnimationFrame(uiLoop);
+  }
+
+  function stop(){
+    isPlaying=false;
+    document.getElementById('playBtn').classList.remove('active');
+    if(schedulerTimer){ clearInterval(schedulerTimer); schedulerTimer=null; }
+    if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+    cells.forEach(c=>{ c.className='cell phase-idle'; c.dataset.phase='idle'; });
+  }
+
+  // ---------- ربط الواجهة ----------
+  document.getElementById('bpm').addEventListener('input', e=>{
+    document.getElementById('bpmReadout').textContent = e.target.value;
+  });
+  document.getElementById('playBtn').addEventListener('click', play);
+  document.getElementById('stopBtn').addEventListener('click', stop);
+  document.getElementById('jsonToggle').addEventListener('click', ()=>{
+    document.getElementById('jsonView').classList.toggle('hidden');
+  });
+
+  // تعريض دوال المحرك للاختبار الآلي (Playwright) دون تعديل سلوك الواجهة
+  window.__speakingStrip = { segmentToSymbols, groupSyllables, computeTiming };
+})();
+</script>
+</body>
+</html>
