@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Coach from './Coach.jsx'
 
-/** رسم شبكة الضربات كزين: خط زمن حبري، downbeats ثقيلة، سلوتات بتظليل ماركر */
+/** رسم شبكة الضربات: خط زمن، downbeats ثقيلة، سلوتات بتظليل ذهبي مضيء */
 function BeatGrid({ profile }) {
   const beats = profile?.rhythm?.beats || []
   const slots = profile?.slots || []
@@ -17,26 +17,26 @@ function BeatGrid({ profile }) {
       {energy.length > 1 && (
         <polyline
           points={energy.map((v, i) => `${x(i * eRes)},${H - 24 - v * 70}`).join(' ')}
-          fill="none" stroke="rgba(24,21,18,0.25)" strokeWidth="2" strokeLinejoin="round"
+          fill="none" stroke="rgba(243,237,225,0.18)" strokeWidth="2" strokeLinejoin="round"
         />
       )}
-      {/* السلوتات: مستطيلات ماركر ذهبي */}
+      {/* السلوتات: مستطيلات ذهبية مضيئة */}
       {slots.map((s) => (
         <rect key={s.id}
           x={x(s.start)} y={38} width={Math.max(2, x(s.start + s.duration) - x(s.start))} height={64}
-          fill="rgba(212,175,55,0.28)" stroke="rgba(212,175,55,0.9)" strokeWidth="1.5" rx="3"
+          fill="rgba(212,175,55,0.16)" stroke="rgba(212,175,55,0.85)" strokeWidth="1.5" rx="3"
         >
           <title>{`سلوت ${s.duration}ث — سعة ${s.capacity_syllables?.min}-${s.capacity_syllables?.max} مقاطع`}</title>
         </rect>
       ))}
       {/* خط الزمن */}
-      <line x1={PAD} y1={H - 24} x2={W - PAD} y2={H - 24} stroke="#181512" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1={PAD} y1={H - 24} x2={W - PAD} y2={H - 24} stroke="#f3ede1" strokeWidth="2.5" strokeLinecap="round" />
       {/* الضربات */}
       {beats.map((b, i) => (
         <line key={i}
           x1={x(b.t)} y1={b.type === 'downbeat' ? 30 : 52}
           x2={x(b.t)} y2={H - 24}
-          stroke={b.type === 'downbeat' ? '#181512' : 'rgba(24,21,18,0.55)'}
+          stroke={b.type === 'downbeat' ? '#f4d160' : 'rgba(243,237,225,0.4)'}
           strokeWidth={b.type === 'downbeat' ? 3 : 1.6}
           strokeLinecap="round"
         />
@@ -44,7 +44,7 @@ function BeatGrid({ profile }) {
       {/* أرقام البارات على الـdownbeats */}
       {beats.filter((b) => b.type === 'downbeat').map((b) => (
         <text key={b.bar} x={x(b.t)} y={22} textAnchor="middle"
-          fontFamily="Space Mono" fontSize="11" fill="#D64524">{b.bar}</text>
+          fontFamily="Space Mono" fontSize="11" fill="#ff7fb0">{b.bar}</text>
       ))}
     </svg>
   )

@@ -5,7 +5,6 @@ import StudioScreen from './StudioScreen.jsx'
 import LibraryScreen from './LibraryScreen.jsx'
 import TrainingScreen from './TrainingScreen.jsx'
 import AnalysisScreen from './AnalysisScreen.jsx'
-import ElectromagneticSemantics from './components/ElectromagneticSemantics.jsx'
 import { Doodle, ZineStrip, Underline, Mic, Spray, Cassette } from './Doodles.jsx'
 
 function Wordmark() {
@@ -17,7 +16,7 @@ function Wordmark() {
       <span className="wm-motif" aria-hidden="true">● ▬ ● ▬ ▬</span>
       <h1>مَقَام</h1>
       <Underline className="wm-underline" />
-      <span className="wm-sub">زين رقم ٠١ — دفتر صناعة الراب · ارسمها تفهمها</span>
+      <span className="wm-sub">الهيكل المُضيء — مدرّب صناعة الراب العربي</span>
     </div>
   )
 }
@@ -52,7 +51,6 @@ function PillarScreen({ p, onBack }) {
       {p.id === 'library' && <LibraryScreen />}
       {p.id === 'training' && <TrainingScreen />}
       {p.id === 'analysis' && <AnalysisScreen />}
-      {p.id === 'semantics' && <ElectromagneticSemantics />}
 
       {!functional && (
         <div className="planned wob">
@@ -89,8 +87,8 @@ export default function App() {
       </main>
 
       <footer className="status">
-        <span>المبدأ: الآلة ترسم وتكشف وتقيس — الإنسان يقرر ويكتب ويؤدي</span>
-        <span className="mono">MAQAM ZINE v0.5.0 + EM Semantics</span>
+        <span>"الآلة تكشف وتعرض وتقيس — الإنسان يقرر ويكتب ويؤدي"</span>
+        <span className="mono">MAQAM · الهيكل المُضيء v1.0</span>
       </footer>
     </div>
   )
