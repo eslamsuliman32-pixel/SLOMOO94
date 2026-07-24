@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Coach from './Coach.jsx'
+import { analyzeMono, buildProfileFromAnalysis, rebuildAtBpm } from './lib/beatAnalysis.js'
 
 /* صف العدّ: 1 e + a لكل ضربة (نفس محلل البيت الحقيقي) */
 const COUNT_LABELS = ['1', 'e', '+', 'a', '2', 'e', '+', 'a', '3', 'e', '+', 'a', '4', 'e', '+', 'a']
@@ -114,30 +115,71 @@ const LAYER_META = [
 
 export default function AnalysisScreen() {
   const [profile, setProfile] = useState(null)
+  const [analysis, setAnalysis] = useState(null) // ناتج analyzeMono الخام (لازم لتصحيح BPM)
+  const [fileName, setFileName] = useState('')
   const [viewBar, setViewBar] = useState(0)
   const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState({ label: '', pct: 0 })
   const [mode, setMode] = useState('simple') // 'simple' | 'pro'
   const [layers, setLayers] = useState(DEFAULT_LAYERS)
+  const acRef = useRef(null)
 
-  function onFile(e) {
+  async function onFile(e) {
     const file = e.target.files?.[0]
     if (!file) return
     setErr('')
-    const reader = new FileReader()
-    reader.onload = () => {
-      try {
-        const p = JSON.parse(reader.result)
-        if (p.schema !== 'maqam.beatProfile' || !Array.isArray(p.bars) || !p.bars.length) {
-          setErr('الملف ليس Beat Profile متوافقًا مع مقام (schema: maqam.beatProfile). صدّره من «محلل البيت الحقيقي».')
-          return
-        }
-        setProfile(p)
-        setViewBar(0)
-      } catch {
-        setErr('تعذّرت قراءة الملف — تأكد أنه ملف .json صدّرته أداة محلل البيت.')
-      }
+    setProfile(null)
+    setAnalysis(null)
+    setBusy(true)
+    setFileName(file.name)
+    try {
+      if (!acRef.current) acRef.current = new (window.AudioContext || window.webkitAudioContext)()
+      const ac = acRef.current
+      setProgress({ label: 'فك ترميز الملف الصوتي ...', pct: 3 })
+      await new Promise((r) => setTimeout(r, 0))
+      const arr = await file.arrayBuffer()
+      const buffer = await ac.decodeAudioData(arr)
+
+      setProgress({ label: 'إعادة أخذ العينات إلى 22050Hz أحادي ...', pct: 8 })
+      await new Promise((r) => setTimeout(r, 0))
+      const sr = 22050
+      const off = new OfflineAudioContext(1, Math.ceil(buffer.duration * sr), sr)
+      const src = off.createBufferSource(); src.buffer = buffer; src.connect(off.destination); src.start()
+      const mono = (await off.startRendering()).getChannelData(0)
+
+      const result = await analyzeMono(mono, sr, buffer.duration, (label, pct) => setProgress({ label, pct }))
+      setAnalysis(result)
+      setProfile(buildProfileFromAnalysis(result, { filename: file.name, sampleRateAnalysis: sr }))
+      setViewBar(0)
+    } catch (err2) {
+      setErr('تعذّر تحليل الملف الصوتي: ' + err2.message + ' — تأكد أنه MP3 أو WAV صالح.')
+    } finally {
+      setBusy(false)
     }
-    reader.readAsText(file)
+  }
+
+  function correctBpm(factor) {
+    if (!analysis) return
+    const next = rebuildAtBpm(analysis, factor)
+    setAnalysis(next)
+    setProfile(buildProfileFromAnalysis(next, { filename: fileName, sampleRateAnalysis: 22050 }))
+    setViewBar((v) => Math.min(v, next.bars.length - 1))
+  }
+
+  function reset() {
+    setProfile(null); setAnalysis(null); setFileName(''); setErr(''); setViewBar(0)
+  }
+
+  function exportProfile() {
+    if (!profile) return
+    const base = (fileName || 'beat').replace(/\.[^.]+$/, '')
+    const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'maqam_beat_profile_' + base + '.json'
+    document.body.appendChild(a); a.click()
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url) }, 200)
   }
 
   function setModeAndLayers(m) {
@@ -152,27 +194,46 @@ export default function AnalysisScreen() {
 
   return (
     <div className="analysis">
-      <div className="import-box">
-        <h3>استيراد Beat Profile</h3>
-        <p className="gate-note">
-          حلّل بيتك مرة واحدة في <span className="mono-inline">محلل البيت الحقيقي</span>، صدّر ملف
-          <span className="mono-inline">beat_profile.json</span> ثم ارفعه هنا — تُعاد بناء الشبكة والأقسام
-          والبارات فورًا دون أي إعادة تحليل صوتي (قرار D5: التحليل الثقيل مرة، والعرض خفيف دائمًا).
-        </p>
-        <input type="file" accept=".json,application/json" onChange={onFile} className="file-input" />
-        {err && <div className="conn-test-result fail"><span className="conn-test-icon">✕</span> {err}</div>}
-      </div>
+      {!profile && (
+        <div className="import-box">
+          <h3>ارفع البيت الموسيقي</h3>
+          <p className="gate-note">
+            ارفع ملف <span className="mono-inline">MP3</span> أو <span className="mono-inline">WAV</span> — التحليل
+            الطيفي الحقيقي (STFT/BPM/كيك-سنير-808/أقسام) يتم بالكامل داخل متصفحك، بلا رفع لأي خادم.
+          </p>
+          <input type="file" accept="audio/*,.mp3,.wav" onChange={onFile} className="file-input" disabled={busy} />
+          {busy && (
+            <div className="bp-progress">
+              <div className="bp-progress-label mono">{progress.label}</div>
+              <div className="bp-progress-track"><div className="bp-progress-fill" style={{ width: progress.pct + '%' }} /></div>
+            </div>
+          )}
+          {err && <div className="conn-test-result fail"><span className="conn-test-icon">✕</span> {err}</div>}
+        </div>
+      )}
 
       {profile && bar && (
         <div className="profile-view">
-          {/* مبدّل الوضع */}
-          <div className="bp-mode-tabs">
-            <button className={`bp-mode-tab${mode === 'simple' ? ' on' : ''}`} onClick={() => setModeAndLayers('simple')}>
-              عرض مبسّط
-            </button>
-            <button className={`bp-mode-tab${mode === 'pro' ? ' on' : ''}`} onClick={() => setModeAndLayers('pro')}>
-              عرض احترافي
-            </button>
+          {/* مبدّل الوضع + أدوات تصحيح */}
+          <div className="bp-toolbar">
+            <div className="bp-mode-tabs">
+              <button className={`bp-mode-tab${mode === 'simple' ? ' on' : ''}`} onClick={() => setModeAndLayers('simple')}>
+                عرض مبسّط
+              </button>
+              <button className={`bp-mode-tab${mode === 'pro' ? ' on' : ''}`} onClick={() => setModeAndLayers('pro')}>
+                عرض احترافي
+              </button>
+            </div>
+            <div className="bp-toolbar-actions">
+              {mode === 'pro' && (
+                <>
+                  <button className="mini-btn" onClick={() => correctBpm(0.5)} title="لغموض الأوكتاف: لو الإيقاع اتكشف ضعف الحقيقي">½× BPM</button>
+                  <button className="mini-btn" onClick={() => correctBpm(2)} title="لغموض الأوكتاف: لو الإيقاع اتكشف نصف الحقيقي">2× BPM</button>
+                  <button className="mini-btn" onClick={exportProfile}>⬇ تصدير Beat Profile</button>
+                </>
+              )}
+              <button className="mini-btn" onClick={reset}>ملف آخر</button>
+            </div>
           </div>
 
           {/* ═══════════ الوضع المبسّط ═══════════ */}
@@ -255,7 +316,7 @@ export default function AnalysisScreen() {
                   <div className="bp-rail-label">SECTIONS · أقسام البيت الحقيقية (Novelty Segmentation)</div>
                   <div className="bp-sec-rail">
                     {profile.sections.map((s) => (
-                      <button key={s.index} className={`bp-sec-block${section?.index === s.index ? ' now' : ''}`} style={{ flexGrow: s.barsCount }} onClick={() => setViewBar(s.fromBar)}>
+                      <button key={s.index} className={`bp-sec-block${section?.index === s.index ? ' now' : ''}`} style={{ flexGrow: s.barsCount }} onClick={() => setViewBar(Math.min(s.fromBar, profile.bars.length - 1))}>
                         <span className="bp-sn">قسم {s.index + 1} · {s.tag}</span>
                         <span className="bp-sb">{s.barsCount} بار · طاقة {Math.round(s.energyLevel * 100)}٪</span>
                         <span className="bp-se" style={{ opacity: 0.25 + s.energyLevel * 0.75 }} />
