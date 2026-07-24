@@ -358,6 +358,49 @@ a { color: var(--gold-bright); }
 /* ─── Beat Profile: مستهلك الشبكة (شبكة الـ16 خانة) ─── */
 .bp-rail-label { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.18em; color: var(--gold-dim); margin-bottom: 8px; }
 
+/* مبدّل الوضع: مبسّط / احترافي */
+.bp-mode-tabs { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; align-self: flex-start; }
+.bp-mode-tab { background: transparent; border: none; color: var(--ink-dim); font-family: var(--font-ui); font-weight: 700; font-size: 0.86rem; padding: 9px 20px; cursor: pointer; transition: all 0.2s ease; }
+.bp-mode-tab.on { background: linear-gradient(160deg, var(--gold-bright), var(--gold)); color: #211a08; }
+
+/* بلاطات الملخّص (الوضع المبسّط) */
+.bp-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 560px) { .bp-tiles { grid-template-columns: repeat(2, 1fr); } }
+.bp-tile { background: var(--lcd-bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 12px; text-align: center; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6); }
+.bp-tile-v { display: block; font-family: var(--font-num); font-weight: 900; font-size: 2rem; color: var(--lcd); text-shadow: 0 0 12px var(--lcd-glow); direction: ltr; }
+.bp-tile-l { display: block; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--lcd-dim); margin-top: 4px; }
+
+/* صندوق القراءة السريعة */
+.bp-reading { background: linear-gradient(160deg, var(--panel), var(--panel-2)); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 22px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.35); }
+.bp-reading h3 { font-family: var(--font-display); color: var(--gold-bright); font-size: 1.2rem; margin: 0 0 10px; }
+.bp-reading ul { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; }
+.bp-reading li { color: var(--ink-dim); font-size: 0.92rem; line-height: 1.7; }
+.bp-reading li b { color: var(--gold); font-weight: 700; }
+
+/* رقائق الطبقات (الوضع الاحترافي) */
+.bp-layers { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+.bp-chip { display: inline-flex; align-items: center; gap: 7px; background: rgba(255, 255, 255, 0.03); border: 1.5px solid var(--line); border-radius: 999px; color: var(--ink-dim); font-family: var(--font-ui); font-weight: 700; font-size: 0.78rem; padding: 6px 14px; cursor: pointer; transition: all 0.2s ease; }
+.bp-chip-ic { width: 11px; height: 11px; border-radius: 50%; background: var(--ink-faint); transition: all 0.2s; }
+.bp-chip.on { border-color: var(--gold); color: var(--ink); }
+.bp-chip.on .bp-chip-ic { background: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+.bp-chip.on[data-tint="pulse"] { border-color: var(--pulse); }
+.bp-chip.on[data-tint="pulse"] .bp-chip-ic { background: var(--pulse); box-shadow: 0 0 10px var(--pulse-glow); }
+.bp-chip.on[data-tint="kick"] { border-color: var(--kick); }
+.bp-chip.on[data-tint="kick"] .bp-chip-ic { background: var(--kick); box-shadow: 0 0 10px var(--kick-glow); }
+.bp-chip.on[data-tint="lcd"] { border-color: var(--lcd); }
+.bp-chip.on[data-tint="lcd"] .bp-chip-ic { background: var(--lcd); box-shadow: 0 0 10px var(--lcd-glow); }
+
+/* جدول الدقة الزمنية (الوضع الاحترافي) */
+.bp-precision { display: flex; flex-direction: column; }
+.bp-timing-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.bp-timing { width: 100%; border-collapse: collapse; font-size: 0.82rem; background: var(--panel); min-width: 420px; }
+.bp-timing th { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--gold-dim); text-transform: uppercase; text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.bp-timing td { padding: 6px 12px; border-bottom: 1px solid var(--line-soft); color: var(--ink-dim); text-align: right; }
+.bp-timing td.mono { font-family: var(--font-mono); color: var(--ink); direction: ltr; }
+.bp-timing tr.beat td { color: var(--ink); }
+.bp-timing tr.beat td.mono { color: var(--gold-bright); }
+.bp-timing tr:last-child td { border-bottom: none; }
+
 .bp-sections, .bp-bars-rail-wrap { display: flex; flex-direction: column; }
 .bp-sec-rail { display: flex; gap: 6px; direction: rtl; }
 .bp-sec-block {
