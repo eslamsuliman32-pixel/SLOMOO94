@@ -58,8 +58,9 @@ export default function RhythmCanvas({ seed = 941994 }) {
         const near = Math.max(0, 1 - Math.abs(sweep - i) / 2.5)       // توهج قرب المؤشر
         const a = 0.16 + jitter[i] * 0.12 + near * 0.65 + beat * 0.06
 
-        ctx.fillStyle = near > 0.15 ? `rgba(196,146,26,${Math.min(a,0.95)})` : `rgba(24,21,18,${Math.min(a*0.85,0.9)})`
+        ctx.fillStyle = near > 0.15 ? `rgba(244,209,96,${Math.min(a,0.95)})` : `rgba(243,237,225,${Math.min(a*0.55,0.55)})`
         ctx.strokeStyle = ctx.fillStyle
+        if (near > 0.15) { ctx.shadowColor = 'rgba(212,175,55,0.65)'; ctx.shadowBlur = 8 } else { ctx.shadowBlur = 0 }
 
         if (units[i]) {
           // ▬ ساكن: شرطة ثقيلة
@@ -75,7 +76,8 @@ export default function RhythmCanvas({ seed = 941994 }) {
       }
 
       // خط الزمن الخافت
-      ctx.fillStyle = 'rgba(24,21,18,0.15)'
+      ctx.shadowBlur = 0
+      ctx.fillStyle = 'rgba(243,237,225,0.1)'
       ctx.fillRect(0, mid - 0.5, W, 1)
 
       if (!reduced) raf = requestAnimationFrame(draw)
