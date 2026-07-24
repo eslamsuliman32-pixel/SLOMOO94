@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:syllabifier": "tsx src/lib/syllabifier/__tests__/acceptance.ts",
+    "test:barmatcher": "tsx src/lib/barMatcher/__tests__/acceptance.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

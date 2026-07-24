@@ -17,5 +17,5 @@
     "isolatedModules": true,
     "types": ["node"]
   },
-  "include": ["src/lib/syllabifier/**/*.ts"]
+  "include": ["src/lib/syllabifier/**/*.ts", "src/lib/barMatcher/**/*.ts"]
 }
