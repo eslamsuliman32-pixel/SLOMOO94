@@ -97,6 +97,7 @@ function DetailModal({ bar, pool, onClose, onSendToMetronome }) {
             <div className="br-kvi"><label>غلبة الوزن</label><div className="v">{WEIGHT_LABEL[bar.weightProfile]}</div></div>
             <div className="br-kvi"><label>متوسط الاصطدام</label><div className="v mono" dir="ltr">{bar.avgAttack}</div></div>
             <div className="br-kvi"><label>التصاق الشبكة</label><div className="v mono" dir="ltr">{bar.lockScore}</div></div>
+            <div className="br-kvi"><label>دقة التقطيع</label><div className="v">{bar.approximate ? '≈ تقديري (نص غير مُشكَّل)' : '✓ حتمي (نص مُشكَّل)'}</div></div>
           </div>
         </section>
 
@@ -183,7 +184,11 @@ function InjectTab({ lex, nextId, onIngest, toast }) {
       else rejected.push({ line, reason: out.reason })
     }
     setStage(PIPELINE.length)
-    setReport({ accepted: accepted.length, rejected })
+    setReport({
+      accepted: accepted.length,
+      approximate: accepted.filter((b) => b.approximate).length,
+      rejected,
+    })
     if (accepted.length) onIngest(accepted)
     setBusy(false)
     toast(accepted.length ? `عولج ${accepted.length} بار` : 'لم يُقبل أي بار')
@@ -236,15 +241,24 @@ function InjectTab({ lex, nextId, onIngest, toast }) {
         {report && (
           <div className="br-report">
             <div className="conn-test-result ok"><span className="conn-test-icon">✓</span> أُودِع {report.accepted} بار في القاعدة</div>
+            {report.approximate > 0 && (
+              <div className="conn-test-result br-report-approx">
+                <span className="conn-test-icon">≈</span>
+                <div>
+                  <b>{report.approximate} منها تقديري</b> — النص غير مُشكَّل، فاستُنتجت الحركات بالقيود
+                  الفونوتاكتيكية. عدد المقاطع وبصمة الوزن موثوقان عمومًا، وقد تختلف بعض الحركات عن نطقك.
+                  شكِّل البار لترفعه إلى دقة حتمية.
+                </div>
+              </div>
+            )}
             {report.rejected.length > 0 && (
               <div className="conn-test-result fail br-report-fail">
                 <span className="conn-test-icon">!</span>
                 <div>
-                  <b>{report.rejected.length} سطر لم يُعالَج</b> — الطبقة صفر تحتاج تشكيلاً صريحاً لتقطيع دقيق،
-                  ولا تُخمّن الحركات. شكِّل هذه الأسطر وأعد المحاولة:
+                  <b>{report.rejected.length} سطر لم يُعالَج</b> — لا يحوي حروفًا قابلة للتقطيع:
                   <ul className="br-rejected">
                     {report.rejected.slice(0, 6).map((x, i) => (
-                      <li key={i}>{x.line}<span className="br-why mono">{x.reason === 'needs-tashkeel' ? 'يحتاج تشكيل' : 'فارغ'}</span></li>
+                      <li key={i}>{x.line}<span className="br-why mono">{x.reason === 'unreadable' ? 'بلا حروف' : 'فارغ'}</span></li>
                     ))}
                     {report.rejected.length > 6 && <li className="br-why">…و{report.rejected.length - 6} غيرها</li>}
                   </ul>
@@ -390,7 +404,10 @@ function DatabaseTab({ bars, sel, setSel, onOpen, onSendToMetronome, onImport, t
                     <td>{b.rhyme ? <span className="rhyme-badge rhyme-c0">{b.rhyme.keyL2}</span> : '—'}</td>
                     <td className="mono br-dim" dir="ltr">{b.stressPattern}</td>
                     <td className="mono" dir="ltr">{b.synco}</td>
-                    <td><span className="rhyme-badge rhyme-c1">{b.tag}</span></td>
+                    <td>
+                      <span className="rhyme-badge rhyme-c1">{b.tag}</span>
+                      {b.approximate && <span className="rhyme-badge rhyme-c5" title="النص غير مُشكَّل — الحركات مُستنتَجة">≈ تقديري</span>}
+                    </td>
                     <td><button className="mini-btn" onClick={() => onOpen(b)}>تفصيل</button></td>
                   </tr>
                 ))}
@@ -607,7 +624,7 @@ export default function BarRepositoryScreen() {
       if (out.bar) { accepted.push(out.bar); id++ } else skipped++
     }
     if (accepted.length) setBars((prev) => [...prev, ...accepted])
-    toast(skipped ? `استُورد ${accepted.length} · تُخطّي ${skipped} (يحتاج تشكيل)` : `استُورد ${accepted.length} بار`)
+    toast(skipped ? `استُورد ${accepted.length} · تُخطّي ${skipped} (بلا حروف)` : `استُورد ${accepted.length} بار`)
   }, [bars, toast])
 
   const sendToMetronome = useCallback((list) => {

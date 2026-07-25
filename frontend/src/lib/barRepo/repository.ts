@@ -39,9 +39,11 @@ export interface RepoBar extends LayerMetrics {
   hash: string
   lockScore: number
   ts: number
+  /** true إن استُنتجت حركة واحدة على الأقل بدل قراءتها من تشكيل صريح — التحليل تقديري */
+  approximate: boolean
 }
 
-/** هل النص يحمل تشكيلاً؟ الطبقة صفر تحتاجه لتقطيع دقيق (§٣.٣ من SPEC-01). */
+/** هل النص يحمل تشكيلاً صريحاً؟ (يرفع دقة التقطيع من تقديرية إلى حتمية) */
 export function hasTashkeel(text: string): boolean {
   return /[ً-ْ]/.test(text)
 }
@@ -49,7 +51,7 @@ export function hasTashkeel(text: string): boolean {
 export interface ProcessOutcome {
   bar: RepoBar | null
   /** سبب الرفض حين يتعذّر التقطيع — يُعرَض للمستخدم بدل الفشل الصامت */
-  reason: 'ok' | 'empty' | 'needs-tashkeel'
+  reason: 'ok' | 'empty' | 'unreadable'
 }
 
 /**
@@ -71,8 +73,8 @@ export function processBar(
   const syllables = liaise(perWord)
 
   if (!syllables.length) {
-    // التقطيع الفونوتاكتيكي يحتاج حركات صريحة؛ بلا تشكيل ولا مدخل معجمي لا نُخمّن.
-    return { bar: null, reason: hasTashkeel(text) ? 'empty' : 'needs-tashkeel' }
+    // لا حروف عربية/لاتينية صالحة أصلاً (ترقيم أو رموز فقط)
+    return { bar: null, reason: 'unreadable' }
   }
 
   const fp = fingerprint(syllables)
@@ -104,6 +106,7 @@ export function processBar(
       hash: fp.hash,
       lockScore: +projection.lockScore.toFixed(3),
       ts: Date.now(),
+      approximate: words.some((w) => w.approximate),
       ...layers,
     },
   }

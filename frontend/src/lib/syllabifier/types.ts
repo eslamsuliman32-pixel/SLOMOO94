@@ -90,6 +90,8 @@ export interface Word {
   text: string
   stream: PhoneticStream
   lang: Lang
+  /** true إن استُنتجت حركة واحدة على الأقل فونوتاكتيكياً بدل قراءتها من التشكيل (§٣.٣ المستوى ٣) */
+  approximate: boolean
 }
 
 export interface Lexicon {
