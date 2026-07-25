@@ -193,6 +193,15 @@ export default function AnalysisScreen() {
 
   return (
     <div className="analysis">
+      <a
+        className="tool-link"
+        href="/tools/beat-analyzer.html"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span className="tool-link-title">محلل البيت (الإصدار المستقل)</span>
+        <span className="tool-link-desc">نفس محرّك التحليل الطيفي أدناه، في صفحة قائمة بذاتها — تُفتح في نافذة مستقلة ↗</span>
+      </a>
       {!profile && (
         <div className="import-box">
           <h3>ارفع البيت الموسيقي</h3>
