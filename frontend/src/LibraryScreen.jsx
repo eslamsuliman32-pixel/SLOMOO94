@@ -4,8 +4,9 @@ import { createBar, listBars, deleteBar } from './lib/bars.js'
 import { getRawi, lastWord } from './lib/rhyme.js'
 import ConnectionTest from './ConnectionTest.jsx'
 import Coach from './Coach.jsx'
+import BarRepositoryScreen from './BarRepositoryScreen.jsx'
 
-function Library() {
+function SavedBars() {
   const [bars, setBars] = useState([])
   const [queryText, setQueryText] = useState('')
   const [newBar, setNewBar] = useState('')
@@ -73,5 +74,23 @@ function Library() {
 }
 
 export default function LibraryScreen() {
-  return <AuthGate>{() => <Library />}</AuthGate>
+  // مستودع البارات (SPEC-03) يعمل محليًا بالكامل بلا حساب؛ البارات المحفوظة تحتاج تسجيل دخول.
+  const [section, setSection] = useState('repo')
+
+  return (
+    <div className="lib-shell">
+      <nav className="bp-mode-tabs">
+        <button className={`bp-mode-tab${section === 'repo' ? ' on' : ''}`} onClick={() => setSection('repo')}>
+          مستودع البارات
+        </button>
+        <button className={`bp-mode-tab${section === 'saved' ? ' on' : ''}`} onClick={() => setSection('saved')}>
+          بارات محفوظة
+        </button>
+      </nav>
+
+      {section === 'repo'
+        ? <BarRepositoryScreen />
+        : <AuthGate>{() => <SavedBars />}</AuthGate>}
+    </div>
+  )
 }
