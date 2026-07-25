@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:syllabifier": "tsx src/lib/syllabifier/__tests__/acceptance.ts",
     "test:barmatcher": "tsx src/lib/barMatcher/__tests__/acceptance.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:barrepo": "tsx src/lib/barRepo/__tests__/acceptance.ts"
   },
   "dependencies": {
     "firebase": "^11.1.0",

@@ -3,11 +3,23 @@
 // لتحديد حدود المقاطع مادامت الحركات محسومة سلفاً (من normalize/loanAdapter). §٣.٣
 
 import { phonemeOf } from './phonemeTable.ts'
-import type { CVShape, Mora, Nucleus, PhoneticStream, Syllable } from './types.ts'
+import type { CVShape, Mora, Nucleus, Phoneme, PhoneticStream, Syllable } from './types.ts'
 
 function computeAttack(onsetAttack: number, weight: 1 | 2 | 3, emphatic: boolean): number {
   const v = onsetAttack * (1 + 0.25 * (weight - 1)) * (emphatic ? 1.15 : 1.0)
   return Math.min(1, v)
+}
+
+// نواة المقطع تُخزَّن برموز لاتينية (a/i/u/aa/ii/uu) لأنها محور حسابي؛
+// أما `Syllable.text` فهو نصّ يُعرَض للمستخدم، فيُكتب بالعلامات العربية.
+const HARAKAH_MARK: Record<string, string> = { a: 'َ', i: 'ِ', u: 'ُ' }
+const MADD_TEXT: Record<string, string> = { aa: 'َا', ii: 'ِي', uu: 'ُو' }
+const SUKUN_MARK = 'ْ'
+
+/** يبني النص المعروض لمقطع من عناصره البنيوية — المصدر الوحيد لصياغة `Syllable.text`. */
+export function renderSyllableText(onsetCh: string, nucleus: Nucleus, codas: Phoneme[]): string {
+  const core = nucleus.length === 2 ? MADD_TEXT[nucleus] : HARAKAH_MARK[nucleus]
+  return onsetCh + (core ?? '') + codas.map((c) => c.ch + SUKUN_MARK).join('')
 }
 
 export function syllabifyStream(stream: PhoneticStream, wordIndex: number, textHint: string): Syllable[] {
@@ -54,11 +66,10 @@ export function syllabifyStream(stream: PhoneticStream, wordIndex: number, textH
     const weight: 1 | 2 | 3 = cv === 'CV' ? 1 : cv === 'CVC' || cv === 'CVV' ? 2 : 3
     const moras: Mora[] = Array.from({ length: weight }, (_, k) => (k === 0 ? '●' : '▬'))
     const attack = computeAttack(onset.attack, weight, onset.emphatic)
-    const codaText = codas.map((c) => c.ch).join('')
 
     syls.push({
       id: `${textHint}.s${sIdx}`,
-      text: u.cons + (u.harakah ?? u.madd ?? '') + codaText,
+      text: renderSyllableText(u.cons, nucleus, codas),
       cv,
       moras,
       weight,

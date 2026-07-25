@@ -1,6 +1,7 @@
 // §٤ البار كسلسلة متصلة — تقطيع منعزل بالكلمة + إصلاح حدود محلي (لا إعادة ترميز كاملة)
 
 import { phonemeOf } from './phonemeTable.ts'
+import { renderSyllableText } from './phonotactic.ts'
 import type { CVShape, Mora, Syllable } from './types.ts'
 
 const WASL_ONSET = 'ء'
@@ -48,15 +49,16 @@ export function liaise(wordSyllables: Syllable[][]): Syllable[] {
       coda: newCodasA.length ? newCodasA[newCodasA.length - 1] : null,
       weight: newWeightA,
       moras: rebuildMoras(newWeightA),
-      text: lastA.text.slice(0, -movedCoda.ch.length),
+      text: renderSyllableText(lastA.onset.ch, lastA.nucleus, newCodasA),
       liaised: true,
     }
 
     // ب) الكلمة B: تكتسب onset حقيقياً بدل الفراغ (الشكل والوزن كما هما)
+    const newOnsetB = phonemeOf(movedCoda.ch, movedCoda.borrowed)
     B[0] = {
       ...firstB,
-      onset: phonemeOf(movedCoda.ch, movedCoda.borrowed),
-      text: movedCoda.ch + firstB.text,
+      onset: newOnsetB,
+      text: renderSyllableText(newOnsetB.ch, firstB.nucleus, firstB.codas),
       liaised: true,
     }
   }
