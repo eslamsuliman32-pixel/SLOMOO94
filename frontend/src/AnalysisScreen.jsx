@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react'
-import Coach from './Coach.jsx'
 import { analyzeMono, buildProfileFromAnalysis, rebuildAtBpm } from './lib/beatAnalysis.js'
 
 /* صف العدّ: 1 e + a لكل ضربة (نفس محلل البيت الحقيقي) */
@@ -388,7 +387,6 @@ export default function AnalysisScreen() {
           )}
         </div>
       )}
-      <Coach />
     </div>
   )
 }

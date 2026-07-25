@@ -114,15 +114,12 @@ a { color: var(--gold-bright); }
 
 /* لوح مُقلَّم (hardware panel) — كل الألواح الرئيسية في الهوية تشترك في نفس الخلفية والحدود والظل والقص */
 .card,
-.gate,
-.coach,
 .reps,
 .rhyme-preview,
 .pieces-list,
 .emo-spectrum,
 .exercise,
 .import-box,
-.zine-panel,
 .bp-reading,
 .bp-stage,
 .sidebar-quote {
@@ -264,24 +261,6 @@ a { color: var(--gold-bright); }
 .screen-motif { font-family: var(--font-mono); font-size: 0.85rem; color: var(--gold-dim); direction: ltr; }
 .screen-tag { font-family: var(--font-body); font-style: italic; color: var(--gold); font-size: 1rem; margin: -10px 0 0; }
 
-/* ─── شريط الخطوات التوضيحي ─── */
-.zine-strip { margin: 4px 0; }
-.zine-strip-title { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.16em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 12px; }
-.zine-strip-row { display: flex; align-items: stretch; gap: 4px; flex-wrap: wrap; }
-.zine-strip-item { display: flex; align-items: center; gap: 4px; }
-.zine-panel {
-  padding: 14px 16px; min-width: 130px; text-align: center;
-}
-.zine-panel-icon { width: 30px; color: var(--gold); margin: 0 auto 6px; }
-.zine-panel-num {
-  font-family: var(--font-num); font-weight: 900; color: var(--gold-bright); font-size: 1.1rem;
-  background: var(--lcd-bg); border-radius: 999px; width: 26px; height: 26px; line-height: 26px;
-  margin: 0 auto 6px; direction: ltr;
-}
-.zine-panel-title { font-family: var(--font-ui); font-weight: 700; font-size: 0.88rem; color: var(--ink); }
-.zine-panel-text { font-family: var(--font-ui); font-size: 0.78rem; color: var(--ink-dim); margin-top: 4px; }
-.zine-arrow { width: 34px; color: var(--line); flex-shrink: 0; }
-
 /* ─── عناصر تحكم مشتركة (أزرار مُقلَّمة) ─── */
 .mini-btn {
   background: var(--panel-2); border: 1.5px solid var(--line);
@@ -315,14 +294,8 @@ a { color: var(--gold-bright); }
 .conn-test-result.ok { background: rgba(0, 229, 138, 0.1); color: var(--lcd); border: 1px solid var(--lcd-dim); }
 .conn-test-result.fail { background: rgba(226, 61, 116, 0.1); color: var(--pulse-bright); border: 1px solid var(--pulse-dim); }
 .conn-test-icon { font-weight: 900; }
-.conn-test-link { color: var(--gold-bright); }
-.conn-test { padding: 4px 0; }
-.conn-test-desc { color: var(--ink-dim); font-size: 0.85rem; }
 
 .gate-note { color: var(--ink-dim); font-size: 0.88rem; line-height: 1.9; }
-.gate {
-  padding: 26px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px;
-}
 
 .lib-input {
   width: 100%; background: var(--lcd-bg); border: 1px solid var(--line);
@@ -353,14 +326,6 @@ a { color: var(--gold-bright); }
 .rhyme-c6 { color: var(--c6); border: 1px solid var(--c6); }
 .rhyme-c7 { color: var(--c7); border: 1px solid var(--c7); }
 .rhyme-tail, .rhyme-inner { font-weight: 700; border-bottom: 2px solid currentColor; padding-bottom: 1px; }
-
-/* ─── المدرب (Coach) ─── */
-.coach { padding: 20px 22px; margin-top: 8px; }
-.coach h3 { font-family: var(--font-display); color: var(--gold-bright); font-size: 1.1rem; margin: 0 0 8px; }
-.coach-log { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; margin: 10px 0; }
-.coach-bubble { padding: 8px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; max-width: 85%; }
-.coach-bubble.user { align-self: flex-end; background: var(--gold-soft); border: 1px solid var(--gold-dim); color: var(--ink); }
-.coach-bubble.coach { align-self: flex-start; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); color: var(--ink-dim); }
 
 /* ─── أرشيف التمثيلات ─── */
 .reps { padding: 20px 22px; margin-top: 8px; }

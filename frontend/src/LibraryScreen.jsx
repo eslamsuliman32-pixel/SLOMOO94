@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
-import AuthGate from './AuthGate.jsx'
 import { createBar, listBars, deleteBar } from './lib/bars.js'
 import { getRawi, lastWord } from './lib/rhyme.js'
-import ConnectionTest from './ConnectionTest.jsx'
-import Coach from './Coach.jsx'
 import BarRepositoryScreen from './BarRepositoryScreen.jsx'
 
 function SavedBars() {
@@ -66,15 +63,13 @@ function SavedBars() {
           </div>
         )
       })}
-
-      <ConnectionTest />
-      <Coach />
     </div>
   )
 }
 
 export default function LibraryScreen() {
-  // مستودع البارات (SPEC-03) يعمل محليًا بالكامل بلا حساب؛ البارات المحفوظة تحتاج تسجيل دخول.
+  // الاثنان يعملان محليًا على الجهاز بلا حساب: مستودع البارات (SPEC-03) للتحليل،
+  // والبارات المحفوظة كقائمة بسيطة سريعة.
   const [section, setSection] = useState('repo')
 
   return (
@@ -90,7 +85,7 @@ export default function LibraryScreen() {
 
       {section === 'repo'
         ? <BarRepositoryScreen />
-        : <AuthGate>{() => <SavedBars />}</AuthGate>}
+        : <SavedBars />}
     </div>
   )
 }

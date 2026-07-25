@@ -106,14 +106,6 @@ export const Grid = (p) => (
   </g></svg>
 )
 
-export const ArrowNext = (p) => (
-  /* سهم يدوي يشير لليسار (اتجاه التدفق في RTL) */
-  <svg viewBox="0 0 64 32" {...p}><g {...S}>
-    <path d="M56 16 Q36 10 10 16" />
-    <path d="M18 8 L8 16 L19 22" />
-  </g></svg>
-)
-
 export const Underline = (p) => (
   <svg viewBox="0 0 200 14" preserveAspectRatio="none" {...p}>
     <path d="M4 8 Q50 2 100 8 Q150 14 196 6" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
@@ -125,26 +117,4 @@ const DOODLES = { Mic, Pen, Notebook, Boombox, Cassette, Spray, Headphones, Wave
 export function Doodle({ name, className, title }) {
   const C = DOODLES[name] || Star
   return <C className={className} role="img" aria-label={title || name} />
-}
-
-/** شريط زين توضيحي: خطوات مرسومة تشرح منهجية الأداة — الرسم كأداة فهم لا زينة */
-export function ZineStrip({ title, steps }) {
-  return (
-    <div className="zine-strip">
-      {title && <div className="zine-strip-title">{title}</div>}
-      <div className="zine-strip-row">
-        {steps.map((s, i) => (
-          <div className="zine-strip-item" key={i}>
-            <div className="zine-panel wob" style={{ '--tilt': `${(i % 2 ? -1 : 1) * (1 + i * 0.3)}deg` }}>
-              <Doodle name={s.icon} className="zine-panel-icon" title={s.title} />
-              <div className="zine-panel-num">{['١', '٢', '٣', '٤', '٥'][i] || i + 1}</div>
-              <div className="zine-panel-title">{s.title}</div>
-              {s.text && <div className="zine-panel-text">{s.text}</div>}
-            </div>
-            {i < steps.length - 1 && <ArrowNext className="zine-arrow" />}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
 }
