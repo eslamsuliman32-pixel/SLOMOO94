@@ -60,16 +60,34 @@ console.log('\n[٣] الطبقات الأربع — نبر وسنكبة وجرس
   check('ثقيل + خفيف = عدد المقاطع', b.heavy + b.light === b.sylCount)
 }
 
-console.log('\n[٤] النص غير المشكَّل يُرفَض صراحةً لا صامتاً')
+console.log('\n[٤] النص غير المشكَّل يُقطَّع تقديرياً لا يُرفَض (§٣.٣ المستوى ٣)')
 {
   check('hasTashkeel تكشف المشكَّل', hasTashkeel('كَتَبَ') === true)
   check('hasTashkeel تكشف غير المشكَّل', hasTashkeel('كتاب جديد') === false)
-  const r = processBar('كتاب جديد بدون تشكيل', { id: 999, lex })
-  console.log('  السبب المُعاد =', r.reason)
-  check('يُعاد سبب needs-tashkeel لا null صامت', r.reason === 'needs-tashkeel', r.reason)
-  check('لا بار مُنتَج', r.bar === null)
+
+  // بارات راب حقيقية بالعامية — لا تُكتب مُشكَّلة أبداً، وهي حالة الاستخدام الفعلية
+  const real = ['ضغط الموية بقطع', 'هايزن بيرغ', 'بنسلين و تمرجي', 'وانا اخو العيال']
+  const outs = real.map((t, i) => processBar(t, { id: 900 + i, lex }))
+  console.log('  عولج:', outs.filter((o) => o.bar).length, '/', real.length)
+  check('كل البارات العامية غير المشكَّلة تُعالَج', outs.every((o) => o.bar !== null))
+  check('كلها تُنتج بصمة وزن غير فارغة', outs.every((o) => (o.bar?.moraStr.length ?? 0) > 0))
+  check('كلها تُنتج روياً', outs.every((o) => !!o.bar?.rhyme?.rawi))
+  check('كلها مُعلَّمة approximate=true (الدقة تقديرية لا مُدّعاة)',
+    outs.every((o) => o.bar?.approximate === true))
+
+  // لا حرف يضيع صامتاً: حروف المدّ كانت تُبتلَع قبل الإصلاح
+  const hz = processBar('هايزن', { id: 950, lex }).bar
+  check('حروف المدّ لا تُبتلَع (هايزن يحتفظ بالألف)',
+    !!hz && hz.syllables.some((s) => s.text.includes('ا')), hz?.syllables.map((s) => s.text).join('·'))
+
+  // النص المُشكَّل يبقى حتمياً لا تقديرياً
+  const vocalized = processBar('كَتَبْتُ حُرُوفَ الوَجَعْ', { id: 951, lex }).bar
+  check('النص المُشكَّل يُعلَّم approximate=false', vocalized?.approximate === false)
+
   const e = processBar('   ', { id: 998, lex })
   check('النص الفارغ يُعاد بسبب empty', e.reason === 'empty', e.reason)
+  const u = processBar('!!! ٢٠٢٥ ...', { id: 997, lex })
+  check('نص بلا حروف يُعاد بسبب unreadable', u.reason === 'unreadable', u.reason)
 }
 
 console.log('\n[٥] التجميع الذكي على ستة محاور')

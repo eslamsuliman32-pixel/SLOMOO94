@@ -759,3 +759,10 @@ a { color: var(--gold-bright); }
 }
 
 .lib-shell { display: flex; flex-direction: column; gap: 16px; }
+
+/* تنبيه الدقة التقديرية — ليس خطأ ولا نجاح كامل، بل إفصاح عن مستوى الثقة */
+.conn-test-result.br-report-approx {
+  background: rgba(226, 149, 61, .1); color: #f0b46b;
+  border: 1px solid rgba(226, 149, 61, .45);
+  align-items: flex-start; line-height: 1.8;
+}
