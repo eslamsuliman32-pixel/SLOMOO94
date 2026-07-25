@@ -153,5 +153,18 @@ function Editor() {
 }
 
 export default function StudioScreen() {
-  return <Editor />
+  return (
+    <>
+      <a
+        className="tool-link"
+        href="/tools/speaking-strip.html"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span className="tool-link-title">الشريط الناطق</span>
+        <span className="tool-link-desc">أداة تصوّر الإيقاع العروضي حرفًا بحرف — تُفتح في نافذة مستقلة ↗</span>
+      </a>
+      <Editor />
+    </>
+  )
 }
