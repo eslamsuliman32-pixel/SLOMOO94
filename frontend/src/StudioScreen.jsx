@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import AuthGate from './AuthGate.jsx'
 import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.js'
 import { analyzeLinesV1 } from './lib/rhyme.js'
 import Representations from './Representations.jsx'
 import { analyzeEmotions } from './lib/semantics.js'
-import Coach from './Coach.jsx'
 
 function EmotionSpectrum({ text }) {
   const r = analyzeEmotions(text)
@@ -150,11 +148,10 @@ function Editor() {
         </div>
       )}
       <Representations />
-      <Coach />
     </div>
   )
 }
 
 export default function StudioScreen() {
-  return <AuthGate>{() => <Editor />}</AuthGate>
+  return <Editor />
 }

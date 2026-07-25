@@ -29,12 +29,25 @@ export function syllabifyStream(stream: PhoneticStream, wordIndex: number, textH
 
   while (i < stream.length) {
     const u = stream[i]
-    if (u.sukun && syls.length === 0 && !u.harakah && !u.madd) {
-      // ساكن بلا مقطع سابق يستضيفه (يفترض ألا يحدث في مُدخل سليم) — يُهمَل دفاعياً
+    if (!u.harakah && !u.madd && !u.sukun) { i++; continue } // وحدة غير صالحة، تجاهل دفاعي
+
+    if (!u.harakah && !u.madd) {
+      // ساكن لم يلتقطه المقطع السابق كـcoda. لا مقطع عربي بلا نواة، فلا يبدأ مقطعاً
+      // جديداً: يُلحَق بالمقطع السابق إن اتّسع عنقوده، وإلا يُهمَل دفاعياً.
+      const prev = syls[syls.length - 1]
+      if (prev && prev.codas.length < 2 && prev.cv !== 'CVVC') {
+        const coda = phonemeOf(u.cons, u.borrowed)
+        prev.codas.push(coda)
+        prev.coda = coda
+        prev.cv = prev.nucleus.length === 2 ? 'CVVC' : prev.codas.length === 1 ? 'CVC' : 'CVCC'
+        prev.weight = prev.cv === 'CVC' ? 2 : 3
+        prev.moras = Array.from({ length: prev.weight }, (_, k) => (k === 0 ? '●' : '▬'))
+        prev.attack = computeAttack(prev.onset.attack, prev.weight, prev.onset.emphatic)
+        prev.text = renderSyllableText(prev.onset.ch, prev.nucleus, prev.codas)
+      }
       i++
       continue
     }
-    if (!u.harakah && !u.madd && !u.sukun) { i++; continue } // وحدة غير صالحة، تجاهل دفاعي
 
     // بداية مقطع جديد: الوحدة الحالية تحمل حركة أو مدّاً
     const onset = phonemeOf(u.cons, u.borrowed)

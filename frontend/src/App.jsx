@@ -5,7 +5,7 @@ import StudioScreen from './StudioScreen.jsx'
 import LibraryScreen from './LibraryScreen.jsx'
 import TrainingScreen from './TrainingScreen.jsx'
 import AnalysisScreen from './AnalysisScreen.jsx'
-import { Doodle, ZineStrip, Mic } from './Doodles.jsx'
+import { Doodle, Mic } from './Doodles.jsx'
 
 function SidebarToggleIcon(p) {
   return (
@@ -87,8 +87,6 @@ function PillarScreen({ p, onBack }) {
         <span className="screen-motif" aria-hidden="true">{p.motif}</span>
       </header>
       <p className="screen-tag">{p.tagline}</p>
-
-      {p.strip && <ZineStrip title={p.strip.title} steps={p.strip.steps} />}
 
       {p.id === 'studio' && <StudioScreen />}
       {p.id === 'library' && <LibraryScreen />}
