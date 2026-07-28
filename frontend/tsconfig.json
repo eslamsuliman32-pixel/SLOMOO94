@@ -20,11 +20,15 @@
     "isolatedModules": true,
     "types": [
       "node"
-    ]
+    ],
+    "jsx": "react-jsx"
   },
   "include": [
     "src/lib/syllabifier/**/*.ts",
     "src/lib/barMatcher/**/*.ts",
-    "src/lib/barRepo/**/*.ts"
+    "src/lib/barRepo/**/*.ts",
+    "src/features/dawra/**/*.ts",
+    "src/features/dawra/**/*.tsx",
+    "src/vite-env.d.ts"
   ]
 }
