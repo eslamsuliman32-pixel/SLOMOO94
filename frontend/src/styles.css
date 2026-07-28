@@ -66,6 +66,41 @@
   --chamfer-xs: 4px;
 }
 
+/* وحدة الدورة (src/features/dawra) تسقط على --mq-* حين لا تكون معرَّفة.
+   بدل تعريف لوح ألوان جديد موازٍ، نُسمّي رموز «الهيكل المُضيء» الحالية
+   بأسماء --mq-* فتتبع الوحدة الهوية البصرية الواحدة القائمة أصلاً —
+   لون واحد = معنى واحد، بلا تكرار للنظام. */
+:root {
+  --mq-bg: var(--void);
+  --mq-bg1: var(--panel);
+  --mq-bg2: var(--panel-2);
+  --mq-bg3: var(--panel-2);
+  --mq-line: var(--line);
+  --mq-line2: var(--line-soft);
+
+  --mq-gold: var(--gold-bright);
+  --mq-pulse: var(--pulse);
+  --mq-lcd: var(--lcd);
+  --mq-strip: var(--gold);
+  --mq-drum: var(--c4);
+
+  --mq-ink: var(--ink);
+  --mq-dim: var(--ink-dim);
+  --mq-dim2: var(--ink-faint);
+
+  --mq-rA: var(--c1);
+  --mq-rB: var(--c2);
+  --mq-rC: var(--c3);
+  --mq-rD: var(--c4);
+  --mq-rE: var(--c5);
+  --mq-rF: var(--c6);
+  --mq-rG: var(--c7);
+
+  --mq-font-display: var(--font-display);
+  --mq-font-ui: var(--font-ui);
+  --mq-font-mono: var(--font-mono);
+}
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 

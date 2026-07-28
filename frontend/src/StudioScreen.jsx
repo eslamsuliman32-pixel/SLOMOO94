@@ -3,6 +3,7 @@ import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.
 import { analyzeLinesV1 } from './lib/rhyme.js'
 import Representations from './Representations.jsx'
 import { analyzeEmotions } from './lib/semantics.js'
+import { Dawra, appBarRepo } from './features/dawra/index.ts'
 
 function EmotionSpectrum({ text }) {
   const r = analyzeEmotions(text)
@@ -153,5 +154,15 @@ function Editor() {
 }
 
 export default function StudioScreen() {
-  return <Editor />
+  const [view, setView] = useState('editor')
+
+  return (
+    <div className="br-screen">
+      <nav className="br-tabs">
+        <button className={`br-tab${view === 'editor' ? ' on' : ''}`} onClick={() => setView('editor')}>المحرر</button>
+        <button className={`br-tab${view === 'dawra' ? ' on' : ''}`} onClick={() => setView('dawra')}>الدورة — استوديو الفلو</button>
+      </nav>
+      {view === 'editor' ? <Editor /> : <Dawra repo={appBarRepo} bare />}
+    </div>
+  )
 }
