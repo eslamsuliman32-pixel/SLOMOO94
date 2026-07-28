@@ -3,6 +3,8 @@ import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.
 import { analyzeLinesV1 } from './lib/rhyme.js'
 import Representations from './Representations.jsx'
 import { analyzeEmotions } from './lib/semantics.js'
+import { Dawra } from './features/dawra'
+import { dawraRepo } from './lib/dawraRepo.ts'
 
 function EmotionSpectrum({ text }) {
   const r = analyzeEmotions(text)
@@ -153,5 +155,22 @@ function Editor() {
 }
 
 export default function StudioScreen() {
-  return <Editor />
+  // الرباعية وحدة عمل الكتابة، فمكان وحدة الدورة هو الاستوديو الإبداعي.
+  // المستودع يُحقَن مرة هنا؛ لا مكوّن داخلها يعرف مصدر البيانات (البوابة الواحدة).
+  const [section, setSection] = useState('editor')
+
+  return (
+    <div className="studio-shell">
+      <nav className="bp-mode-tabs">
+        <button className={`bp-mode-tab${section === 'editor' ? ' on' : ''}`} onClick={() => setSection('editor')}>
+          محرر البارات
+        </button>
+        <button className={`bp-mode-tab${section === 'dawra' ? ' on' : ''}`} onClick={() => setSection('dawra')}>
+          الدورة
+        </button>
+      </nav>
+
+      {section === 'editor' ? <Editor /> : <Dawra repo={dawraRepo} bare />}
+    </div>
+  )
 }

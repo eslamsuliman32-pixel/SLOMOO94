@@ -4,6 +4,7 @@ import {
   processBar, groupBars, AXIS_LABEL, filterBars, nearestBars,
   buildRepoPayload, buildGridPayload, readRepoPayload,
 } from './lib/barRepo/index.ts'
+import { dawraRepo } from './lib/dawraRepo.ts'
 
 /* عيّنة مقصودة التصميم: قافيتان متكررتان (ـاب ×٣ · ـعْ ×٢) ليُظهر تبويب
    التجميع الذكي مجموعات حقيقية بدل قائمة فارغة عند أول تشغيل. */
@@ -596,7 +597,13 @@ export default function BarRepositoryScreen() {
 
   const nextId = bars.length ? Math.max(...bars.map((b) => b.id)) + 1 : 1
 
-  const ingest = useCallback((newBars) => setBars((prev) => [...prev, ...newBars]), [])
+  const ingest = useCallback((newBars) => {
+    setBars((prev) => [...prev, ...newBars])
+    // INTEGRATION.md §٣٫٣ — بصمة الدورة تُحسب عند الحقن وتُخزَّن في المعامل
+    // الخلفية، فلا تُعرض هنا. هكذا يجد `repo.query()` في وحدة الدورة بارات
+    // المستخدم نفسه بدل البذرة التجريبية.
+    dawraRepo.ingest(newBars.map((b) => ({ text: b.raw }))).catch(() => {})
+  }, [])
 
   const importLines = useCallback((lines) => {
     let id = bars.length ? Math.max(...bars.map((b) => b.id)) + 1 : 1

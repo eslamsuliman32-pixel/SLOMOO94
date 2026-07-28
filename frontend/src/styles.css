@@ -759,3 +759,38 @@ a { color: var(--gold-bright); }
 }
 
 .lib-shell { display: flex; flex-direction: column; gap: 16px; }
+
+/* ============================================================
+   جسر رموز وحدة الدورة (SPEC-04) إلى هوية «الهيكل المُضيء» v2
+   الوحدة تقرأ --mq-* ثم تسقط على افتراضياتها. نربطها بتوكِنز الهوية
+   الفعلية بدل قيم الدليل، حتى لا تتعدّد الهويات داخل التطبيق —
+   وهي نفس قاعدة الوحدة نفسها: لون واحد = معنى واحد.
+   ============================================================ */
+:root {
+  --mq-bg: var(--void);
+  --mq-bg1: var(--panel);
+  --mq-bg2: var(--panel-2);
+  --mq-bg3: var(--line-soft);
+  --mq-line: var(--line);
+  --mq-line2: var(--gold-dim);
+
+  --mq-gold: var(--gold-bright);   /* النبر والشدّة */
+  --mq-pulse: var(--pulse);        /* الآن + الذروة */
+  --mq-lcd: var(--lcd);            /* القراءات الرقمية */
+  --mq-strip: #e8c94a;             /* الشريط الناطق — دور دلالي جديد لا مقابل له */
+  --mq-drum: #9a7bc4;              /* نبض الطبول — دور دلالي جديد لا مقابل له */
+
+  --mq-ink: var(--ink);
+  --mq-dim: var(--ink-dim);
+  --mq-dim2: var(--ink-faint);
+
+  /* عائلات القافية محجوزة للقافية وحدها — تُربَط بلوحة القوافي القائمة */
+  --mq-rA: var(--c0); --mq-rB: var(--c5); --mq-rC: var(--c3); --mq-rD: var(--c6);
+  --mq-rE: var(--c1); --mq-rF: var(--c4); --mq-rG: var(--c2);
+
+  --mq-font-display: var(--font-display);
+  --mq-font-ui: var(--font-ui);
+  --mq-font-mono: var(--font-mono);
+}
+
+.studio-shell { display: flex; flex-direction: column; gap: 16px; }
