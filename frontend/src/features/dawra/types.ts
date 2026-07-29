@@ -130,6 +130,8 @@ export interface BarRepository {
   /** حقن دفعي: يحسب بصمة الدورة تلقائياً */
   ingest(texts: Array<{ text: string; fam?: RhymeFamily }>): Promise<Bar[]>;
   count(): Promise<number>;
+  /** اختياري: يُستدعى عند تغيّر البيانات، لتحديث الواجهة تلقائياً */
+  subscribe?(onChange: () => void): () => void;
 }
 
 /* ══════════ ٤ · قوالب منحنى الطاقة ══════════ */
