@@ -156,9 +156,16 @@
 .dawra .blk.v3 { height: 85%; background: var(--d-pulse); }
 .dawra .blk.v3 .n { color: rgba(255, 255, 255, .92); padding-top: 3px; }
 
-/* الأيقونات الموحّدة */
-.dawra .tri-up { position: absolute; top: -13px; inset-inline-start: calc(50% - 5px); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid var(--d-gold); }
-.dawra .tri-dn { position: absolute; bottom: 2px; inset-inline-start: calc(50% - 5px); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 8px solid var(--d-pulse); }
+/* الأيقونات الموحّدة
+   ملاحظة CSS: مثلث بحد سفلي ملوّن (border-bottom) وحدّين جانبيين شفافين
+   يرتسم مؤشّراً لأعلى (▲) — القاعدة تحت، والرأس فوق. والعكس صحيح لحدّ
+   علوي ملوّن (border-top): يرتسم مؤشّراً لأسفل (▼). كانا مقلوبين هنا.
+
+   خانة العقب دائماً v3 (نفس --d-pulse) — أي مثلث ▼ بلون --d-pulse
+   بلا حدّ يختفي كلياً فوق عمودها. drop-shadow يرسم هالة داكنة رفيعة
+   حول شكل المثلث نفسه (لا حول صندوقه) فيبقى مقروءاً على أي خلفية. */
+.dawra .tri-up { position: absolute; top: -13px; inset-inline-start: calc(50% - 5px); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 8px solid var(--d-gold); }
+.dawra .tri-dn { position: absolute; bottom: 2px; inset-inline-start: calc(50% - 5px); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid var(--d-pulse); filter: drop-shadow(0 0 1.5px var(--d-bg)) drop-shadow(0 0 1.5px var(--d-bg)); }
 
 /* الشريط الناطق */
 .dawra .strip { display: grid; height: 30px; background: var(--d-strip); margin-top: 3px; }

@@ -6,6 +6,11 @@
  * هذا المحوّل يحقق عقد BarRepository بنفس الأسلوب: بيانات المستخدم تبقى على
  * جهازه وحده، بلا حساب ولا خادم. `DexieBarRepo` يبقى مصدَّراً في repo.gate.ts
  * لليوم الذي يُضاف فيه Dexie فعلياً للمشروع.
+ *
+ * تنبيه سعة: localStorage محدود بـ ٥-١٠ ميجابايت تقريباً.
+ * يكفي لبضع مئات من البارات. عند تجاوز المشروع هذا الحجم،
+ * استبدل بـ DexieBarRepo (مُصدَّر جاهز في نفس الملف) دون تعديل
+ * أي مكوّن آخر — العقد BarRepository ثابت.
  */
 import type { Bar, RepoQuery, BarRepository, RhymeFamily } from '../types';
 import { applyQuery, SEED_BARS } from './repo.gate';
