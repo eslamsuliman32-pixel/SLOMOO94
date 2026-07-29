@@ -60,10 +60,16 @@ export const RepoPanel: React.FC = () => {
   const { seq, grid, heel, loadBar } = useDawra();
   const [bars, setBars] = React.useState<Bar[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [tick, setTick] = React.useState(0);
 
   const need = seq[0] ?? 4;
   const lo = Math.max(1, need - 2);
   const hi = need + 3;
+
+  React.useEffect(() => {
+    if (!repo.subscribe) return;
+    return repo.subscribe(() => setTick((t) => t + 1));
+  }, [repo]);
 
   React.useEffect(() => {
     let alive = true;
@@ -74,7 +80,7 @@ export const RepoPanel: React.FC = () => {
       .then((r) => { if (alive) setBars(r); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [repo, lo, hi, grid]);
+  }, [repo, lo, hi, grid, tick]);
 
   return (
     <div className="card">
