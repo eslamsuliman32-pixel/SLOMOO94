@@ -4,6 +4,7 @@ import {
   processBar, groupBars, AXIS_LABEL, filterBars, nearestBars,
   buildRepoPayload, buildGridPayload, readRepoPayload,
 } from './lib/barRepo/index.ts'
+import { useBarRepositoryStore } from './state/barRepositoryStore.js'
 
 /* عيّنة مقصودة التصميم: قافيتان متكررتان (ـاب ×٣ · ـعْ ×٢) ليُظهر تبويب
    التجميع الذكي مجموعات حقيقية بدل قائمة فارغة عند أول تشغيل. */
@@ -581,7 +582,8 @@ export default function BarRepositoryScreen() {
   const lexRef = useRef(null)
   if (!lexRef.current) lexRef.current = createLexicon()
 
-  const [bars, setBars] = useState([])
+  const bars = useBarRepositoryStore((s) => s.bars)
+  const setBars = useBarRepositoryStore((s) => s.setBars)
   const [sel, setSel] = useState(new Set())
   const [tab, setTab] = useState('inject')
   const [detail, setDetail] = useState(null)
