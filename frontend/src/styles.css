@@ -66,6 +66,46 @@
   --chamfer-xs: 4px;
 }
 
+/* وحدة الدورة (src/features/dawra) تسقط على --mq-* حين لا تكون معرَّفة.
+   بدل تعريف لوح ألوان جديد موازٍ، نُسمّي رموز «الهيكل المُضيء» الحالية
+   بأسماء --mq-* فتتبع الوحدة الهوية البصرية الواحدة القائمة أصلاً —
+   لون واحد = معنى واحد، بلا تكرار للنظام. */
+:root {
+  --mq-bg: var(--void);
+  --mq-bg1: var(--panel);
+  --mq-bg2: var(--panel-2);
+  --mq-bg3: var(--panel-2);
+  --mq-line: var(--line);
+  --mq-line2: var(--line-soft);
+
+  --mq-gold: var(--gold-bright);
+  --mq-pulse: var(--pulse);
+  --mq-lcd: var(--lcd);
+  --mq-strip: var(--gold);
+  /* --mq-drum: تُركت بلا تعريف عمداً — انظر التعليق أسفل هذا البلوك. */
+
+  --mq-ink: var(--ink);
+  --mq-dim: var(--ink-dim);
+  --mq-dim2: var(--ink-faint);
+
+  /* --mq-rA..rG: تُركت بلا تعريف عمداً — انظر التعليق أسفل هذا البلوك. */
+
+  --mq-font-display: var(--font-display);
+  --mq-font-ui: var(--font-ui);
+  --mq-font-mono: var(--font-mono);
+}
+
+/* --mq-drum و--mq-rA..rG عمداً غير مُسقَطة على c1..c7:
+   --c1..--c7 هنا ليست ملكاً حصرياً للقافية رغم اسم كلاس .rhyme-c* —
+   AnalysisScreen/BarRepositoryScreen/Representations/StudioScreen تُعيد
+   استخدامها لشارات لا علاقة لها بالقافية، وبعضها (c2=var(--pulse),
+   c3=var(--lcd)) يتطابق أصلاً مع --mq-pulse و--mq-lcd أعلاه. أي ربط
+   --mq-rB/--mq-rC بها كان سيجعل "عقب اللسان" ونبرة "الآن" يتّحدان بصرياً
+   مع عائلتي قافية، وربط --mq-drum بـ--c4 كان يجعله يتّحد مع --mq-rD.
+   لذلك تُترك السبع ألوان ونبض الطبول على قيم وحدة الدورة الافتراضية
+   المستقلة والمُختبَرة أصلاً (dawra.tokens.css) — لا تصادم، ولا تكرار،
+   ولا تبعية على --c1..--c7 التي لم تُصمَّم لتكون حصرية بالأساس. */
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 

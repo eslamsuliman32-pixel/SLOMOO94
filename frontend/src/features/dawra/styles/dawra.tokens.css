@@ -1,0 +1,220 @@
+/* ══════════════════════════════════════════════════════════
+   مقام · وحدة الدورة — رموز الهوية «الهيكل المُضيء»
+   SPEC-04 §3 — قاعدة حاكمة: لون واحد = معنى واحد في التطبيق كله.
+
+   كل متغيّر يقرأ أولاً من رمز التطبيق العام (--mq-*) ثم يسقط
+   على القيمة الافتراضية. هكذا تتبع الوحدة الهوية إن كانت
+   معرَّفة عندك، وتعمل مستقلة إن لم تكن.
+   ══════════════════════════════════════════════════════════ */
+
+.dawra {
+  --d-bg:    var(--mq-bg, #070707);
+  --d-bg1:   var(--mq-bg1, #0d0d0e);
+  --d-bg2:   var(--mq-bg2, #141416);
+  --d-bg3:   var(--mq-bg3, #1c1c1f);
+  --d-line:  var(--mq-line, #2a2a2e);
+  --d-line2: var(--mq-line2, #3a3a40);
+
+  /* ── الألوان الدلالية · حصرية ── */
+  --d-gold:  var(--mq-gold, #D4AF37);    /* النبر والشدّة — لا شيء غيره */
+  --d-pulse: var(--mq-pulse, #ff3d81);   /* الآن + الذروة */
+  --d-lcd:   var(--mq-lcd, #4ade80);     /* القراءات الرقمية */
+  --d-strip: var(--mq-strip, #e8c94a);   /* الشريط الناطق */
+  --d-drum:  var(--mq-drum, #9A7BC4);    /* نبض الطبول */
+
+  --d-ink:  var(--mq-ink, #ece9e2);
+  --d-dim:  var(--mq-dim, #8b8781);
+  --d-dim2: var(--mq-dim2, #5c5954);
+
+  /* ── عائلات القافية · ٧ ألوان محجوزة لا تُستخدم لغيرها ── */
+  --rA: var(--mq-rA, #d94f4f);
+  --rB: var(--mq-rB, #e0803a);
+  --rC: var(--mq-rC, #8fbf3f);
+  --rD: var(--mq-rD, #3fb6a8);
+  --rE: var(--mq-rE, #4a86d9);
+  --rF: var(--mq-rF, #a05fd0);
+  --rG: var(--mq-rG, #d84090);
+
+  --d-fD: var(--mq-font-display, 'Rakkas', serif);
+  --d-fB: var(--mq-font-ui, 'Cairo', system-ui, sans-serif);
+  --d-fM: var(--mq-font-mono, 'Space Mono', monospace);
+
+  /* ── الزوايا المشطوفة · العنصر التوقيعي ── */
+  --chm:   polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  --chm-s: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+
+  direction: rtl;
+  font-family: var(--d-fB);
+  font-size: 15px;
+  color: var(--d-ink);
+  background: var(--d-bg);
+  background-image:
+    radial-gradient(ellipse 60% 40% at 78% -8%, rgba(212, 175, 55, .09), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 12% 4%, rgba(255, 61, 129, .055), transparent 62%);
+  padding-bottom: 60px;
+}
+
+.dawra *, .dawra *::before, .dawra *::after { box-sizing: border-box; }
+.dawra button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+.dawra :focus-visible { outline: 2px solid var(--d-lcd); outline-offset: 2px; }
+.dawra .mono { font-family: var(--d-fM); direction: ltr; display: inline-block; }
+.dawra .wrap { max-width: 1240px; margin: 0 auto; padding: 0 18px; }
+
+/* ═══ الرأس ═══ */
+.dawra header { padding: 26px 0 16px; border-bottom: 1px solid var(--d-line); }
+.dawra .hrow { display: flex; gap: 20px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.dawra h1 { font-family: var(--d-fD); font-size: 42px; line-height: 1; font-weight: 400; margin: 0; }
+.dawra h1 span { color: var(--d-gold); }
+.dawra .tag { font-size: 12.5px; color: var(--d-dim); margin-top: 9px; line-height: 1.7; }
+
+.dawra .lockbar {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--d-bg2); border: 1px solid var(--d-line);
+  clip-path: var(--chm); padding: 12px 18px;
+}
+.dawra .lockbar .eq { font-family: var(--d-fM); direction: ltr; font-size: 20px; font-weight: 700; }
+.dawra .lockbar .sp { color: var(--d-lcd); }
+.dawra .lockbar .rs { color: var(--d-dim2); }
+.dawra .lockbar .bd { font-size: 12px; font-weight: 700; padding: 5px 12px; clip-path: var(--chm-s); }
+.dawra .lockbar.ok { border-color: rgba(74, 222, 128, .35); }
+.dawra .lockbar.ok .bd { background: rgba(74, 222, 128, .13); color: var(--d-lcd); }
+.dawra .lockbar.no .bd { background: rgba(255, 61, 129, .13); color: var(--d-pulse); }
+
+/* ═══ البطاقات ═══ */
+.dawra .g3 { display: grid; grid-template-columns: 1.05fr 1.5fr 1fr; gap: 14px; margin-top: 20px; }
+.dawra .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+@media (max-width: 980px) { .dawra .g3, .dawra .g2 { grid-template-columns: 1fr; } }
+
+.dawra .card { background: var(--d-bg1); border: 1px solid var(--d-line); clip-path: var(--chm); padding: 16px 17px 18px; }
+.dawra .card h2 { font-family: var(--d-fD); font-size: 19px; font-weight: 400; color: var(--d-gold); margin: 0; }
+.dawra .card .sub { font-size: 11.5px; color: var(--d-dim2); margin: 4px 0 15px; line-height: 1.65; }
+.dawra .fld { margin-bottom: 14px; }
+.dawra .fld:last-child { margin-bottom: 0; }
+.dawra label { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--d-dim); margin-bottom: 7px; }
+.dawra label b { font-family: var(--d-fM); font-size: 13.5px; color: var(--d-lcd); font-weight: 700; }
+
+.dawra input[type=range] { width: 100%; height: 3px; background: var(--d-line2); appearance: none; -webkit-appearance: none; cursor: pointer; }
+.dawra input[type=range]::-webkit-slider-thumb {
+  appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--d-gold);
+  border: 3px solid var(--d-bg1); box-shadow: 0 0 0 1px var(--d-line2), 0 0 10px rgba(212, 175, 55, .5);
+}
+.dawra input[type=range]::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: var(--d-gold); border: 3px solid var(--d-bg1); }
+.dawra textarea, .dawra input[type=text] {
+  width: 100%; background: var(--d-bg); border: 1px solid var(--d-line); clip-path: var(--chm-s);
+  padding: 10px 12px; color: var(--d-ink); line-height: 2.1; font-size: 16px; resize: vertical; font-family: inherit;
+}
+.dawra .seg { display: flex; border: 1px solid var(--d-line); clip-path: var(--chm-s); overflow: hidden; }
+.dawra .seg button { flex: 1; padding: 9px 6px; font-size: 12.5px; color: var(--d-dim); background: var(--d-bg); border-inline-start: 1px solid var(--d-line); transition: .15s; }
+.dawra .seg button:first-child { border-inline-start: none; }
+.dawra .seg button.on { background: var(--d-gold); color: #140f02; font-weight: 700; }
+.dawra .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dawra .chip { padding: 6px 11px; font-size: 11.5px; border: 1px solid var(--d-line); clip-path: var(--chm-s); color: var(--d-dim); background: var(--d-bg); transition: .15s; }
+.dawra .chip:hover { border-color: var(--d-gold); color: var(--d-ink); }
+.dawra .chip.on { background: var(--d-gold); border-color: var(--d-gold); color: #140f02; font-weight: 700; }
+.dawra .hint { font-size: 11.5px; color: var(--d-dim2); margin-top: 9px; line-height: 1.75; }
+.dawra .hint em { color: var(--d-gold); font-style: normal; font-family: var(--d-fM); }
+.dawra .hint b { color: var(--d-lcd); font-family: var(--d-fM); font-weight: 700; }
+
+/* ═══ الرباعية ═══ */
+.dawra .stage { margin-top: 16px; background: var(--d-bg1); border: 1px solid var(--d-line); clip-path: var(--chm); overflow: hidden; }
+.dawra .sbar { display: flex; align-items: center; gap: 11px; padding: 13px 17px; border-bottom: 1px solid var(--d-line); flex-wrap: wrap; }
+.dawra .sbar h2 { font-family: var(--d-fD); font-size: 19px; font-weight: 400; color: var(--d-gold); margin: 0 0 0 auto; }
+.dawra .play { padding: 9px 22px; clip-path: var(--chm-s); background: var(--d-lcd); color: #04160b; font-weight: 700; font-size: 13.5px; }
+.dawra .play.on { background: var(--d-pulse); color: #fff; }
+.dawra .grid-host { padding: 20px 16px 12px; overflow-x: auto; }
+
+.dawra .qrow { display: flex; align-items: stretch; margin-bottom: 9px; min-width: 660px; }
+.dawra .qlab { width: 66px; flex: none; display: flex; flex-direction: column; justify-content: center; padding-inline-end: 10px; padding-top: 20px; text-align: end; gap: 2px; }
+.dawra .qlab b { font-family: var(--d-fD); font-size: 17px; font-weight: 400; }
+.dawra .qlab i { font-family: var(--d-fM); font-size: 9.5px; color: var(--d-dim2); font-style: normal; }
+.dawra .qlab u { font-size: 9.5px; color: var(--d-pulse); text-decoration: none; font-weight: 700; }
+
+.dawra .arc-host { position: relative; height: 20px; margin-bottom: 2px; }
+.dawra .arc { position: absolute; top: 8px; height: 9px; border: 1px solid var(--d-gold); border-bottom: none; opacity: .55; }
+.dawra .arc span { position: absolute; top: -13px; inset-inline-start: calc(50% - 7px); font-family: var(--d-fM); font-size: 10px; font-weight: 700; color: var(--d-gold); background: var(--d-bg1); padding: 0 3px; }
+
+.dawra .cells { display: grid; position: relative; background: var(--d-bg2); border: 1px solid var(--d-line); min-height: 112px; }
+.dawra .cells.free { background: repeating-linear-gradient(135deg, var(--d-bg2) 0 7px, var(--d-bg1) 7px 14px); border-color: var(--d-line2); }
+.dawra .cell { position: relative; border-inline-start: 1px solid rgba(255, 255, 255, .045); cursor: pointer; display: flex; align-items: flex-end; justify-content: center; padding: 2px; transition: background .1s; }
+.dawra .cell:first-child { border-inline-start: none; }
+.dawra .cell.beat { border-inline-start: 1px solid var(--d-line2); }
+.dawra .cell.drum::after { content: ''; position: absolute; top: 0; bottom: 0; inset-inline-start: -1px; width: 1px; background: repeating-linear-gradient(180deg, var(--d-drum) 0 3px, transparent 3px 8px); }
+.dawra .cell.anchor::before { content: ''; position: absolute; top: 0; bottom: 0; inset-inline-start: -1px; width: 1.5px; background: var(--d-gold); opacity: .5; }
+.dawra .cell.heel { background: rgba(255, 61, 129, .07); }
+.dawra .cell:hover { background: rgba(212, 175, 55, .13); }
+.dawra .cell.now { background: rgba(255, 61, 129, .26); }
+
+/* عمود القوة — ترميز ثلاثي: ارتفاع + رقم + لون */
+.dawra .blk { width: 74%; position: relative; display: flex; align-items: flex-start; justify-content: center; transition: height .13s, transform .13s; }
+.dawra .blk .n { font-family: var(--d-fM); font-size: 9px; font-weight: 700; line-height: 1; padding-top: 2px; }
+.dawra .blk.v0 { height: 10px; background: transparent; border: 1px dashed var(--d-line2); }
+.dawra .blk.v0 .n { color: var(--d-dim2); font-size: 8px; padding-top: 0; }
+.dawra .blk.v1 { height: 25%; background: var(--d-lcd); }
+.dawra .blk.v1 .n { color: rgba(0, 0, 0, .6); }
+.dawra .blk.v2 { height: 55%; background: var(--d-gold); }
+.dawra .blk.v2 .n { color: rgba(0, 0, 0, .6); }
+.dawra .blk.v3 { height: 85%; background: var(--d-pulse); }
+.dawra .blk.v3 .n { color: rgba(255, 255, 255, .92); padding-top: 3px; }
+
+/* الأيقونات الموحّدة
+   ملاحظة CSS: مثلث بحد سفلي ملوّن (border-bottom) وحدّين جانبيين شفافين
+   يرتسم مؤشّراً لأعلى (▲) — القاعدة تحت، والرأس فوق. والعكس صحيح لحدّ
+   علوي ملوّن (border-top): يرتسم مؤشّراً لأسفل (▼). كانا مقلوبين هنا.
+
+   خانة العقب دائماً v3 (نفس --d-pulse) — أي مثلث ▼ بلون --d-pulse
+   بلا حدّ يختفي كلياً فوق عمودها. drop-shadow يرسم هالة داكنة رفيعة
+   حول شكل المثلث نفسه (لا حول صندوقه) فيبقى مقروءاً على أي خلفية. */
+.dawra .tri-up { position: absolute; top: -13px; inset-inline-start: calc(50% - 5px); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 8px solid var(--d-gold); }
+.dawra .tri-dn { position: absolute; bottom: 2px; inset-inline-start: calc(50% - 5px); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid var(--d-pulse); filter: drop-shadow(0 0 1.5px var(--d-bg)) drop-shadow(0 0 1.5px var(--d-bg)); }
+
+/* الشريط الناطق */
+.dawra .strip { display: grid; height: 30px; background: var(--d-strip); margin-top: 3px; }
+.dawra .strip div { display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: #171207; border-inline-start: 1px solid rgba(0, 0, 0, .13); overflow: hidden; white-space: nowrap; }
+.dawra .strip div:first-child { border: none; }
+.dawra .strip div.ext { color: rgba(23, 18, 7, .4); }
+
+.dawra .legend { display: flex; gap: 15px; flex-wrap: wrap; padding: 13px 17px; border-top: 1px solid var(--d-line); font-size: 11.5px; color: var(--d-dim); }
+.dawra .lg { display: flex; align-items: center; gap: 7px; }
+.dawra .sw { width: 13px; height: 13px; flex: none; }
+
+/* ═══ المقاطع ═══ */
+.dawra .syls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; min-height: 36px; }
+.dawra .sc { display: flex; align-items: center; gap: 6px; background: var(--d-bg2); border: 1px solid var(--d-line); clip-path: var(--chm-s); padding: 5px 5px 5px 10px; font-size: 15px; }
+.dawra .sc.long { border-color: var(--d-gold); box-shadow: inset 3px 0 0 var(--d-gold); }
+.dawra .sc.heavy { border-color: var(--d-line2); box-shadow: inset 3px 0 0 var(--d-dim2); }
+.dawra .sc i { font-style: normal; font-family: var(--d-fM); font-size: 9.5px; color: var(--d-dim2); }
+.dawra .sc button { font-family: var(--d-fM); font-size: 11px; color: var(--d-dim2); padding: 2px 5px; line-height: 1; }
+.dawra .sc button:hover { color: var(--d-ink); background: var(--d-line); }
+.dawra .warnd { margin-top: 10px; padding: 9px 12px; background: rgba(255, 61, 129, .08); border-inline-start: 3px solid var(--d-pulse); font-size: 11.5px; color: var(--d-dim); line-height: 1.7; }
+
+/* ═══ المستودع ═══ */
+.dawra .qbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 13px; }
+.dawra .q { display: flex; align-items: center; gap: 6px; background: var(--d-bg); border: 1px solid var(--d-line); clip-path: var(--chm-s); padding: 6px 10px; font-size: 11.5px; color: var(--d-dim); }
+.dawra .q b { font-family: var(--d-fM); color: var(--d-lcd); font-weight: 700; }
+.dawra .rlist { display: flex; flex-direction: column; gap: 7px; max-height: 270px; overflow-y: auto; }
+.dawra .rb { display: flex; align-items: center; gap: 12px; background: var(--d-bg2); border: 1px solid var(--d-line); clip-path: var(--chm-s); padding: 9px 13px; cursor: pointer; transition: .15s; text-align: start; width: 100%; }
+.dawra .rb:hover { border-color: var(--d-gold); background: var(--d-bg3); }
+.dawra .rb .txt { flex: 1; font-size: 14.5px; line-height: 1.6; }
+.dawra .rb .meta { font-family: var(--d-fM); font-size: 10px; color: var(--d-dim2); display: flex; gap: 9px; flex: none; }
+.dawra .rb .meta b { color: var(--d-lcd); font-weight: 700; }
+.dawra .rb .fam { width: 5px; align-self: stretch; flex: none; }
+.dawra .empty { color: var(--d-dim2); font-size: 12.5px; padding: 14px 0; text-align: center; }
+
+/* ═══ المؤشرات ═══ */
+.dawra .mts { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 11px; margin-top: 16px; }
+.dawra .mt { background: var(--d-bg1); border: 1px solid var(--d-line); clip-path: var(--chm-s); padding: 12px 13px; }
+.dawra .mt .k { font-size: 11px; color: var(--d-dim); margin-bottom: 5px; }
+.dawra .mt .n { font-family: var(--d-fM); font-size: 23px; font-weight: 700; line-height: 1; }
+.dawra .mt .b { height: 3px; background: var(--d-line); margin: 9px 0 7px; }
+.dawra .mt .b i { display: block; height: 100%; background: var(--d-dim2); transition: width .25s; }
+.dawra .mt .s { font-size: 10.5px; color: var(--d-dim2); line-height: 1.5; }
+.dawra .mt.ok .n { color: var(--d-lcd); }
+.dawra .mt.ok .b i { background: var(--d-lcd); }
+.dawra .mt.no .n { color: var(--d-pulse); }
+.dawra .mt.no .b i { background: var(--d-pulse); }
+
+.dawra .foot { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--d-line); font-size: 11px; color: var(--d-dim2); line-height: 1.9; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dawra *, .dawra *::before, .dawra *::after { transition: none !important; }
+}
