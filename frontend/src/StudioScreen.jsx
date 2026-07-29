@@ -3,7 +3,10 @@ import { createPiece, updatePiece, listPieces, deletePiece } from './lib/pieces.
 import { analyzeLinesV1 } from './lib/rhyme.js'
 import Representations from './Representations.jsx'
 import { analyzeEmotions } from './lib/semantics.js'
-import { Dawra, appBarRepo } from './features/dawra/index.ts'
+import { Dawra } from './features/dawra/index.ts'
+import { existingBarRepo } from './features/dawra/repo/existingBarRepo'
+import { textToBar } from './lib/barIngest.js'
+import { useBarRepositoryStore } from './state/barRepositoryStore.js'
 
 function EmotionSpectrum({ text }) {
   const r = analyzeEmotions(text)
@@ -72,6 +75,17 @@ function Editor() {
   const analysis = analyzeLinesV1(text, { modeA })
   const lines = analysis.ok ? analysis.data : []
 
+  function sendToRepository() {
+    if (!text.trim()) return
+    const bar = textToBar(text, { tag: title })
+    if (bar) {
+      useBarRepositoryStore.getState().addBars([bar])
+      alert('تم إرسال البار إلى المستودع ✓')
+    } else {
+      alert('فشل الحقن — البار قد يحتاج تشكيلاً')
+    }
+  }
+
   return (
     <div className="studio">
       <div className="studio-bar">
@@ -82,6 +96,7 @@ function Editor() {
           placeholder="عنوان العمل"
         />
         <button className="mini-btn" onClick={newPiece}>+ عمل جديد</button>
+        <button className="mini-btn" onClick={sendToRepository} disabled={!text.trim()}>أرسل للمستودع</button>
         <span className="save-state mono">{saveState}</span>
       </div>
 
@@ -162,7 +177,7 @@ export default function StudioScreen() {
         <button className={`br-tab${view === 'editor' ? ' on' : ''}`} onClick={() => setView('editor')}>المحرر</button>
         <button className={`br-tab${view === 'dawra' ? ' on' : ''}`} onClick={() => setView('dawra')}>الدورة — استوديو الفلو</button>
       </nav>
-      {view === 'editor' ? <Editor /> : <Dawra repo={appBarRepo} bare />}
+      {view === 'editor' ? <Editor /> : <Dawra repo={existingBarRepo} bare />}
     </div>
   )
 }
