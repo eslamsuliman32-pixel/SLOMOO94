@@ -1,13 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { weightFingerprint, getRawi, lastWord, normalize } from './lib/rhyme.js'
+import { useBarRepositoryStore } from './state/barRepositoryStore.js'
 
-/* بنك تمرين التقطيع — كلمات مشكولة وبصمتها المحسوبة بنفس محرك التطبيق (اتساق مضمون) */
-const TAQTEE_BANK = [
+/* بنك احتياطي — يُستخدم فقط حين لا يكفي مستودع البارات الحقيقي بعد لبناء تمرين مفيد */
+const FALLBACK_TAQTEE = [
   'مَكْتُوبْ', 'قَلْبِي', 'سَلَامْ', 'دَرْبْ', 'كَلِمَهْ', 'حُرُوفْ', 'شَارِعْ', 'مَوَّالْ',
 ].map((w) => ({ word: w, fp: weightFingerprint(w).fp }))
 
-/* بنك تمرين الروي — بارات قصيرة وخيارات */
-const RAWI_BANK = [
+const FALLBACK_RAWI = [
   { bar: 'الليل طال والحبر في إيدي كتاب', options: ['ب', 'ت', 'ك'] },
   { bar: 'صوتي صدى في الحواري القديمة', options: ['م', 'ه', 'ق'] },
   { bar: 'ماشي وحيد والطريق موحش وطويل', options: ['ل', 'ط', 'و'] },
@@ -16,11 +16,48 @@ const RAWI_BANK = [
   { bar: 'من قاع مدينتي طالع صوتي رصاص', options: ['ص', 'ر', 'ع'] },
 ].map((x) => ({ ...x, correct: getRawi(lastWord(normalize(x.bar))) }))
 
-function TaqteeExercise({ onScore }) {
+/* حروف مُشتِّتة لبناء خيارات تمرين الروي على بارات حقيقية — لا رأي لها في الإجابة الصحيحة */
+const DISTRACTOR_LETTERS = [
+  'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض',
+  'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي',
+]
+
+function buildRawiOptions(correct) {
+  const pool = DISTRACTOR_LETTERS.filter((l) => l !== correct)
+  const picked = []
+  while (picked.length < 2 && pool.length) {
+    const i = Math.floor(Math.random() * pool.length)
+    picked.push(pool.splice(i, 1)[0])
+  }
+  return [correct, ...picked].sort(() => Math.random() - 0.5)
+}
+
+/** يبني بنك تقطيع من كلمات البارات الحقيقية في المستودع (مُشكَّلة أصلاً — شرط القبول عند الحقن) */
+function buildTaqteePool(bars) {
+  const seen = new Map()
+  for (const b of bars) {
+    for (const w of b.words || []) {
+      const word = w.text?.trim()
+      if (!word || word.length < 2 || seen.has(word)) continue
+      seen.set(word, weightFingerprint(word).fp)
+    }
+  }
+  return [...seen.entries()].map(([word, fp]) => ({ word, fp }))
+}
+
+/** يبني بنك روي من البارات الحقيقية — الإجابة الصحيحة محسوبة سلفاً ضمن رحلة الحقن (b.rhyme.rawi) */
+function buildRawiPool(bars) {
+  return bars
+    .filter((b) => b.rhyme?.rawi)
+    .map((b) => ({ bar: b.raw, correct: b.rhyme.rawi, options: buildRawiOptions(b.rhyme.rawi) }))
+}
+
+function TaqteeExercise({ pool, onScore }) {
   const [idx, setIdx] = useState(0)
   const [answer, setAnswer] = useState('')
   const [result, setResult] = useState(null) // null | true | false
-  const item = TAQTEE_BANK[idx % TAQTEE_BANK.length]
+  useEffect(() => { setIdx(0); setAnswer(''); setResult(null) }, [pool])
+  const item = pool[idx % pool.length]
 
   function check() {
     const okAns = answer === item.fp
@@ -50,10 +87,11 @@ function TaqteeExercise({ onScore }) {
   )
 }
 
-function RawiExercise({ onScore }) {
+function RawiExercise({ pool, onScore }) {
   const [idx, setIdx] = useState(0)
   const [picked, setPicked] = useState(null)
-  const item = RAWI_BANK[idx % RAWI_BANK.length]
+  useEffect(() => { setIdx(0); setPicked(null) }, [pool])
+  const item = pool[idx % pool.length]
 
   function pick(letter) {
     setPicked(letter)
@@ -84,17 +122,32 @@ function RawiExercise({ onScore }) {
   )
 }
 
+/* الحد الأدنى من العناصر الحقيقية قبل الاعتماد عليها بدل البنك الاحتياطي */
+const MIN_POOL_SIZE = 4
+
 export default function TrainingScreen() {
   const [score, setScore] = useState({ right: 0, total: 0 })
   const onScore = (ok) => setScore((s) => ({ right: s.right + (ok ? 1 : 0), total: s.total + 1 }))
+
+  const bars = useBarRepositoryStore((s) => s.bars)
+
+  const realTaqtee = useMemo(() => buildTaqteePool(bars), [bars])
+  const realRawi = useMemo(() => buildRawiPool(bars), [bars])
+
+  const taqteePool = realTaqtee.length >= MIN_POOL_SIZE ? realTaqtee : FALLBACK_TAQTEE
+  const rawiPool = realRawi.length >= MIN_POOL_SIZE ? realRawi : FALLBACK_RAWI
+  const usingRealData = taqteePool === realTaqtee || rawiPool === realRawi
 
   return (
     <div className="training">
       <div className="score-chip">
         النتيجة: <span className="mono">{score.right} / {score.total}</span>
       </div>
-      <TaqteeExercise onScore={onScore} />
-      <RawiExercise onScore={onScore} />
+      {usingRealData && (
+        <p className="gate-note">التمارين الآن تسحب من بارات مستودعك الحقيقي (المستودع المعرفي) بدل عيّنة ثابتة، كلما توفّر عدد كافٍ منها.</p>
+      )}
+      <TaqteeExercise pool={taqteePool} onScore={onScore} />
+      <RawiExercise pool={rawiPool} onScore={onScore} />
       <p className="gate-note">التمارين تستخدم نفس محرك التطبيق — ما تتعلمه هنا هو حرفيًا ما يقيسه الاستوديو. مستويات أعلى ومسارات معزولة حقيقية قادمة مع المرحلة 6 الكاملة.</p>
     </div>
   )
