@@ -11,7 +11,11 @@
     "test:barmatcher": "tsx src/lib/barMatcher/__tests__/acceptance.ts",
     "typecheck": "tsc --noEmit",
     "test:barrepo": "tsx src/lib/barRepo/__tests__/acceptance.ts",
-    "test:dawra": "vitest run src/features/dawra"
+    "test:ingest": "tsx src/lib/barRepo/__tests__/ingest.acceptance.ts",
+    "test:trainingpool": "tsx src/lib/barRepo/__tests__/trainingPool.acceptance.ts",
+    "test:vault": "tsx src/lib/vault/__tests__/acceptance.ts",
+    "test:dawra": "vitest run src/features/dawra",
+    "test": "npm run test:syllabifier && npm run test:barmatcher && npm run test:barrepo && npm run test:ingest && npm run test:trainingpool && npm run test:vault && npm run test:dawra"
   },
   "dependencies": {
     "react": "^18.3.1",

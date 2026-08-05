@@ -31,3 +31,12 @@ export async function deleteBar(id) {
   if (!id) return store.fail('BAR_ID_REQUIRED', 'معرّف البار مطلوب.', t0)
   return store.remove(id, t0)
 }
+
+function isValidBarRow(row) {
+  return typeof row.text === 'string' && !!row.text.trim()
+}
+
+/** استيراد صفوف بارات من نسخة احتياطية (lib/vault) — يحافظ على المعرّف الأصلي. */
+export async function importBars(rows) {
+  return store.importMany(rows, isValidBarRow, Date.now())
+}

@@ -28,11 +28,15 @@ export interface RepoWord {
   syllables: Syllable[]
 }
 
+/** حالة المسودّة: draft = بلا تشكيل بعد (الطبقات الأربع غير محسوبة)، measured = مقاسة بالكامل */
+export type BarStatus = 'draft' | 'measured'
+
 export interface RepoBar extends LayerMetrics {
   id: number
   raw: string
   tag: string
   gridType: GridType
+  status: BarStatus
   words: RepoWord[]
   syllables: Syllable[]
   rhyme: RhymeInfo | null
@@ -98,6 +102,7 @@ export function processBar(
       raw: text,
       tag: opts.tag?.trim() || '—',
       gridType,
+      status: 'measured',
       words: repoWords,
       syllables,
       rhyme,
@@ -163,11 +168,13 @@ export interface RepoFilters {
   moraMin?: number | null
   moraMax?: number | null
   text?: string
+  status?: '' | BarStatus
 }
 
 export function filterBars(bars: RepoBar[], f: RepoFilters): RepoBar[] {
   return bars.filter((b) => {
     const r = b.rhyme
+    if (f.status && b.status !== f.status) return false
     if (f.rawi && r?.rawi !== f.rawi) return false
     if (f.ridf) {
       if (f.ridf === 'yes' && !r?.ridf) return false

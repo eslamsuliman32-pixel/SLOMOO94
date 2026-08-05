@@ -77,5 +77,30 @@ export function createStore({ collection, module, version = '1.0.0', sortKey = '
         return fail('DELETE_FAILED', 'تعذّر الحذف.', t0)
       }
     },
+    /**
+     * دمج آمن بلا تكرار: يحافظ على معرّف كل صف كما هو (استعادة من نسخة
+     * احتياطية)، يتجاوز أي صف معرّفه موجود مسبقاً (تعارض) بدل الكتابة فوقه.
+     */
+    importMany(rows, isValid, t0) {
+      try {
+        const existing = read(collection)
+        const existingIds = new Set(existing.map((r) => r.id))
+        const toAdd = []
+        let added = 0
+        let skipped = 0
+        let conflicts = 0
+        for (const row of Array.isArray(rows) ? rows : []) {
+          if (!row || typeof row !== 'object' || !row.id || !isValid(row)) { skipped++; continue }
+          if (existingIds.has(row.id)) { conflicts++; continue }
+          toAdd.push(row)
+          existingIds.add(row.id)
+          added++
+        }
+        if (toAdd.length) write(collection, [...toAdd, ...existing])
+        return ok({ added, skipped, conflicts }, t0)
+      } catch {
+        return fail('IMPORT_FAILED', 'تعذّر استيراد البيانات.', t0)
+      }
+    },
   }
 }

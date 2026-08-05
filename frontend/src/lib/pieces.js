@@ -29,3 +29,12 @@ export async function deletePiece(id) {
   if (!id) return store.fail('PIECE_ID_REQUIRED', 'معرّف العمل مطلوب.', t0)
   return store.remove(id, t0)
 }
+
+function isValidPieceRow(row) {
+  return typeof row.title === 'string' && typeof row.text === 'string'
+}
+
+/** استيراد صفوف أعمال من نسخة احتياطية (lib/vault) — يحافظ على المعرّف الأصلي. */
+export async function importPieces(rows) {
+  return store.importMany(rows, isValidPieceRow, Date.now())
+}
