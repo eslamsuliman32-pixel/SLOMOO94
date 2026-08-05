@@ -28,6 +28,7 @@
     "src/lib/syllabifier/**/*.ts",
     "src/lib/barMatcher/**/*.ts",
     "src/lib/barRepo/**/*.ts",
+    "src/lib/vault/**/*.ts",
     "src/features/dawra/**/*.ts",
     "src/features/dawra/**/*.tsx"
   ]

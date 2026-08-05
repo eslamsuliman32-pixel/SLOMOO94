@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createLexicon } from './lib/syllabifier/index.ts'
 import {
-  processBar, groupBars, AXIS_LABEL, filterBars, nearestBars,
-  buildRepoPayload, buildGridPayload, readRepoPayload,
+  groupBars, AXIS_LABEL, filterBars, nearestBars,
+  buildRepoPayload, buildGridPayload, readRepoPayload, textToBar,
 } from './lib/barRepo/index.ts'
 
 /* عيّنة مقصودة التصميم: قافيتان متكررتان (ـاب ×٣ · ـعْ ×٢) ليُظهر تبويب
@@ -176,17 +176,22 @@ function InjectTab({ lex, nextId, onIngest, toast }) {
 
     const accepted = []
     const rejected = []
+    let drafted = 0
     let id = nextId
     for (const line of lines) {
-      const out = processBar(line, { tag, gridType, id, lex })
-      if (out.bar) { accepted.push(out.bar); id++ }
-      else rejected.push({ line, reason: out.reason })
+      const out = textToBar(line, { tag, gridType, id, lex })
+      if (out.status === 'rejected') { rejected.push({ line, reason: out.reason }); continue }
+      accepted.push(out.bar)
+      if (out.status === 'draft') drafted++
+      id++
     }
     setStage(PIPELINE.length)
-    setReport({ accepted: accepted.length, rejected })
+    setReport({ accepted: accepted.length, drafted, rejected })
     if (accepted.length) onIngest(accepted)
     setBusy(false)
-    toast(accepted.length ? `عولج ${accepted.length} بار` : 'لم يُقبل أي بار')
+    toast(accepted.length
+      ? `عولج ${accepted.length} بار${drafted ? ` (منها ${drafted} مسوّدة بحاجة تشكيل)` : ''}`
+      : 'لم يُقبل أي بار')
   }
 
   return (
@@ -235,16 +240,19 @@ function InjectTab({ lex, nextId, onIngest, toast }) {
 
         {report && (
           <div className="br-report">
-            <div className="conn-test-result ok"><span className="conn-test-icon">✓</span> أُودِع {report.accepted} بار في القاعدة</div>
+            <div className="conn-test-result ok">
+              <span className="conn-test-icon">✓</span>
+              أُودِع {report.accepted} بار في القاعدة
+              {report.drafted > 0 && <> — <b>{report.drafted}</b> منها مسوّدة بحاجة تشكيل (بلا طبقات محسوبة بعد)</>}
+            </div>
             {report.rejected.length > 0 && (
               <div className="conn-test-result fail br-report-fail">
                 <span className="conn-test-icon">!</span>
                 <div>
-                  <b>{report.rejected.length} سطر لم يُعالَج</b> — الطبقة صفر تحتاج تشكيلاً صريحاً لتقطيع دقيق،
-                  ولا تُخمّن الحركات. شكِّل هذه الأسطر وأعد المحاولة:
+                  <b>{report.rejected.length} سطر فارغ لم يُعالَج</b>
                   <ul className="br-rejected">
                     {report.rejected.slice(0, 6).map((x, i) => (
-                      <li key={i}>{x.line}<span className="br-why mono">{x.reason === 'needs-tashkeel' ? 'يحتاج تشكيل' : 'فارغ'}</span></li>
+                      <li key={i}>{x.line}<span className="br-why mono">فارغ</span></li>
                     ))}
                     {report.rejected.length > 6 && <li className="br-why">…و{report.rejected.length - 6} غيرها</li>}
                   </ul>
@@ -260,7 +268,7 @@ function InjectTab({ lex, nextId, onIngest, toast }) {
 
 /* ══════════ تبويب قاعدة البيانات ══════════ */
 function DatabaseTab({ bars, sel, setSel, onOpen, onSendToMetronome, onImport, toast }) {
-  const [f, setF] = useState({ rawi: '', ridf: '', family: '', gravity: '', moraMin: '', moraMax: '', text: '' })
+  const [f, setF] = useState({ rawi: '', ridf: '', family: '', gravity: '', moraMin: '', moraMax: '', text: '', status: '' })
   const fileRef = useRef(null)
 
   const rawis = useMemo(() => [...new Set(bars.map((b) => b.rhyme?.rawi).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar')), [bars])
@@ -274,6 +282,7 @@ function DatabaseTab({ bars, sel, setSel, onOpen, onSendToMetronome, onImport, t
     moraMin: f.moraMin === '' ? null : Number(f.moraMin),
     moraMax: f.moraMax === '' ? null : Number(f.moraMax),
     text: f.text || undefined,
+    status: f.status || undefined,
   }), [bars, f])
 
   function toggle(id) {
@@ -342,7 +351,15 @@ function DatabaseTab({ bars, sel, setSel, onOpen, onSendToMetronome, onImport, t
             <label htmlFor="f-text">بحث نصي</label>
             <input id="f-text" className="lib-input" value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} placeholder="كلمة في البار..." />
           </div>
-          <button className="mini-btn" onClick={() => setF({ rawi: '', ridf: '', family: '', gravity: '', moraMin: '', moraMax: '', text: '' })}>تصفير</button>
+          <div className="br-fld">
+            <label htmlFor="f-status">الحالة</label>
+            <select id="f-status" className="lib-input" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}>
+              <option value="">الكل</option>
+              <option value="draft">مسودّة (بحاجة تشكيل)</option>
+              <option value="measured">مقاسة</option>
+            </select>
+          </div>
+          <button className="mini-btn" onClick={() => setF({ rawi: '', ridf: '', family: '', gravity: '', moraMin: '', moraMax: '', text: '', status: '' })}>تصفير</button>
         </div>
 
         <div className="br-toolbar">
@@ -384,7 +401,10 @@ function DatabaseTab({ bars, sel, setSel, onOpen, onSendToMetronome, onImport, t
                 {visible.map((b) => (
                   <tr key={b.id} className={sel.has(b.id) ? 'sel' : ''}>
                     <td><input type="checkbox" checked={sel.has(b.id)} onChange={() => toggle(b.id)} aria-label={`تحديد ${b.raw}`} /></td>
-                    <td className="br-td-text">{b.raw}</td>
+                    <td className="br-td-text">
+                      {b.raw}
+                      {b.status === 'draft' && <span className="rhyme-badge rhyme-c5">بحاجة تشكيل</span>}
+                    </td>
                     <td className="br-mora mono">{b.moraStr}</td>
                     <td className="mono" dir="ltr">{b.sylCount}/{b.moraCount}</td>
                     <td>{b.rhyme ? <span className="rhyme-badge rhyme-c0">{b.rhyme.keyL2}</span> : '—'}</td>
@@ -601,13 +621,18 @@ export default function BarRepositoryScreen() {
   const importLines = useCallback((lines) => {
     let id = bars.length ? Math.max(...bars.map((b) => b.id)) + 1 : 1
     const accepted = []
-    let skipped = 0
+    let drafted = 0
     for (const line of lines) {
-      const out = processBar(line, { tag: 'مستورد', gridType: '16', id, lex: lexRef.current })
-      if (out.bar) { accepted.push(out.bar); id++ } else skipped++
+      const out = textToBar(line, { tag: 'مستورد', gridType: '16', id, lex: lexRef.current })
+      if (out.status === 'rejected') continue
+      accepted.push(out.bar)
+      if (out.status === 'draft') drafted++
+      id++
     }
     if (accepted.length) setBars((prev) => [...prev, ...accepted])
-    toast(skipped ? `استُورد ${accepted.length} · تُخطّي ${skipped} (يحتاج تشكيل)` : `استُورد ${accepted.length} بار`)
+    toast(accepted.length
+      ? `استُورد ${accepted.length} بار${drafted ? ` (منها ${drafted} مسوّدة)` : ''}`
+      : 'لا بارات صالحة للاستيراد')
   }, [bars, toast])
 
   const sendToMetronome = useCallback((list) => {

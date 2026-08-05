@@ -1,7 +1,74 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createBar, listBars, deleteBar } from './lib/bars.js'
 import { getRawi, lastWord } from './lib/rhyme.js'
 import BarRepositoryScreen from './BarRepositoryScreen.jsx'
+import { exportVault, importVault, shouldRemindExport } from './lib/vault/snapshot.ts'
+
+function download(text, name) {
+  const blob = new Blob([text], { type: 'application/json' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = name
+  a.click()
+  URL.revokeObjectURL(a.href)
+}
+
+/* ══════════ شريط النسخة الاحتياطية الكاملة (بارات + أعمال) ══════════ */
+function VaultBar() {
+  const [remind, setRemind] = useState(false)
+  const [status, setStatus] = useState(null) // { kind: 'ok' | 'fail', text }
+  const fileRef = useRef(null)
+
+  useEffect(() => { setRemind(shouldRemindExport()) }, [])
+
+  async function doExport() {
+    const r = await exportVault()
+    if (!r.ok) { setStatus({ kind: 'fail', text: r.error.message_ar }); return }
+    download(JSON.stringify(r.data, null, 2), `maqam_vault_${new Date().toISOString().slice(0, 10)}.json`)
+    setRemind(false)
+    setStatus({ kind: 'ok', text: `صُدّرت نسخة احتياطية — ${r.data.bars.length} بار و${r.data.pieces.length} عمل` })
+  }
+
+  function handleImport(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async () => {
+      let json
+      try {
+        json = JSON.parse(reader.result)
+      } catch {
+        setStatus({ kind: 'fail', text: 'تعذّرت قراءة ملف النسخة الاحتياطية.' })
+        return
+      }
+      const r = await importVault(json)
+      if (!r.ok) { setStatus({ kind: 'fail', text: r.error.message_ar }); return }
+      setStatus({ kind: 'ok', text: `استُورد ${r.data.added} · تُخطّي ${r.data.skipped} · تعارض ${r.data.conflicts}` })
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
+  return (
+    <div className="vault-bar">
+      {remind && (
+        <div className="conn-test-result fail">
+          <span className="conn-test-icon">!</span> لم تُصدَّر نسخة احتياطية منذ أكثر من ٧ أيام — يُستحسن التصدير الآن.
+        </div>
+      )}
+      <div className="br-actions">
+        <button className="mini-btn" onClick={doExport}>⬇ نسخة احتياطية كاملة</button>
+        <button className="mini-btn" onClick={() => fileRef.current?.click()}>استيراد نسخة احتياطية</button>
+        <input ref={fileRef} type="file" accept=".json" onChange={handleImport} hidden />
+      </div>
+      {status && (
+        <div className={`conn-test-result ${status.kind === 'ok' ? 'ok' : 'fail'}`}>
+          <span className="conn-test-icon">{status.kind === 'ok' ? '✓' : '✕'}</span> {status.text}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function SavedBars() {
   const [bars, setBars] = useState([])
@@ -74,6 +141,8 @@ export default function LibraryScreen() {
 
   return (
     <div className="lib-shell">
+      <VaultBar />
+
       <nav className="bp-mode-tabs">
         <button className={`bp-mode-tab${section === 'repo' ? ' on' : ''}`} onClick={() => setSection('repo')}>
           مستودع البارات
